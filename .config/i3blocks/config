@@ -1,0 +1,68 @@
+command=/usr/lib/i3blocks/$BLOCK_NAME
+separator="-"
+separator_block_width=20
+markup=pango
+
+# Network interface monitoring
+#
+# If the instance is not specified, use the interface used for default route.
+# The address can be forced to IPv4 or IPv6 with -4 or -6 switches.
+[iface]
+label=NET
+color=green
+interval=10
+separator=false
+
+[wifi]
+instance=wlp3s0
+interval=10
+separator=false
+
+[bandwidth]
+instance=wlp3s0
+interval=3
+
+[record]
+command=cat ~/.scripts/.recording
+interval=once
+signal=9
+
+[mpd]
+label=🎼
+command=i3mpd
+interval=once
+align=left
+signal=11
+
+[cpu_usage]
+label=
+command=/usr/lib/i3blocks/cpu_usage
+interval=1
+#min_width=CPU:100.00%
+separator=true
+color=#00ff7f
+
+[i3memory]
+command=/home/andreid/.scripts/i3memory
+label=MEM
+interval=3
+
+[i3mic]
+command=/home/andreid/.scripts/i3mic
+color=#FFFFFF
+interval=3
+min_width="   "
+align=center
+
+[volume]
+command=i3volume
+signal=10
+interval=3
+
+[i3battery]
+command=/home/andreid/.scripts/i3battery
+interval=3
+
+[time]
+command=echo $(date '+%Y %b %d %I:%M%p')
+interval=1

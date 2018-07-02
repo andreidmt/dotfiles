@@ -1,0 +1,6 @@
+[core]
+	fileMode = false
+	editor = nano
+[user]
+	name = Andrei Dumitrescu
+	email = andrei@codemachiner.com

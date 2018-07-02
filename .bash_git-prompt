@@ -1,0 +1,35 @@
+##
+## bash-git-prompt
+##
+
+# Set config variables first
+GIT_PROMPT_ONLY_IN_REPO=0
+
+# Avoid fetching remote status
+GIT_PROMPT_FETCH_REMOTE_STATUS=0
+
+# Avoid searching for changed files in submodules
+GIT_PROMPT_IGNORE_SUBMODULES=1
+
+# Show upstream tracking branch
+# GIT_PROMPT_SHOW_UPSTREAM=1
+
+# Can be no, normal or all; determines counting of untracked files
+# GIT_PROMPT_SHOW_UNTRACKED_FILES=all
+
+# Avoid printing the number of changed files
+GIT_PROMPT_SHOW_CHANGED_FILES_COUNT=0
+
+# Support Git older than 1.7.10
+# GIT_PROMPT_STATUS_COMMAND=gitstatus_pre-1.7.10.sh
+
+# Custom prompt start sequence
+# GIT_PROMPT_START=...
+
+# Custom prompt end sequence
+# GIT_PROMPT_END=...
+
+GIT_PROMPT_THEME=TruncatedPwd_WindowTitle
+# GIT_PROMPT_THEME_FILE=~/.git-prompt-colors.sh
+
+source ~/.bash-git-prompt/gitprompt.sh
