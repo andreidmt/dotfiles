@@ -2,7 +2,7 @@
 
 --
 -- Author      : Andrei Dumitrescu <andrei@codemachiner.com>
--- Dep packages: [ alsamixer, amixer ]
+-- Dep packages: [ alsamixer, pamixer, ttf-fontawesome, st ]
 -- License     : MIT
 -- Link        : github.com/andreid/dotfiles/.scripts/i3b__volume
 --
@@ -26,7 +26,7 @@ elseif ( MOUSE_EVENT == 5 ) then
     os.execute( "cm__vol down 5" )
 end
 
--- run it here in case toggle was clicked
+-- retrieve values after command ran
 VOLUME = os.run( "pamixer --get-volume" )
 IS_MUTE = os.run( "pamixer --get-mute" ) == "true"
 
