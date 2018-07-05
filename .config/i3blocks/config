@@ -1,7 +1,7 @@
 command=/usr/lib/i3blocks/$BLOCK_NAME
-separator="-"
+separator=" - "
 separator_block_width=20
-markup=pango
+markup=none
 
 # Network interface monitoring
 #
@@ -22,11 +22,6 @@ separator=false
 instance=wlp3s0
 interval=3
 
-[record]
-command=cat ~/.scripts/.recording
-interval=once
-signal=9
-
 [mpd]
 label=🎼
 command=i3mpd
@@ -36,33 +31,38 @@ signal=11
 
 [cpu_usage]
 label=
-command=/usr/lib/i3blocks/cpu_usage
+command=~/.scripts/i3b__cpu
 interval=1
-#min_width=CPU:100.00%
 separator=true
-color=#00ff7f
 
-[i3memory]
-command=/home/andreid/.scripts/i3memory
-label=MEM
-interval=3
+[i3b__battery]
+command=~/.scripts/i3battery
+interval=5
 
-[i3mic]
-command=/home/andreid/.scripts/i3mic
-color=#FFFFFF
-interval=3
-min_width="   "
-align=center
+[i3b__memory]
+command=~/.scripts/i3b__memory
+interval=2
+color=#EBCB8B
 
-[volume]
-command=i3volume
+[i3b__mic]
+command=~/.scripts/i3b__mic
+interval=once
 signal=10
-interval=3
+color=#80cbc4
+separator=false
 
-[i3battery]
-command=/home/andreid/.scripts/i3battery
-interval=3
+[i3b__volume]
+command=~/.scripts/i3b__volume
+interval=once
+signal=10
+color=#80cbc4
 
-[time]
-command=echo $(date '+%Y %b %d %I:%M%p')
+[i3b__date]
+command=~/.scripts/i3b__date
+color=#EBCB8B
 interval=1
+
+[i3b__pacman]
+command=~/.scripts/i3b__pacman
+color=#80cbc4
+interval=3

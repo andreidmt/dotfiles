@@ -4,7 +4,7 @@ wallPath=$(grep -i 'file' ~/.config/nitrogen/bg-saved.cfg | cut -f 2 -d '=')
 resolution=$(xrandr | fgrep '*' | awk '{print $1}')
 lockWallPath=/tmp/bg-lock.png
 
-# scale&crop 
+# scale & crop
 convert $wallPath -resize $resolution^ -gravity center -crop $resolution+0+0 +repage $lockWallPath
 
 # lock screen

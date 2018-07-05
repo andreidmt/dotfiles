@@ -4,7 +4,7 @@
 for_window [class="^.*"] border pixel 0
 gaps inner 10
 gaps outer 5
-font pango:mono 12
+font pango:FiraCode,Font Awesome 5 Free 11
 workspace_auto_back_and_forth yes
 
 set $mod Mod4
@@ -183,11 +183,11 @@ bindsym $mod+semicolon		workspace next
 bindsym $mod+Shift+slash	kill
 bindsym $mod+backslash		workspace back_and_forth
 
-set $ws1 ""
-set $ws2 ""
-set $ws3 ""
-set $ws4 ""
-set $ws5 ""
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
 set $ws6 "6"
 set $ws7 "7"
 set $ws8 "8"
@@ -294,10 +294,10 @@ bindsym $mod+Shift+Right 	move right
 # #---Media Keys---# #
 
 # Volume keys
-bindsym $mod+plus		exec --no-startup-id lmc up 5
-bindsym $mod+Shift+plus		exec --no-startup-id lmc up 15
-bindsym $mod+minus 		exec --no-startup-id lmc down 5
-bindsym $mod+Shift+minus	exec --no-startup-id lmc down 15
+bindsym $mod+plus		exec --no-startup-id cm__vol up 5
+bindsym $mod+Shift+plus		exec --no-startup-id cm__vol up 15
+bindsym $mod+minus 		exec --no-startup-id cm__vol down 5
+bindsym $mod+Shift+minus	exec --no-startup-id cm__vol down 15
 bindsym $mod+less 		exec --no-startup-id lmc prev
 bindsym $mod+Shift+less		exec --no-startup-id lmc replay
 bindsym $mod+greater		exec --no-startup-id lmc next
@@ -319,9 +319,10 @@ bindsym XF86Launch1		exec $stoprec & xset dpms force off
 
 # #---Extra XF86 Keys---# #
 # These are the extra media keys that some keyboards have.
-bindsym XF86AudioMute		exec --no-startup-id lmc mute
-bindsym XF86AudioLowerVolume	exec --no-startup-id lmc down 5
-bindsym XF86AudioRaiseVolume	exec --no-startup-id lmc up 5
+
+bindsym XF86AudioMute		exec --no-startup-id cm__vol toggle
+bindsym XF86AudioLowerVolume	exec --no-startup-id cm__vol down 5
+bindsym XF86AudioRaiseVolume	exec --no-startup-id cm__vol up 5
 bindsym XF86PowerOff		exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
 ##bindsym XF86Copy		exec
 ##bindsym XF86Open		exec

@@ -9,16 +9,18 @@
 ##
 
 # sys command to get mem info
-@memInfo = split( '\n', `cat /proc/meminfo | head -n 2 | grep -Eo '[0-9]{1,}'` );
+@memInfo = split( '\n', `cat /proc/meminfo | head -n 3 | grep -Eo '[0-9]{1,}'` );
 
 $GB = 1024*1024;
 $totalGB = sprintf( "%.2f", $memInfo[0] / $GB );
-$usedGB = sprintf( "%.2f", ($memInfo[0] - $memInfo[1]) / $GB );
+$usedGB = sprintf( "%.2f", ($memInfo[0] - $memInfo[2]) / $GB );
 
 # i3block content
-print( "$usedGB/$totalGB GB" );
+print( "...$usedGB/$totalGB GB" );
 
 # red background when using too much memory
 if ($usedGB > $totalGB * 0.7) {
 	exit 33;
 }
+
+exit 0;

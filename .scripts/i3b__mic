@@ -12,9 +12,9 @@ mute=$(amixer sget Capture | grep -E 'Front Left: Capture' | awk '{print $NF}' |
 
 if [ $mute = 'off' ]
 then
-        echo " ✕ MIC $volume ";
-        exit 33;
+        echo "...$volume%";
+        # exit 33;
 else
-        echo " ✓ MIC $volume ";
+        echo "...$volume%";
 fi
 

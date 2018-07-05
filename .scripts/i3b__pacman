@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+##
+## Author      : Andrei Dumitrescu <andrei@codemachiner.com>
+## Dep packages: [pacman]
+## License     : MIT
+## Link        : github.com/andreid/dotfiles/.scripts/i3b__pacman
+##
+
+my $packageCount = scalar split( '\n', `pacman -Qu` );
+my $mouseEvent = $ENV{BLOCK_BUTTON};
+
+if ($mouseEvent == 1) {
+    if ( $packageCount > 0 ) {
+        system ('st', '-e', 'sudo', 'pacman', '-Syu');
+    } else {
+        print( "you're good!" );
+    }
+} else {
+    if ( $packageCount > 0 ) {
+        print( "$packageCount updates available" );
+    } else {
+        print( "system is up to date" );
+    }
+}
+
+exit 0;

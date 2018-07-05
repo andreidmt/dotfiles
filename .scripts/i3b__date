@@ -1,0 +1,5 @@
+#!/bin/bash
+
+now=$(date +'%A %R:%S on %B %d')
+
+echo "It's $now"

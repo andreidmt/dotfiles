@@ -1,0 +1,21 @@
+#!/usr/bin/lua
+
+--
+-- Author      : Andrei Dumitrescu <andrei@codemachiner.com>
+-- Dep packages: [ alsamixer, amixer ]
+-- License     : MIT
+-- Link        : github.com/andreid/dotfiles/.scripts/i3b__volume
+--
+
+VOL = tonumber( arg[2] )
+COMMAND = arg[1]
+SIGN = COMMAND == "down" and "-" or "+"
+
+if (COMMAND == "toggle") then
+    os.execute( "pamixer --allow-boost -t" )
+else
+    os.execute( "amixer -q -D pulse sset Master " .. VOL .. "%" .. SIGN )
+end
+
+-- notify i3blocks to refresh all commands listening to signal 10
+os.execute( "pkill -RTMIN+10 i3blocks" )
