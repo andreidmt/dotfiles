@@ -10,7 +10,6 @@
 package.path = package.path .. ";" .. os.getenv("HOME") .. "/.scripts/?.lua"
 require( "common" )
 
-VOLUME = os.run( "pamixer --get-volume" )
 MOUSE_EVENT = tonumber( os.getenv( "BLOCK_BUTTON" ) )
 
 if ( MOUSE_EVENT == 1 ) then
@@ -28,6 +27,7 @@ elseif ( MOUSE_EVENT == 5 ) then
 end
 
 -- run it here in case toggle was clicked
+VOLUME = os.run( "pamixer --get-volume" )
 IS_MUTE = os.run( "pamixer --get-mute" ) == "true"
 
 if ( IS_MUTE ) then
