@@ -14,7 +14,7 @@ MOUSE_EVENT = tonumber( os.getenv( "BLOCK_BUTTON" ) )
 
 if ( MOUSE_EVENT == 1 ) then
     -- left click
-    os.execute( "st -e alsamixer" )
+    os.execute( "st -e alsamixer" ) -- replace st with your terminal
 elseif ( MOUSE_EVENT == 3 ) then
     -- right click
     os.execute( "cm__vol toggle" )
