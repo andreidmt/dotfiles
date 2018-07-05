@@ -4,7 +4,10 @@
 -- Author      : Andrei Dumitrescu <andrei@codemachiner.com>
 -- Dep packages: [ alsamixer, pamixer, ttf-fontawesome, st ]
 -- License     : MIT
--- Link        : github.com/andreid/dotfiles/.scripts/i3b__volume
+-- Link        : github.com/andreidcm/dotfiles/blob/master/.scripts/i3b__volume
+--
+-- See `.scripts/cm__vol` for actual volume logic. Same command is used when 
+-- changing volume from other sources (keyboard).
 --
 
 package.path = package.path .. ";" .. os.getenv("HOME") .. "/.scripts/?.lua"
