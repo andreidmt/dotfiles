@@ -11,7 +11,7 @@
 --
 
 package.path = package.path .. ";" .. os.getenv("HOME") .. "/.scripts/?.lua"
-require( "common" )
+require( "common" ) -- import `os.run`
 
 MOUSE_EVENT = tonumber( os.getenv( "BLOCK_BUTTON" ) )
 
