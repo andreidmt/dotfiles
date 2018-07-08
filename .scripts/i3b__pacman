@@ -14,13 +14,13 @@ if ($mouseEvent == 1) {
     if ( $packageCount > 0 ) {
         system ('st', '-e', 'sudo', 'pacman', '-Syu');
     } else {
-        print( "you're good!" );
+        print( "You're good!" );
     }
 } else {
     if ( $packageCount > 0 ) {
         print( "$packageCount updates available" );
     } else {
-        print( "system is up to date" );
+        print( "Your system is up to date." );
     }
 }
 

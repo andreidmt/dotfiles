@@ -1,68 +1,64 @@
 command=/usr/lib/i3blocks/$BLOCK_NAME
-separator=" - "
-separator_block_width=20
-markup=none
+separator=false
+markup=pango
 
 # Network interface monitoring
 #
 # If the instance is not specified, use the interface used for default route.
 # The address can be forced to IPv4 or IPv6 with -4 or -6 switches.
 [iface]
-label=NET
-color=green
-interval=10
+interval=3
 separator=false
 
 [wifi]
 instance=wlp3s0
-interval=10
+interval=3
 separator=false
 
 [bandwidth]
 instance=wlp3s0
-interval=3
+interval=2
 
-[mpd]
-label=🎼
-command=i3mpd
-interval=once
-align=left
-signal=11
+# [mpd]
+# label=🎼
+# command=i3mpd
+# interval=once
+# align=left
+# signal=11
+
+# [i3b__battery]
+# command=~/.scripts/i3battery
+# interval=5
 
 [cpu_usage]
-label=
 command=~/.scripts/i3b__cpu
-interval=1
-separator=true
-
-[i3b__battery]
-command=~/.scripts/i3battery
-interval=5
+interval=2
+color=#EBCB8B
 
 [i3b__memory]
 command=~/.scripts/i3b__memory
+color=#80cbc4
 interval=2
-color=#EBCB8B
 
 [i3b__mic]
 command=~/.scripts/i3b__mic
 interval=once
 signal=10
-color=#80cbc4
+color=#EBCB8B
 separator=false
 
 [i3b__volume]
 command=~/.scripts/i3b__volume
 interval=once
 signal=10
-color=#80cbc4
-
-[i3b__date]
-command=~/.scripts/i3b__date
 color=#EBCB8B
-interval=1
 
 [i3b__pacman]
 command=~/.scripts/i3b__pacman
 color=#80cbc4
 interval=3
+
+[i3b__date]
+command=~/.scripts/i3b__date
+color=#EBCB8B
+interval=1

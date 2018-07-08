@@ -16,7 +16,7 @@ $totalGB = sprintf( "%.2f", $memInfo[0] / $GB );
 $usedGB = sprintf( "%.2f", ($memInfo[0] - $memInfo[2]) / $GB );
 
 # i3block content
-print( "...$usedGB/$totalGB GB" );
+print( "[$usedGB/$totalGB GB]" );
 
 # red background when using too much memory
 if ($usedGB > $totalGB * 0.7) {
