@@ -21,7 +21,11 @@ else
 end
 
 VOLUME = os.run( "pamixer --get-volume" )
-os.execute( "notify-send -i -a '~/.scripts/cm_vol' -t 1000 'Speaker volume set to " .. VOLUME .. "%'" )
+IS_MUTE = os.run( "pamixer --get-mute" ) == "true"
+
+NOTIFY_MSG = "'<u>" .. (IS_MUTE and "Muted" or "Active") .. "</u> speaker volume is set to " .. VOLUME .. "%'"
+
+os.execute( "notify-send -i -a '~/.scripts/cm_vol' -t 1000 " .. NOTIFY_MSG )
 
 -- notify i3blocks to refresh all commands listening to signal 10
 os.execute( "pkill -RTMIN+10 i3blocks" )
