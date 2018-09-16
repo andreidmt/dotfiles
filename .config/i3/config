@@ -1,21 +1,33 @@
-#
-# Basic Definitions
-#
+##
+## Basic Definitions
+##
+
 for_window [class="^.*"] border pixel 0
-gaps inner 10
-gaps outer 5
-font pango:FiraCode,Font Awesome 5 Free 11
+for_window [class="Conky"] floating enable
+
+gaps inner 30
+gaps outer 0
+font pango:mono,Font Awesome 5 Free 13
 workspace_auto_back_and_forth yes
 
 set $mod Mod4
-set $term --no-startup-id st
+set $term --no-startup-id st -f mono:pixelsize=14
+# set $term --no-startup-id urxvt
 
-#
-# Starting External Scripts
-#
+set $shutdown sudo shutdown -h now
+set $reboot sudo reboot
+set $netrefresh --no-startup-id sudo systemctl restart NetworkManager
+set $hibernate sudo systemctl suspend
+
+##
+## i3 initial startup
+##
 
 # Setting the background:
-exec_always --no-startup-id nitrogen --restore
+exec --no-startup-id nitrogen --restore
+
+# Start conky
+exec --no-startup-id conky
 
 # Starts dunst for notifications
 exec --no-startup-id dunst
@@ -33,148 +45,140 @@ exec --no-startup-id compton --xrender-sync-fence
 exec --no-startup-id ~/.scripts/remaps
 
 # Unclutter makes the mouse invisible after a brief period
-#exec --no-startup-id unclutter -idle 5 -reset
+# exec --no-startup-id unclutter -idle 5 -reset
 
 # Network Manager applet
 exec --no-startup-id nm-applet
 
-bar {
-	status_command i3blocks
-	position top
-	mode dock
-	modifier None
-
-   	colors {
-       		background  #212121
-       		statusline  #DDDDDD
-        	separator   #666666
-        	# class             border  backgr. text
-        	focused_workspace   #2B83A6 #2B83A6 #FFFFFF
-        	active_workspace    #212121 #212121 #FFFFFF
-        	inactive_workspace  #212121 #212121 #86888C
-        	urgent_workspace    #D64E4E #D64E4E #FFFFFF
-	}
-}
+# Bluetooth applet
+exec --no-startup-id blueman-applet
 
 # Run the script to update the mpd i3block on change.
 exec --no-startup-id "pgrep i3mpdupdate || i3mpdupdate"
 
-#OPENRC
-#set $shutdown sudo openrc-shutdown -p
-#set $reboot sudo openrc-shutdown -r
-#set $netrefresh --no-startup-id sudo rc-service NetworkManager restart
+##
+## i3blocks widget bar
+##
 
-#RUNIT
-#set $shutdown sudo shutdown -h now
-#set $reboot sudo reboot
-#set $netrefresh --no-startup-id sudo sv restart NetworkManager
+bar {
+    status_command i3blocks
+    position top
+    mode dock
+    modifier None
 
-#SYSTEMD
-set $shutdown sudo shutdown -h now
-set $reboot sudo reboot
-set $netrefresh --no-startup-id sudo systemctl restart NetworkManager
-set $hibernate sudo systemctl suspend
+    colors {
+        background  #2F343F
+        statusline  #DDDDDD
+        separator   #BF616A
 
-# #---Basic Bindings---# #
-bindsym $mod+Return 		split horizontal ;; exec $term
-bindsym $mod+Shift+Return	split vertical ;; exec $term
+        # class             border  backgr  text
+        focused_workspace   #81A1C1 #81A1C1 #2F343F
+        active_workspace    #2F343F #2F343F #E5E9F0
+        inactive_workspace  #2F343F #2F343F #86888C
+        urgent_workspace    #BF616A #BF616A #2F343F
+    }
+}
+
+##
+## Basic Bindings
+##
+
+bindsym $mod+Return 	split horizontal ;; exec --no-startup-id cm__samedir
+bindsym $mod+Shift+Return	split vertical ;; exec --no-startup-id cm__samedir
 
 bindsym $mod+Shift+space 	floating toggle
-bindsym $mod+space		focus mode_toggle
+bindsym $mod+space	    focus mode_toggle
 
-bindsym $mod+Escape		workspace prev
+bindsym $mod+Escape		    workspace prev
 bindsym $mod+Shift+Escape 	exec --no-startup-id prompt "Are you sure you want to leave i3?" "i3-msg exit"
 
-# bindsym $mod+BackSpace
-bindsym $mod+Shift+BackSpace	exec --no-startup-id prompt "Are you sure you want to reboot?" "$reboot"
+bindsym $mod+Shift+BackSpace    exec --no-startup-id prompt "Are you sure you want to reboot?" "$reboot"
 
 ##bindsym $mod+grave
 ##bindsym $mod+asciitilde
 
 #STOP/HIDE EVERYTHING:
-bindsym $mod+Shift+Delete	exec --no-startup-id lmc truemute ; exec $truepause ; workspace lmao ; exec $term -e htop ; exec $term -e ranger
+bindsym $mod+Shift+Delete	exec --no-startup-id cm__vol mute; exec $truepause ; workspace lmao ; exec $term -e htop ; exec $term -e ranger
 
 # #---Letter Key Bindings---# #
-bindsym $mod+Shift+q		kill
 
-bindsym $mod+e			exec $term -e neomutt
-##bindsym $mod+Shift+e
+bindsym $mod+Shift+q       [con_id="__focused__" instance="^(?!math|dropdown).*$"] kill
 
-bindsym $mod+r 			exec $term -e ranger
-bindsym $mod+Shift+r		exec $term -e sudo ranger /
+bindsym $mod+e			   exec $term -e neomutt
 
-bindsym $mod+Shift+t		gaps inner current set 15; gaps outer current set 15
+bindsym $mod+r 			   exec $term -e ranger
+bindsym $mod+Shift+r	   exec $term -e sudo ranger /
 
-bindsym $mod+y			exec $term -e calcurse
-bindsym $mod+Shift+y		exec --no-startup-id "bash ~/.scripts/i3resize left"
+bindsym $mod+t             gaps inner current set 0; gaps outer current set 0
+bindsym $mod+Shift+t	   gaps inner current set 30; gaps outer current set 0
 
-bindsym $mod+u			[instance="dropdown"] scratchpad show; [instance="dropdown"] move position center
-bindsym $mod+Shift+u		exec --no-startup-id "bash ~/.scripts/i3resize down"
+bindsym $mod+y			   exec $term -e calcurse
+bindsym $mod+Shift+y	   exec --no-startup-id "bash ~/.scripts/i3resize left"
 
-bindsym $mod+i 			exec $term -e htop
-bindsym $mod+Shift+i		exec --no-startup-id "bash ~/.scripts/i3resize up"
+bindsym $mod+u			   [instance="dropdown"] scratchpad show; [instance="dropdown"] move position center
+bindsym $mod+Shift+u	   exec --no-startup-id "bash ~/.scripts/i3resize down"
 
-bindsym $mod+o			sticky toggle
-bindsym $mod+Shift+o		exec --no-startup-id "bash ~/.scripts/i3resize right"
+bindsym $mod+i 	           exec $term -e htop
+bindsym $mod+Shift+i	   exec --no-startup-id "bash ~/.scripts/i3resize up"
 
+bindsym $mod+o			   sticky toggle
+bindsym $mod+Shift+o	   exec --no-startup-id "bash ~/.scripts/i3resize right"
 
-bindsym $mod+a			[instance="math"] scratchpad show; [instance="math"] move position center
+bindsym $mod+a			    [instance="math"] scratchpad show; [instance="dropdown"] move position center
 bindsym $mod+Shift+a		exec $term -e ncpamixer
 
-bindsym $mod+s			gaps inner current plus 5
-bindsym $mod+Shift+s		gaps inner current minus 5
+bindsym $mod+p		    	exec --no-startup-id dmenu_run -l 10 -nb '#2F343F' -nf '#88C0D0' -sb '#A3BE8C' -sf '#2F343F' -fn 'Hack-13'
 
-bindsym $mod+p			exec --no-startup-id dmenu_run
-bindsym $mod+Shift+d		gaps inner current set 0; gaps outer current set 0
-
-bindsym $mod+f			fullscreen toggle
+bindsym $mod+f			   fullscreen toggle
 ##bindsym $mod+Shift+f
 
-bindsym $mod+g			workspace prev
-bindsym $mod+Shift+g		exec --no-startup-id gimp; workspace $ws5
+bindsym $mod+g			   workspace prev
+bindsym $mod+Shift+g	   exec --no-startup-id gimp; workspace $ws5
 
-bindsym $mod+h			focus left
-bindsym $mod+Shift+h		move left 30
+bindsym $mod+h			   focus left
+bindsym $mod+Shift+h	   move left 30
 
-bindsym $mod+j			focus down
-bindsym $mod+Shift+j		move down 30
+bindsym $mod+j			   focus down
+bindsym $mod+Shift+j	   move down 30
 
-bindsym $mod+k			focus up
-bindsym $mod+Shift+k		move up 30
+bindsym $mod+k			   focus up
+bindsym $mod+Shift+k	   move up 30
 
-bindsym $mod+l			focus right
-bindsym $mod+Shift+l		move right 30
+bindsym $mod+l		       focus right
+bindsym $mod+Shift+l	   move right 30
 
-bindsym $mod+z			gaps outer current plus 5
-bindsym $mod+Shift+z		gaps outer current minus 5
+bindsym $mod+z			   gaps outer current plus 5
+bindsym $mod+Shift+z	   gaps outer current minus 5
 
-bindsym $mod+x			exec --no-startup-id ~/.scripts/i3lock
-bindsym $mod+Shift+x		exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
+bindsym $mod+x			   exec --no-startup-id ~/.scripts/i3lock
+bindsym $mod+Shift+x	   exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
 
-bindsym $mod+c			exec --no-startup-id camtoggle
-##bindsym $mod+Shift+c
+bindsym $mod+c			   exec --no-startup-id cm__camtoggle
 
-bindsym $mod+v			exec $term -e ncmpcpp -s visualizer
+bindsym $mod+v			   exec $term -e ncmpcpp -s visualizer
 
-bindsym $mod+b			bar mode toggle
-bindsym $mod+Shift+b		floating toggle; sticky toggle; exec --no-startup-id bottomleft
+bindsym $mod+b			   bar mode toggle
+bindsym $mod+Shift+b	   floating toggle; sticky toggle; exec --no-startup-id bottomleft
 
-bindsym $mod+n			exec $term -e newsboat
+bindsym $mod+n		        exec $term -e newsboat
 ##bindsym $mod+Shift+n
 
-bindsym $mod+m 			exec --no-startup-id st -e ncmpcpp
-bindsym $mod+Shift+m		exec --no-startup-id lmc mute
+bindsym $mod+m 			    exec --no-startup-id st -e ncmpcpp
+bindsym $mod+Shift+m	    exec --no-startup-id lmc mute
 
-# #---Workspace Bindings---# #
-bindsym $mod+Home		workspace $ws1
+##
+## Workspace Bindings
+##
+
+bindsym $mod+Home		    workspace $ws1
 bindsym $mod+Shift+Home		move container to workspace $ws1
-bindsym $mod+End		workspace $ws10
+bindsym $mod+End		    workspace $ws10
 bindsym $mod+Shift+End		move container to workspace $ws10
-bindsym $mod+Prior		workspace prev
+bindsym $mod+Prior		    workspace prev
 bindsym $mod+Shift+Prior	move container to workspace prev
-bindsym $mod+Next		workspace next
+bindsym $mod+Next		    workspace next
 bindsym $mod+Shift+Next		move container to workspace next
-bindsym $mod+Tab		workspace back_and_forth
+bindsym $mod+Tab		    workspace back_and_forth
 bindsym $mod+XF86Back		workspace prev
 ##bindsym $mod+Shift+XF86Back
 bindsym $mod+XF86Forward	workspace next
@@ -194,7 +198,8 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
-# switch to workspace
+# Switch to workspace
+
 bindsym $mod+1		workspace $ws1
 bindsym $mod+2		workspace $ws2
 bindsym $mod+3		workspace $ws3
@@ -206,7 +211,7 @@ bindsym $mod+8		workspace $ws8
 bindsym $mod+9		workspace $ws9
 bindsym $mod+0		workspace $ws10
 
-# move focused container to workspace
+# Move focused container to workspace
 bindsym $mod+Shift+1	move container to workspace $ws1
 bindsym $mod+Shift+2	move container to workspace $ws2
 bindsym $mod+Shift+3	move container to workspace $ws3
@@ -235,29 +240,30 @@ workspace $ws6 gaps outer 0
 for_window [window_role="GtkFileChooserDialog"] resize shrink height 10 px
 for_window [instance="dl"] move workspace $ws10
 
-# First I have a tmux window used for background scripts.
-# I'll later bind this to mod+u.
+##
+## Neofetch terminal
+##
+
 for_window [instance="dropdown"] floating enable
-for_window [instance="dropdown"] resize set 625 400
+for_window [instance="dropdown"] resize set 800 400
 for_window [instance="dropdown"] move scratchpad
 for_window [instance="dropdown"] border pixel 5
+exec --no-startup-id $term -n dropdown -e neofetch
 
-# Runs the tmuxinit script, which searches for an earlier tmux instance,
-# otherwise starts a new one (to prevent multiple dropdown sessions).
-exec --no-startup-id $term -n dropdown -e tmuxinit
+##
+## R for basic arithmetic (mod+a)
+##
 
-# Runs neofetch on first tmux screen if installed.
-exec_always --no-startup-id "tmux send-keys -t 0:0 'clear && neofetch 2>/dev/null' Enter"
-
-# Then I have a window running R I use for basic arithmetic
-# I'll later bind this to mod+a.
 for_window [instance="math"] floating enable
-for_window [instance="math"] resize set 800 300
+for_window [instance="math"] resize set 800 400
 for_window [instance="math"] move scratchpad
 for_window [instance="math"] border pixel 5
 exec --no-startup-id $term -n math -f mono:pixelsize=24 -e dropdowncalc
 
-# Bindings to make the webcam float and stick.
+##
+## Bindings to make the webcam float and stick
+##
+
 for_window [title="mpvfloat"] floating enable
 for_window [title="mpvfloat"] sticky enable
 for_window [title="mpvfloat"] border pixel 0
@@ -265,9 +271,11 @@ no_focus [title="mpvfloat"]
 
 for_window [title="Default - Wine desktop"] floating enable
 
-# #---Function Buttons---# #
-bindsym $mod+F1		exec --no-startup-id zathura ~/.config/i3/i3_guide.pdf
-bindsym $mod+F2		restart
+##
+## Function Buttons
+##
+
+bindsym $mod+F2		restart # reload i3
 bindsym $mod+F3		exec --no-startup-id displayselect
 bindsym $mod+F4		exec --no-startup-id $hibernate
 bindsym $mod+F5		exec --no-startup-id $netrefresh
@@ -279,40 +287,43 @@ bindsym $mod+F10	exec --no-startup-id dmenuumount
 ##bindsym $mod+F11
 ##bindsym $mod+F12
 
+##
+## Arrow Keys
+##
 
-# #---Arrow Keys---# #
-bindsym $mod+Left		focus left
-bindsym $mod+Down		focus down
-bindsym $mod+Up			focus up
-bindsym $mod+Right 		focus right
+bindsym $mod+Left	      	focus left
+bindsym $mod+Down           focus down
+bindsym $mod+Up	            focus up
+bindsym $mod+Right  		focus right
 bindsym $mod+Shift+Left		move left
 bindsym $mod+Shift+Down		move down
 bindsym $mod+Shift+Up		move up
 bindsym $mod+Shift+Right 	move right
 
-
-# #---Media Keys---# #
+##
+## Media Keys
+##
 
 # Volume keys
-bindsym $mod+plus		exec --no-startup-id cm__vol up 5
-bindsym $mod+Shift+plus		exec --no-startup-id cm__vol up 15
-bindsym $mod+minus 		exec --no-startup-id cm__vol down 5
+bindsym $mod+plus           exec --no-startup-id cm__vol up 5
+bindsym $mod+Shift+plus     exec --no-startup-id cm__vol up 15
+bindsym $mod+minus          exec --no-startup-id cm__vol down 5
 bindsym $mod+Shift+minus	exec --no-startup-id cm__vol down 15
-bindsym $mod+less 		exec --no-startup-id lmc prev
+bindsym $mod+less 	     	exec --no-startup-id lmc prev
 bindsym $mod+Shift+less		exec --no-startup-id lmc replay
 bindsym $mod+greater		exec --no-startup-id lmc next
 bindsym $mod+Shift+greater	exec --no-startup-id lmc next
 
 # For advancing forward/backward in an mpd song
-bindsym $mod+bracketleft 	exec --no-startup-id lmc back 10
-bindsym $mod+Shift+bracketleft 	exec --no-startup-id lmc back 120
-bindsym $mod+bracketright 	exec --no-startup-id lmc forward 10
-bindsym $mod+Shift+bracketright exec --no-startup-id lmc forward 120
+bindsym $mod+bracketleft 	      exec --no-startup-id lmc back 10
+bindsym $mod+Shift+bracketleft    exec --no-startup-id lmc back 120
+bindsym $mod+bracketright 	      exec --no-startup-id lmc forward 10
+bindsym $mod+Shift+bracketright   exec --no-startup-id lmc forward 120
 
 # For screenshots and recording
-bindsym Print 			exec --no-startup-id scrot '%Y-%m-%d_$wx$h.png' -e 'mv $f ~/Screenshots/'
-bindsym Shift+Print 		exec --no-startup-id scrot '%Y-%m-%d_$wx$h.png' -u -e 'mv $f ~/Screenshots/'
-bindsym $mod+Print		exec --no-startup-id dmenurecord
+bindsym Print               exec --no-startup-id cm__screenshot
+bindsym Shift+Print 		exec --no-startup-id cm__screenshot -t focus
+bindsym $mod+Print		    exec --no-startup-id cm__record
 bindsym $mod+Scroll_Lock	exec --no-startup-id "killall screenkey || screenkey"
 bindsym $mod+Delete		exec $stoprec
 bindsym XF86Launch1		exec $stoprec & xset dpms force off
@@ -320,10 +331,10 @@ bindsym XF86Launch1		exec $stoprec & xset dpms force off
 # #---Extra XF86 Keys---# #
 # These are the extra media keys that some keyboards have.
 
-bindsym XF86AudioMute		exec --no-startup-id cm__vol toggle
+bindsym XF86AudioMute		    exec --no-startup-id cm__vol toggle
 bindsym XF86AudioLowerVolume	exec --no-startup-id cm__vol down 5
 bindsym XF86AudioRaiseVolume	exec --no-startup-id cm__vol up 5
-bindsym XF86PowerOff		exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
+bindsym XF86PowerOff		    exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
 ##bindsym XF86Copy		exec
 ##bindsym XF86Open		exec
 ##bindsym XF86Paste		exec
@@ -371,14 +382,15 @@ bindsym XF86Reload		restart
 ##bindsym XF86Launch9		exec
 #bindsym XF86AudioMicMute	exec $micmute
 ##bindsym XF86TouchpadToggle	exec
-bindsym XF86TouchpadOn		exec --no-startup-id exec synclient TouchpadOff=0
-bindsym XF86TouchpadOff		exec --no-startup-id exec synclient TouchpadOff=1
-bindsym XF86Suspend		exec --no-startup-id ~/.config/i3/lock.sh
-bindsym XF86Close		kill
-bindsym XF86WebCam		exec --no-startup-id camtoggle
-bindsym XF86Mail		exec $term -e neomutt
-bindsym XF86Messenger		exec $term -e weechat
-bindsym XF86Search		exec $BROWSER https://duckduckgo.com
+
+bindsym XF86TouchpadOn	  exec --no-startup-id exec synclient TouchpadOff=0
+bindsym XF86TouchpadOff	  exec --no-startup-id exec synclient TouchpadOff=1
+bindsym XF86Suspend		  exec --no-startup-id ~/.config/i3/lock.sh
+bindsym XF86Close		  kill
+bindsym XF86WebCam		  exec --no-startup-id cm__camtoggle
+bindsym XF86Mail		  exec $term -e neomutt
+bindsym XF86Messenger	  exec $term -e weechat
+bindsym XF86Search		  exec $BROWSER https://duckduckgo.com
 ##bindsym XF86Go			exec
 ##bindsym XF86Finance		exec
 ##bindsym XF86Game		exec
@@ -397,4 +409,5 @@ bindsym XF86Documents		exec $term -e ranger ~/Documents
 ##bindsym XF86Battery		exec
 ##bindsym XF86Bluetooth		exec
 bindsym XF86WLAN		exec $netrefresh
-exec_always --no-startup-id notify-send -i ~/.scripts/larbs.png '<b>Welcome to LARBS:</b> Press Super+F1 for the manual.' -t 10000
+
+exec_always --no-startup-id notify-send --icon ~/doomguy.png -t 10000 'Welcome back to Arch, $FIRST_NAME!' 'Don\'t do it!'

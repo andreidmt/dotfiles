@@ -2,6 +2,10 @@ export PATH=$PATH:$HOME/.scripts
 export EDITOR="nano"
 export TERMINAL="st"
 export BROWSER="firefox"
+export FIRST_NAME="Andrei"
+export LAST_NAME="Dumitrescu"
+export VDPAU_DRIVER="nvidia"
+export DRI_PRIME=1
 
 stty -ixon
 
@@ -31,7 +35,7 @@ alias pacman-orphans="pacman -Qdt"
 
 # Remove orphan programs
 alias pacman-rm-orphans="sudo pacman -Rns $(pacman -Qtdq)"
-alias upgr="notify-send -i ~/.scripts/larbs.png 'Upgrade started' & neofetch && sudo packer -Syyuv --noconfirm && notify-send -i ~/.scripts/larbs.png 'Upgrade complete'."
+alias upgr="notify-send -i ~/.scripts/larbs.png 'Upgrade started' & neofetch && sudo pacman -Syyuv --noconfirm && notify-send -i ~/.scripts/larbs.png 'Upgrade complete'."
 
 # Refresh wifi
 alias newnet="sudo systemctl restart NetworkManager"
@@ -55,7 +59,8 @@ alias rf="source ~/.bashrc"
 alias ref="shortcuts.sh && source ~/.bashrc"
 
 # Adding color
-alias ls='ls -alhN --color=auto --group-directories-first'
+# alias ls='ls -alhNt --color=auto --group-directories-first'
+alias ls='ls -Alhtr --color=auto --group-directories-first'
 alias crep="grep --color=always" # Color grep - highlight desired sequence.
 alias ccat="highlight --out-format=xterm256" #Color cat - print file with syntax highlighting.
 
@@ -107,6 +112,6 @@ export NVM_DIR="$HOME/.nvm"
 ##
 ## Start ui after login
 ##
-if [[ "$(tty)" = "/dev/tty1" ]]; then
-        pgrep i3 || startx
-fi
+##if [[ "$(tty)" = "/dev/tty1" ]]; then
+##        pgrep i3 || startx
+##fi
