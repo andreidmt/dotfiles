@@ -20,7 +20,7 @@ if ($mouseEvent == 1) {
     if ( $packageCount > 0 ) {
         print( "$packageCount updates available" );
     } else {
-        print( "Your system is up to date." );
+        print( "no packages to update." );
     }
 }
 
