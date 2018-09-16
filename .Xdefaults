@@ -1,54 +1,50 @@
 ! special
-*.foreground:   #e0e0e0
-*.background:   #343c48
-*.cursorColor:  #ea80fc
+*.foreground:   #d8dee8
+*.background:   #2f343f
+*.cursorColor:  #b48ead
 
 ! black
-*.color0:       #616161
-*.color8:       #757575
+*.color0  : #4b5262
+*.color8  : #434a5a
 
 ! red
-*.color1:       #f06292
-*.color9:       #f48fb1
+*.color1  : #bf616a
+*.color9  : #b3555e
 
 ! green
-*.color2:       #c5e1a5
-*.color10:      #dcedc8
+*.color2  : #a3be8c
+*.color10 : #93ae7c
 
 ! yellow
-*.color3:       #ffe0b2
-*.color11:      #fff3e0
+*.color3  : #ebcb8b
+*.color11 : #dbbb7b
 
 ! blue
-*.color4:       #80cbc4
-*.color12:      #b2dfdb
+*.color4  : #81a1c1
+*.color12 : #7191b1
 
 ! magenta
-*.color5:       #ce93d8
-*.color13:      #e1bee7
+*.color5  : #b48ead
+*.color13 : #a6809f
 
 ! cyan
-*.color6:       #80deea
-*.color14:      #b2ebf2
+*.color6  : #89d0bA
+*.color14 : #7dbba8
 
 ! white
-*.color7:       #bdbdbd
-*.color15: #e0e0e0
+*.color7  : #e5e9f0
+*.color15 : #d1d5dc
 
 rofi.color-enabled:	true
-rofi.color-window:	#000, #000, #000
-rofi.color-normal:	#111, #819396, #222, #008ed4,
-#ffffff
-rofi.color-active:	#002b37, #008ed4, #003643,
-#008ed4, #66c6ff
-rofi.color-urgent:	#002b37, #da4281, #003643,
-#008ed4, #890661
-
+rofi.color-window:	#000000, #000000, #000000
+rofi.color-normal:	#111111, #819396, #222222, #008ed4, #ffffff
+rofi.color-active:	#002b37, #008ed4, #003643, #008ed4, #66c6ff
+rofi.color-urgent:	#002b37, #da4281, #003643, #008ed4, #890661
 rofi.fake-transparency:	true
-rofi.lines:		3
+rofi.lines:	      	3
 rofi.bw:		0
 rofi.opacity:		"10"
-rofi.hide-scrollbar:	true
+rofi.hide-scrollbar:    true
 rofi.width:		30
 
 # auto i3lock
