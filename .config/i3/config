@@ -67,15 +67,15 @@ bar {
     modifier None
 
     colors {
-        background  #2F343F
+        background  #000000
         statusline  #DDDDDD
         separator   #BF616A
 
         # class             border  backgr  text
-        focused_workspace   #81A1C1 #81A1C1 #2F343F
-        active_workspace    #2F343F #2F343F #E5E9F0
-        inactive_workspace  #2F343F #2F343F #86888C
-        urgent_workspace    #BF616A #BF616A #2F343F
+        focused_workspace   #81A1C1 #81A1C1 #000000
+        active_workspace    #000000 #000000 #E5E9F0
+        inactive_workspace  #000000 #000000 #86888C
+        urgent_workspace    #BF616A #BF616A #000000
     }
 }
 
