@@ -3,19 +3,16 @@
 ##
 
 for_window [class="^.*"] border pixel 0
-for_window [class="Conky"] floating enable
 
-gaps inner 30
-gaps outer 0
-font pango:mono,Font Awesome 5 Free 13
+gaps inner 10
+gaps outer 50
+font pango:mono,Font Awesome 5
 workspace_auto_back_and_forth yes
 
 set $mod Mod4
-set $term --no-startup-id st -f mono:pixelsize=14
-# set $term --no-startup-id urxvt
-
-set $shutdown sudo shutdown -h now
-set $reboot sudo reboot
+set $term --no-startup-id $TERMINAL
+set $shutdown sudo -A shutdown -h now
+set $reboot sudo -A reboot
 set $netrefresh --no-startup-id sudo systemctl restart NetworkManager
 set $hibernate sudo systemctl suspend
 
@@ -26,8 +23,14 @@ set $hibernate sudo systemctl suspend
 # Setting the background:
 exec --no-startup-id nitrogen --restore
 
-# Start conky
+# Start udiskie for automounting of USB with notifications
+exec --no-startup-id udiskie
+
+# Start conky for background stats
 exec --no-startup-id conky
+
+# Start top status bar
+exec --no-startup-id lemon__index | lemonbar -p -f mono -f icons -B $BACKGROUND -g 1800x40+60+10 -d
 
 # Starts dunst for notifications
 exec --no-startup-id dunst
@@ -39,7 +42,7 @@ exec --no-startup-id mpd
 exec --no-startup-id transmission-daemon
 
 # Composite manager
-exec --no-startup-id compton --xrender-sync-fence
+exec --no-startup-id compton
 
 # Runs the key remapping scripts
 exec --no-startup-id ~/.scripts/remaps
@@ -53,87 +56,69 @@ exec --no-startup-id nm-applet
 # Bluetooth applet
 exec --no-startup-id blueman-applet
 
-# Run the script to update the mpd i3block on change.
-exec --no-startup-id "pgrep i3mpdupdate || i3mpdupdate"
-
 ##
 ## i3blocks widget bar
 ##
 
-bar {
-    status_command i3blocks
-    position top
-    mode dock
-    modifier None
-
-    colors {
-        background  #000000
-        statusline  #DDDDDD
-        separator   #BF616A
-
-        # class             border  backgr  text
-        focused_workspace   #81A1C1 #81A1C1 #000000
-        active_workspace    #000000 #000000 #E5E9F0
-        inactive_workspace  #000000 #000000 #86888C
-        urgent_workspace    #BF616A #BF616A #000000
-    }
-}
+## bar {
+##     status_command i3blocks
+##     position top
+##     mode dock
+##     modifier None
+##
+##     colors {
+##         background  #000000
+##         statusline  #DDDDDD
+##         separator   #BF616A
+##
+##         # class             border  backgr  text
+##         focused_workspace   #81A1C1 #81A1C1 #000000
+##         active_workspace    #000000 #000000 #E5E9F0
+##         inactive_workspace  #000000 #000000 #86888C
+##         urgent_workspace    #BF616A #BF616A #000000
+##     }
+## }
 
 ##
 ## Basic Bindings
 ##
 
-bindsym $mod+Return 	split horizontal ;; exec --no-startup-id cm__samedir
-bindsym $mod+Shift+Return	split vertical ;; exec --no-startup-id cm__samedir
+bindsym $mod+Return 	     split horizontal exec --no-startup-id cm__samedir
+bindsym $mod+Shift+Return    split vertical exec --no-startup-id cm__samedir
 
-bindsym $mod+Shift+space 	floating toggle
-bindsym $mod+space	    focus mode_toggle
+bindsym $mod+Shift+f         floating toggle
+bindsym $mod+space	         focus mode_toggle
 
-bindsym $mod+Escape		    workspace prev
-bindsym $mod+Shift+Escape 	exec --no-startup-id prompt "Are you sure you want to leave i3?" "i3-msg exit"
-
-bindsym $mod+Shift+BackSpace    exec --no-startup-id prompt "Are you sure you want to reboot?" "$reboot"
+bindsym $mod+Shift+Escape     exec --no-startup-id prompt "Are you sure you want to leave i3?" "i3-msg exit"
+bindsym $mod+Shift+BackSpace  exec --no-startup-id prompt "Are you sure you want to reboot?" "$reboot"
 
 ##bindsym $mod+grave
 ##bindsym $mod+asciitilde
 
-#STOP/HIDE EVERYTHING:
-bindsym $mod+Shift+Delete	exec --no-startup-id cm__vol mute; exec $truepause ; workspace lmao ; exec $term -e htop ; exec $term -e ranger
+##
+## STOP/HIDE EVERYTHING:
+##
+bindsym $mod+Shift+Delete	exec --no-startup-id cm__vol mute; exec $truepause ; workspace lmao ; exec $term -e htop ; exec $term -e mc
 
-# #---Letter Key Bindings---# #
+##
+## Applications
+##
+bindsym $mod+p       exec --no-startup-id rofi -show run
 
 bindsym $mod+Shift+q       [con_id="__focused__" instance="^(?!math|dropdown).*$"] kill
-
-bindsym $mod+e			   exec $term -e neomutt
-
-bindsym $mod+r 			   exec $term -e ranger
-bindsym $mod+Shift+r	   exec $term -e sudo ranger /
 
 bindsym $mod+t             gaps inner current set 0; gaps outer current set 0
 bindsym $mod+Shift+t	   gaps inner current set 30; gaps outer current set 0
 
-bindsym $mod+y			   exec $term -e calcurse
 bindsym $mod+Shift+y	   exec --no-startup-id "bash ~/.scripts/i3resize left"
-
-bindsym $mod+u			   [instance="dropdown"] scratchpad show; [instance="dropdown"] move position center
 bindsym $mod+Shift+u	   exec --no-startup-id "bash ~/.scripts/i3resize down"
-
-bindsym $mod+i 	           exec $term -e htop
 bindsym $mod+Shift+i	   exec --no-startup-id "bash ~/.scripts/i3resize up"
 
 bindsym $mod+o			   sticky toggle
 bindsym $mod+Shift+o	   exec --no-startup-id "bash ~/.scripts/i3resize right"
 
-bindsym $mod+a			    [instance="math"] scratchpad show; [instance="dropdown"] move position center
-bindsym $mod+Shift+a		exec $term -e ncpamixer
-
-bindsym $mod+p		    	exec --no-startup-id dmenu_run -l 10 -nb '#2F343F' -nf '#88C0D0' -sb '#A3BE8C' -sf '#2F343F' -fn 'Hack-13'
 
 bindsym $mod+f			   fullscreen toggle
-##bindsym $mod+Shift+f
-
-bindsym $mod+g			   workspace prev
-bindsym $mod+Shift+g	   exec --no-startup-id gimp; workspace $ws5
 
 bindsym $mod+h			   focus left
 bindsym $mod+Shift+h	   move left 30
@@ -155,37 +140,15 @@ bindsym $mod+Shift+x	   exec --no-startup-id prompt "Are you sure you want to sh
 
 bindsym $mod+c			   exec --no-startup-id cm__camtoggle
 
-bindsym $mod+v			   exec $term -e ncmpcpp -s visualizer
-
 bindsym $mod+b			   bar mode toggle
-bindsym $mod+Shift+b	   floating toggle; sticky toggle; exec --no-startup-id bottomleft
-
-bindsym $mod+n		        exec $term -e newsboat
-##bindsym $mod+Shift+n
-
-bindsym $mod+m 			    exec --no-startup-id st -e ncmpcpp
-bindsym $mod+Shift+m	    exec --no-startup-id lmc mute
+bindsym $mod+Shift+b       floating toggle; sticky toggle; exec --no-startup-id bottomleft
 
 ##
 ## Workspace Bindings
 ##
 
-bindsym $mod+Home		    workspace $ws1
-bindsym $mod+Shift+Home		move container to workspace $ws1
-bindsym $mod+End		    workspace $ws10
-bindsym $mod+Shift+End		move container to workspace $ws10
-bindsym $mod+Prior		    workspace prev
-bindsym $mod+Shift+Prior	move container to workspace prev
-bindsym $mod+Next		    workspace next
-bindsym $mod+Shift+Next		move container to workspace next
-bindsym $mod+Tab		    workspace back_and_forth
-bindsym $mod+XF86Back		workspace prev
-##bindsym $mod+Shift+XF86Back
-bindsym $mod+XF86Forward	workspace next
-##bindsym $mod+Shift+XF86Forward
-bindsym $mod+semicolon		workspace next
-bindsym $mod+Shift+slash	kill
-bindsym $mod+backslash		workspace back_and_forth
+bindsym $mod+period		workspace next
+bindsym $mod+comma		workspace prev
 
 set $ws1 "1"
 set $ws2 "2"
@@ -198,7 +161,9 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
-# Switch to workspace
+##
+## Switch to workspace
+##
 
 bindsym $mod+1		workspace $ws1
 bindsym $mod+2		workspace $ws2
@@ -211,7 +176,10 @@ bindsym $mod+8		workspace $ws8
 bindsym $mod+9		workspace $ws9
 bindsym $mod+0		workspace $ws10
 
-# Move focused container to workspace
+##
+## Move focused container to workspace
+##
+
 bindsym $mod+Shift+1	move container to workspace $ws1
 bindsym $mod+Shift+2	move container to workspace $ws2
 bindsym $mod+Shift+3	move container to workspace $ws3
@@ -223,25 +191,10 @@ bindsym $mod+Shift+8	move container to workspace $ws8
 bindsym $mod+Shift+9	move container to workspace $ws9
 bindsym $mod+Shift+0	move container to workspace $ws10
 
-for_window [class="Pinentry"] sticky enable
-for_window [class="sent"] border pixel 0px
-for_window [class="Blender"] move to workspace $ws6
 for_window [class="Firefox"] move to workspace $ws2
-for_window [class="marble"] move to workspace $ws7
-for_window [title="GIMP Startup"] move workspace $ws5
-for_window [class="Gimp"] move workspace $ws5
-for_window [window_role="gimp-dock"] floating disable; move left; resize shrink width 50 px or 50ppt
-for_window [window_role="gimp-toolbox"] floating disable; move right; resize grow width 30 px or 30ppt
-
-workspace $ws5 gaps inner 0
-workspace $ws5 gaps outer 0
-workspace $ws6 gaps inner 0
-workspace $ws6 gaps outer 0
-for_window [window_role="GtkFileChooserDialog"] resize shrink height 10 px
-for_window [instance="dl"] move workspace $ws10
 
 ##
-## Neofetch terminal
+## Neofetch terminal ($mod+u)
 ##
 
 for_window [instance="dropdown"] floating enable
@@ -250,8 +203,10 @@ for_window [instance="dropdown"] move scratchpad
 for_window [instance="dropdown"] border pixel 5
 exec --no-startup-id $term -n dropdown -e neofetch
 
+bindsym $mod+u [instance="dropdown"] scratchpad show
+
 ##
-## R for basic arithmetic (mod+a)
+## R for basic arithmetic ($mod+a)
 ##
 
 for_window [instance="math"] floating enable
@@ -259,6 +214,8 @@ for_window [instance="math"] resize set 800 400
 for_window [instance="math"] move scratchpad
 for_window [instance="math"] border pixel 5
 exec --no-startup-id $term -n math -f mono:pixelsize=24 -e dropdowncalc
+
+bindsym $mod+a [instance="math"] scratchpad show
 
 ##
 ## Bindings to make the webcam float and stick
@@ -275,17 +232,14 @@ for_window [title="Default - Wine desktop"] floating enable
 ## Function Buttons
 ##
 
-bindsym $mod+F2		restart # reload i3
+bindsym $mod+F1     reload
+bindsym $mod+F2		restart
 bindsym $mod+F3		exec --no-startup-id displayselect
 bindsym $mod+F4		exec --no-startup-id $hibernate
 bindsym $mod+F5		exec --no-startup-id $netrefresh
 bindsym $mod+F6		exec --no-startup-id $term -e transmission-remote-cli
-##bindsym $mod+F7
-##bindsym $mod+F8
 bindsym $mod+F9		exec --no-startup-id dmenumount
 bindsym $mod+F10	exec --no-startup-id dmenuumount
-##bindsym $mod+F11
-##bindsym $mod+F12
 
 ##
 ## Arrow Keys
@@ -294,10 +248,10 @@ bindsym $mod+F10	exec --no-startup-id dmenuumount
 bindsym $mod+Left	      	focus left
 bindsym $mod+Down           focus down
 bindsym $mod+Up	            focus up
-bindsym $mod+Right  		focus right
+bindsym $mod+Right  	  	focus right
 bindsym $mod+Shift+Left		move left
 bindsym $mod+Shift+Down		move down
-bindsym $mod+Shift+Up		move up
+bindsym $mod+Shift+Up  		move up
 bindsym $mod+Shift+Right 	move right
 
 ##
@@ -395,7 +349,7 @@ bindsym XF86Search		  exec $BROWSER https://duckduckgo.com
 ##bindsym XF86Finance		exec
 ##bindsym XF86Game		exec
 bindsym XF86Shop		exec $BROWSER https://ebay.com
-bindsym XF86MonBrightnessDown	exec --no-startup-id xbacklight -dec 15
+bindsym XF86MonBrightnessDown	exec --n`o-startup-id xbacklight -dec 15
 bindsym XF86MonBrightnessUp	exec --no-startup-id xbacklight -inc 15
 bindsym XF86AudioMedia		exec --no-startup-id st -e ncmpcpp
 bindsym XF86Display		exec --no-startup-id arandr
