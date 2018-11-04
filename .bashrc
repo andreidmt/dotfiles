@@ -1,11 +1,32 @@
 export PATH=$PATH:$HOME/.scripts
 export EDITOR="nano"
-export TERMINAL="st"
+export TERMINAL="alacritty"
 export BROWSER="firefox"
 export FIRST_NAME="Andrei"
 export LAST_NAME="Dumitrescu"
 export VDPAU_DRIVER="nvidia"
 export DRI_PRIME=1
+
+export BACKGROUND=#1d1f21
+export BACKGROUNDT=#cc1d1f21
+export FOREGROUND=#c5c8c6
+
+export GRAY=#282a2e
+export GRAYD=#373b41
+export RED=#a54242
+export REDD=#cc6666
+export GREEN=#8c9440
+export GREEND=#b5bd68
+export YELLOW=#de935f
+export YELLOWD=#f0c674
+export BLUE=#5f819d
+export BLUED=#81a2be
+export MAGENTA=#85678f
+export MAGENTAD=#b294bb
+export CYAN=#5e8d87
+export CYAND=#8abeb7
+export WHITE=#707880
+export WHITED=#c5c8c6
 
 stty -ixon
 
@@ -34,8 +55,8 @@ alias progs="(pacman -Qet && pacman -Qm) | sort -u"
 alias pacman-orphans="pacman -Qdt"
 
 # Remove orphan programs
-alias pacman-rm-orphans="sudo pacman -Rns $(pacman -Qtdq)"
-alias upgr="notify-send -i ~/.scripts/larbs.png 'Upgrade started' & neofetch && sudo pacman -Syyuv --noconfirm && notify-send -i ~/.scripts/larbs.png 'Upgrade complete'."
+alias pacman-rm-orphans="pacman -Rns $(pacman -Qtdq)"
+alias upgr="notify-send -i ~/doomguy.png 'System upgrade started' 'Running: pacman -Syyuv --noconfirm' & neofetch && sudo pacman -Syyuv --noconfirm && notify-send -i ~/doomguy-smile.png 'System upgrade complete'"
 
 # Refresh wifi
 alias newnet="sudo systemctl restart NetworkManager"
