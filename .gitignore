@@ -19,12 +19,15 @@
 .config/*
 !.config/compton.conf
 !.config/i3
-!.config/i3blocks
 !.config/conky
 !.config/dunst
 !.config/fontconfig
+!.config/alacritty
+!.config/rofi
+!.config/redshift
 
 !.doomguy.png
+!.doomguy-smile.png
 !.scripts
 
 !.local/
