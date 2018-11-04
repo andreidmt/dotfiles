@@ -1,0 +1,18 @@
+#!/bin/bash
+
+##
+## Author      : Andrei Dumitrescu <andrei@codemachiner.com>
+## Dep packages: [ pamixer ]
+## License     : MIT
+## Link        : github.com/andreid/dotfiles/.scripts/lemmon_vol
+##
+
+volume=$(pamixer --get-volume)
+isMute=$(pamixer --get-mute)
+
+case $isMute in
+ "true") label="Vol (mute)" ;;
+ "false") label="Vol" ;;
+esac
+
+echo -e "%{A:./~/scripts/cm__vol toggle:}${label} ${volume}%%{A}"
