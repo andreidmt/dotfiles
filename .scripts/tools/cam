@@ -1,0 +1,30 @@
+#!/bin/sh
+
+NAME="~/.scripts/tools/cam"
+CMD=${1:-toggle}
+
+SIZE="20%"
+MPV_PARAMS="--no-osc \
+        --untimed \
+        --opengl-glfinish=yes \
+        --no-input-default-bindings \
+        --geometry=-30-30 \
+        --autofit=$SIZE \
+        --title="mpvfloat" \
+        /dev/video0"
+
+case "$CMD" in
+    "toggle")
+        pkill -f /dev/video || mpv $MPV_PARAMS &
+        notify "$NAME" "${status}"
+    ;;
+    "up")
+        mpv $MPV_PARAMS &
+        notify "$NAME" "Cammera started"
+    ;;
+    "down")
+        pkill -f /dev/video
+        notify "$NAME" "Cammera closed"
+    ;;
+esac
+

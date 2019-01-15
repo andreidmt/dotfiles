@@ -1,0 +1,23 @@
+#!/bin/bash
+
+##
+## Author      : Andrei Dumitrescu <andrei@codemachiner.com>
+## Dep packages: [ i3-msg, jq, cut, paste ]
+## License     : MIT
+## Link        : github.com/andreid/dotfiles/.scripts/lemmon_workspaces
+##
+
+selected=$(i3-msg -t get_workspaces \
+    | jq '.[] | select(.focused==true).name' \
+    | cut -d"\"" -f2)
+
+focusedWindowName=$(i3-msg -t get_tree \
+    | jq --raw-output 'recurse(.nodes[]) | select(.focused == true).window_properties.class'
+)
+
+result=$(i3-msg -t get_workspaces \
+    | jq '.[].name' \
+    | cut -d"\"" -f2 \
+    | paste -sd " " -)
+
+echo -e $result - $focusedWindowName

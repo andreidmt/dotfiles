@@ -1,9 +1,7 @@
 #!/bin/bash
 
 ##
-## Author      : Andrei Dumitrescu <andrei@codemachiner.com>
-## License     : MIT
-## Link        : github.com/andreid/dotfiles/.scripts/lemmon__index
+## Compose and align other lemon "segments"
 ##
 
 sep="%{F$WHITED} // %{F-}"

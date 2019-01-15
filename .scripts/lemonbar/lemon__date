@@ -1,0 +1,5 @@
+#!/bin/bash
+
+result=$(date "+%A %T on %B %d")
+
+echo -e $result

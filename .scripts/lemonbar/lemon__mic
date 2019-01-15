@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Check mouse event
+case $1 in
+        3) amixer -q -D pulse sset Capture toggle ;;
+        4) amixer -q -D pulse sset Capture 5%+ ;;
+        5) amixer -q -D pulse sset Capture 5%- ;;
+esac
+
+echo $(mic status);

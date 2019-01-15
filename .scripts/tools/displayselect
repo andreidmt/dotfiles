@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Possible displays
+screensAll=$(xrandr -q | grep "connected")
+
+# Connected displays
+screensConnected=$(echo "$screensAll" | grep " connected" | awk '{print $1}')
+
+# Select with rofi
+screenSelected=$(echo -e "${screensConnected}\\nManual" | rofi -dmenu -lines 6 -sep '\n')
+
+screensOther=$(echo "$screensConnected" | grep -x -v "$screenSelected")
+paramsDisable=$(echo "$screensOther" | awk '{print "--output", $1, "--off"}' | tr '\n' ' ')
+
+case "$screenSelected" in
+    "eDP-1"|"eDP-1-1")
+        xrandr \
+            --output $screenSelected --auto --scale 1.0x1.0 \
+            $paramsDisable
+    ;;
+    "DP-1"|"DP-1-1")
+        xrandr \
+            --output $screenSelected --auto --scale 0.8x0.8 \
+            $paramsDisable
+    ;;
+    "HDMI-2")
+        xrandr \
+        --output HDMI-2 --auto --scale 1x1 \
+        --output eDP-1 --off \
+        --output DP-1 --off
+    ;;
+    "Manual")
+        # for custom config
+        arandr
+
+        # exit to skip restarting other services
+        exit
+    ;;
+esac
+
+if [ "$screenSelected" != "" ]; then
+    # Relaunch lemonbar to reposition based on screen width
+    lemon restart
+
+    # Restore wallpaper to resize based on screen size
+    feh --bg-scale "$HOME/wall.png"
+
+    # Restart dunst to ensure proper location on screen
+    pkill dunst
+fi
