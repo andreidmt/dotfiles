@@ -1,0 +1,20 @@
+#!/usr/bin/env fish
+
+set -l WHITE "#ebdbb2"
+set -l GREEN "#8ec07c"
+set -l SEP "%{F"(echo $WHITE)"}||%{F-}"
+
+while true
+    set -l VOL "%{F"(echo $GREEN)"}" (vol status) "%{F-}"
+    set -l MIC "%{F"(echo $GREEN)"}" (mic status) "%{F-}"
+    set -l DATE (date "+%A %T on %B %d")
+    set -l WORKSPACES (i3-msg -t get_workspaces \
+            | jq '.[].name' \
+            | cut -d"\"" -f2 \
+            | paste -sd " " -)
+    set -l WINDOW (i3-msg -t get_tree \
+            | jq --raw-output 'recurse(.nodes[]) | select(.focused == true).window_properties.class')
+        
+    echo -e "%{l}" $WORKSPACES $SEP $WINDOW "%{c}" $DATE "%{r}" $MIC $SEP $VOL
+    sleep 1
+end 
