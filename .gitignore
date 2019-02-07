@@ -26,6 +26,10 @@
 !.config/rofi
 !.config/redshift
 
+!.config/nvim/
+.config/nvim/*
+!.config/nvim/init.vim
+
 !.doomguy.png
 !.doomguy-smile.png
 !.scripts

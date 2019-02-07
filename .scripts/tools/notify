@@ -1,9 +1,0 @@
-#!/bin/sh
-
-title=${1:-""}
-message=${2:-""}
-
-notify-send -i ~/doomguy.png \
-    -t 2000 \
-    "$title" \
-    "$message"

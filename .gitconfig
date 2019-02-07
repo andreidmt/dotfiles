@@ -1,7 +1,7 @@
 [core]
-	fileMode = false
-	editor = nano
+	filemode = false
+	editor = nvim -c 'startinsert'
 [user]
 	name = Andrei Dumitrescu
-	email = andrei@codemachiner.com
+	email = 5057797+andreidcm@users.noreply.github.com
 	username = andreidcm

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-export LD_PRELOAD=/usr/lib/libnss3.so && /repository-ssd/tools/Stremio+4.4.10.appimage

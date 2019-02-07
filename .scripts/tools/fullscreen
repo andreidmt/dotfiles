@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# toggle selected window fullscreen
-i3-msg fullscreen toggle
-
-# toggle lemonbar
-lemon toggle

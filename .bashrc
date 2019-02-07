@@ -1,6 +1,9 @@
-export PATH=$PATH:$HOME/.scripts
-export EDITOR="nano"
-export TERMINAL="alacritty"
+#!/bin/bash
+
+# Adds `~/.scripts` and all subdirectories to $PATH
+export PATH="$PATH:$(du "$HOME/.scripts/" | cut -f2 | tr '\n' ':')"
+export EDITOR="nvim"
+export TERMINAL="kitty"
 export BROWSER="firefox"
 export FIRST_NAME="Andrei"
 export LAST_NAME="Dumitrescu"
@@ -30,9 +33,6 @@ export WHITED=#c5c8c6
 
 stty -ixon
 
-#Allows you to cd into directory merely by typing the directory name.
-# shopt -s autocd
-
 #Generic shortcuts:
 alias music="ncmpcpp"
 alias clock="ncmpcpp -s clock"
@@ -45,8 +45,6 @@ alias audio="ncpamixer"
 alias calender="calcurse"
 
 # System Maintainence
-alias mw="~/.config/mutt/mutt-wizard.sh"
-alias muttwizard="~/.config/mutt/mutt-wizard.sh"
 
 # List programs I've installed
 alias progs="(pacman -Qet && pacman -Qm) | sort -u"
@@ -56,32 +54,29 @@ alias pacman-orphans="pacman -Qdt"
 
 # Remove orphan programs
 alias pacman-rm-orphans="pacman -Rns $(pacman -Qtdq)"
+
+# Full system update
 alias upgr="notify-send -i ~/doomguy.png 'System upgrade started' 'Running: pacman -Syyuv --noconfirm' & neofetch && sudo pacman -Syyuv --noconfirm && notify-send -i ~/doomguy-smile.png 'System upgrade complete'"
 
 # Refresh wifi
 alias newnet="sudo systemctl restart NetworkManager"
 
-# Le Redditfetch
-alias nf="clear && neofetch"
-
 #Install an AUR package manually (for Parabola to get AUR access):
 aurinstall() {
     curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/$1.tar.gz && tar -xvf $1.tar.gz && cd $1 && makepkg --noconfirm -si && cd .. && rm -rf $1 $1.tar.gz ;
 }
+
 alias psref="gpg-connect-agent RELOADAGENT /bye" # Refresh gpg
 
 # Some aliases
-alias gitup="git push origin master"
-alias trem="transmission-remote"
 alias mkd="mkdir -pv"
 alias rf="source ~/.bashrc"
 
 # Refresh shortcuts manually and reload bashrc
-alias ref="shortcuts.sh && source ~/.bashrc"
+# alias ref="shortcuts.sh && source ~/.bashrc"
 
-# Adding color
-# alias ls='ls -alhNt --color=auto --group-directories-first'
-alias ls='ls -Alhtr --color=auto --group-directories-first'
+alias vi='nvim'
+alias vim='nvim'
 alias crep="grep --color=always" # Color grep - highlight desired sequence.
 alias ccat="highlight --out-format=xterm256" #Color cat - print file with syntax highlighting.
 
@@ -91,14 +86,7 @@ alias yta="youtube-dl --add-metadata -xic" # Download only audio
 alias YT="youtube-viewer"
 alias ethspeed="speedometer -r enp0s25"
 alias wifispeed="speedometer -r wlp3s0"
-alias starwars="telnet towel.blinkenlights.nl"
 alias tpbs="clear && figlet -c TPB Search && tpb.sh" # Pirate Bay search
-
-# TeX
-alias Txa="cp ~/Documents/LaTeX/article.tex"
-alias Txs="cp ~/Documents/LaTeX/beamer.tex"
-alias Txh="cp ~/Documents/LaTeX/handout.tex"
-alias TC='texclear'
 
 # Audio and Music
 alias mute="pamixer -m"

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-cp "$1" ~/wall.png 
-
-feh --bg-scale "$HOME/wall.png"
-
-notify-send -i "$HOME/wall.png" "Wallpaper changed" "$1"

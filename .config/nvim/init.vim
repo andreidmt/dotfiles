@@ -6,8 +6,11 @@ set wrap                " Wrap visually, don't change text in buffer.
 set linebreak           " Only wrap at a character in the breakat 
                         " (" ^I!@*-+;:,./?").
 set autoindent          " Copy indent from current line when starting new line.
-set expandtab           " Insert mode: Use the appropriate number of spaces 
-                        " to insert a tab.
+
+set tabstop=4           " Use the appropriate number of spaces to insert a tab. 
+set shiftwidth=4
+set expandtab 
+
 set backupcopy=yes      " Make a copy of the file and overwrite the original.
 set showmatch           " Show matching brackets.
 set splitbelow          " Horizontal split below current.
@@ -29,12 +32,17 @@ highlight clear SignColumn
 "
 let mapleader="\<SPACE>"
 
+" run macro in q register
+nnoremap <LEADER>q @q            " current line
+vnoremap <LEADER>q :norm! @q<CR> " selected lines
+
 nnoremap <LEADER>d =strftime('%Y-%m-%d_%H:%M:%S')<CR>
 nnoremap <LEADER>i :ALEDetail<CR>
 nnoremap <LEADER>f :ALEFix<CR>
 
 " yank/paste from/to + register
 nnoremap <LEADER>p "+p<CR>
+nnoremap <LEADER>P "*p<CR>
 vnoremap <LEADER>y "+y<CR>
 
 " move through splits with Alt
@@ -45,8 +53,8 @@ nnoremap <M-l> <C-w>l
 
 " auto fix prev/next spelling error without changing position
 " https://www.youtube.com/watch?v=lwD8G1P52Sk
-nnoremap <LEADER>f mm[s1z=`m<CR>
-nnoremap <LEADER>F mm]s1z=`m<CR>
+nnoremap <LEADER>s mm[s1z=`m<CR>
+nnoremap <LEADER>S mm]s1z=`m<CR>
 
 map <F1> :NERDTreeFind<CR>
 map <C-p> :FZF<CR>
@@ -74,16 +82,16 @@ Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-characterize'
-Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-commentary' " toggle comments 
 Plug 'tpope/vim-fugitive' " git commands
 Plug 'airblade/vim-gitgutter' " git diff info in buffer gutter
-Plug 'wellle/targets.vim'
-Plug 'majutsushi/tagbar'
 Plug 'ap/vim-css-color' " color highlighting
 Plug 'w0rp/ale' " linter manager
 Plug 'Shougo/deoplete.nvim' " autocomplete
 Plug 'junegunn/fzf' " fuzzy finder
-Plug 'jremmen/vim-ripgrep'
+Plug 'jremmen/vim-ripgrep' " search in files
+Plug 'wellle/targets.vim'
+Plug 'majutsushi/tagbar'
 
 " Color schemes
 Plug 'lifepillar/vim-solarized8'
@@ -111,7 +119,7 @@ Plug 'maximbaz/lightline-ale'
 
 " Other
 Plug 'editorconfig/editorconfig-vim'
-
+Plug 'dag/vim-fish'
 call plug#end()
 
 ""
@@ -188,7 +196,11 @@ let g:ale_lint_on_enter = 1
 let g:ale_lint_on_text_changed = 1
 let g:ale_lint_on_save = 1
 let g:ale_lint_delay = 5
+
+" fix before saving to avoid double write
 let g:ale_fix_on_save = 0
+autocmd BufWritePre * ALEFix
+
 let g:ale_linters_explicit = 1
 let g:ale_sign_column_always = 1
 let g:ale_echo_msg_format = '[%linter%][%code%] %severity%: %s' 
