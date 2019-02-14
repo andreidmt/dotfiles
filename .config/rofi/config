@@ -1,5 +1,4 @@
-rofi.fake-transparency: true
 rofi.lines: 5
 rofi.width: 30
 rofi.matching: fuzzy
-rofi.theme: theme
+rofi.theme: gruvbox
