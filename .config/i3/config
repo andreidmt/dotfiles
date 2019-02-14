@@ -2,7 +2,9 @@
 # Basic Definitions
 # =============================================================================
 
-font pango:mono
+default_border pixel 3
+
+font pango:monospace 11
 workspace_auto_back_and_forth yes
 
 set $mod Mod4
@@ -13,9 +15,9 @@ set $reboot sudo -A reboot
 set $hibernate sudo systemctl suspend
 
 # i3-gaps
-gaps inner 10
-gaps outer 50
-#smart_borders on
+gaps inner 20
+gaps outer 0
+smart_borders on
 
 # Workspace Bindings
 set $ws1 "1"
@@ -29,7 +31,7 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
-# Set Xresources colors:
+# Xresources colors
 set_from_resource $darkblack    color0    #000000
 set_from_resource $black        color8    #000000
 set_from_resource $darkred      color1    #000000
@@ -57,20 +59,55 @@ client.urgent           $darkred $darkred $black    $darkred       $darkred
 client.background       $black
 
 # =============================================================================
+# Status bars
+# =============================================================================
+
+bar {
+    status_command i3blocks -c $HOME/.config/i3blocks/top
+
+    font pango:mono 11
+    tray_padding 5
+    position top
+    height 30
+    separator_symbol "::"
+    colors {
+        background $darkblack
+        separator $darkyellow
+        focused_workspace  $blue      $darkblue  $white 
+        inactive_workspace $darkblack $darkblack $white
+        urgent_workspace   $red       $darkred   $white
+    }
+}
+
+bar {
+    status_command i3blocks -c $HOME/.config/i3blocks/bottom
+
+    workspace_buttons no
+    font pango:mono 11
+    position bottom
+    height 30
+    separator_symbol "::"
+    colors {
+        background $darkblack
+        separator $darkyellow
+        focused_workspace  $blue      $darkblue  $white 
+        inactive_workspace $darkblack $darkblack $white
+        urgent_workspace   $red       $darkred   $white
+    }
+}
+
+# =============================================================================
 # Startup
 # =============================================================================
+
+# Start ssh-agent, add user keys
+exect --no-startup-id fish -c "io ssh-start; and io ssh-add"
 
 # Wallpaper
 exec --no-startup-id feh --bg-scale "$HOME/wall.png" &
 
 # Automounting of USB with notifications
-exec --no-startup-id udiskie &
-
-# Stats
-exec --no-startup-id conky &
-
-# Status bar
-exec --no-startup-id fish -c lemon & 
+# exec --no-startup-id udiskie &
 
 # Notifications
 exec --no-startup-id dunst &
@@ -82,10 +119,10 @@ exec --no-startup-id compton -b &
 exec --no-startup-id ~/scripts/remaps
 
 # Network Manager applet
-exec --no-startup-id nm-applet &
+# exec --no-startup-id nm-applet &
 
 # Bluetooth applet
-exec --no-startup-id blueman-applet &
+# exec --no-startup-id blueman-applet &
 
 
 ##bindsym $mod+grave
@@ -101,7 +138,7 @@ bindsym $mod+Shift+Delete exec --no-startup-id vol mute; exec $truepause ; works
 ##
 bindsym $mod+p             exec --no-startup-id rofi -show run
 
-bindsym $mod+Shift+q       [con_id="__focused__" instance="^(?!math|dropdown).*$"] kill
+bindsym $mod+Shift+q       kill
 
 bindsym $mod+t             gaps inner current set 0; gaps outer current set 0
 bindsym $mod+Shift+t	   gaps inner current set 10; gaps outer current set 50
@@ -110,31 +147,26 @@ bindsym $mod+Shift+y	   exec --no-startup-id ~/scripts/i3resize left
 bindsym $mod+Shift+u	   exec --no-startup-id ~/scripts/i3resize down
 bindsym $mod+Shift+i	   exec --no-startup-id ~/scripts/i3resize up
 bindsym $mod+Shift+o	   exec --no-startup-id ~/scripts/i3resize right
-bindsym $mod+o			   sticky toggle
 
-bindsym $mod+f			   exec --no-startup-id ~/scripts/tools/fullscreen
+bindsym $mod+b			   bar mode toggle
+bindsym $mod+s			   sticky toggle
+bindsym $mod+f			   fullscreen toggle
 
-bindsym $mod+h			   focus left
 bindsym $mod+Shift+h	   move left 30
-
-bindsym $mod+j			   focus down
 bindsym $mod+Shift+j	   move down 30
-
-bindsym $mod+k			   focus up
 bindsym $mod+Shift+k	   move up 30
-
-bindsym $mod+l		       focus right
 bindsym $mod+Shift+l	   move right 30
 
-bindsym $mod+x			   exec --no-startup-id ~/scripts/i3lock
-bindsym $mod+Shift+x	   exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
+bindsym $mod+h			   focus left
+bindsym $mod+j			   focus down
+bindsym $mod+k			   focus up
+bindsym $mod+l		       focus right
+
+bindsym $mod+x			   exec --no-startup-id fish -c "sys lock" 
 
 bindsym $mod+c			   exec --no-startup-id cam toggle
 
-bindsym $mod+b			   bar mode toggle
 bindsym $mod+Shift+b       floating toggle; sticky toggle; exec --no-startup-id bottomleft
-
-
 
 # =============================================================================
 # Assign window behavior
@@ -217,9 +249,8 @@ bindsym Shift+Print 		exec --no-startup-id screenshot -t focus
 bindsym $mod+Print		    exec --no-startup-id cm__record
 
 # #---Extra XF86 Keys---# #
-# These are the extra media keys that some keyboards have.
 
-bindsym Shift+XF86AudioMute	    exec --no-startup-id fish -c "mic toggle"
+bindsym XF86AudioMicMute   	    exec --no-startup-id fish -c "mic toggle"
 bindsym XF86AudioMute		    exec --no-startup-id fish -c "vol toggle"
 bindsym XF86AudioLowerVolume	exec --no-startup-id fish -c "vol down"
 bindsym XF86AudioRaiseVolume	exec --no-startup-id fish -c "vol up"
@@ -269,7 +300,6 @@ bindsym XF86Reload		    restart
 #bindsym XF86Launch7		exec
 #bindsym XF86Launch8		exec
 #bindsym XF86Launch9		exec
-#bindsym XF86AudioMicMute	exec $micmute
 #bindsym XF86TouchpadToggle	exec
 
 bindsym XF86TouchpadOn	  exec --no-startup-id exec synclient TouchpadOff=0

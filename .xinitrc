@@ -6,13 +6,10 @@
 # repeated with a certain frequency (usually given in Hz) specified by the 
 # typematic rate. Note that these settings are configured seperately for Xorg 
 # and for the virtual console. 
-xset r rate 170 25
+xset r rate 220 20
 
 # dunst - https://github.com/dunst-project/dunst/issues/347
 systemctl --user import-environment DISPLAY
-
-xrandr --setprovideroutputsource modesetting NVIDIA-0
-xrandr --auto
 
 xrdb -merge -I $HOME ~/.Xresources
 

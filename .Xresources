@@ -3,6 +3,7 @@
 !!
 rofi.run-command: fish -c '{cmd}'
 rofi.run-list-command: 'fish -c functions'
+rofi.font: monospace 11
 
 !!
 !! Font rendering 
@@ -24,6 +25,9 @@ Xautolock.locker: ~/scripts/i3lock
 Xautolock.detectsleep: true
 Xautolock.secure: true
 Xautolock.noclose: true
+
+st.alpha: 230
+*.font: Monospace-14;
 
 !!
 !! Gruvbox

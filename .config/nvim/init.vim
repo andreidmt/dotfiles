@@ -96,6 +96,8 @@ Plug 'majutsushi/tagbar'
 " Color schemes
 Plug 'lifepillar/vim-solarized8'
 Plug 'drewtempelmeyer/palenight.vim' 
+Plug 'morhetz/gruvbox'
+
 
 " Javascript
 Plug 'pangloss/vim-javascript'
@@ -127,9 +129,8 @@ call plug#end()
 ""
 
 syntax enable
-set background=light
-colorscheme palenight " solarized8 
-let g:solarized_term_italics = 1
+set background=dark
+colorscheme gruvbox " palenight,solarized8 
 set termguicolors
 
 "" 
@@ -180,7 +181,7 @@ let g:lightline = {
 \               'linter_errors': 'error',
 \               'linter_ok': 'left',
 \       },
-\       'colorscheme': 'palenight'
+\       'colorscheme': 'gruvbox'
 \ }
 let g:lightline#ale#indicator_checking = '...'
 let g:lightline#ale#indicator_warnings = ''
