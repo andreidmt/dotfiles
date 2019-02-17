@@ -5,7 +5,7 @@ function notify -a title -a message -a icon -d "Doom guy dunst"
     # argparse $options -- $argv
 
     if pgrep -f X > /dev/null
-        notify-send -i ~/vader.png \
+        notify-send -i ~/doomguy.png \
             -t 3000 \
             "$title" \
             "$message"

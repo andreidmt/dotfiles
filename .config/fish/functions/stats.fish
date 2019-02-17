@@ -1,12 +1,23 @@
 function stats -a cmd -d "~> i3blocks stats"
     switch "$cmd"
+        case "pacman"
+            set package_count (pacman -Qu | wc | awk '{print $1}')
+
+            echo "$package_count packages"
+
+            # update i3blocks if running 
+            if pgrep -f i3blocks > /dev/null
+                if test $package_count -gt 0
+                    return 33
+                end
+            end
         case "cpu-temp"
             set temp (acpi -t | awk '{print $4 }')
             set usage (mpstat 1 1 | awk '$3 ~ /CPU/ { for(i=1;i<=NF;i++) { if ($i ~ /%idle/) field=i } } $3 ~ /all/ { printf("%d",100 - $field) }')
 
             echo $usage $temp"°C"
             
-            # custom i3blocks response 
+            # update i3blocks if running 
             if pgrep -f i3blocks > /dev/null
                 if test $temp -gt 60
                     return 33
@@ -36,7 +47,7 @@ function stats -a cmd -d "~> i3blocks stats"
 
             echo $charge"%" $time
 
-            # custom i3blocks response 
+            # update i3blocks if running 
             if pgrep -f i3blocks > /dev/null
                 if test \( $bstatus = "Discharging," \) -a \( $charge -lt 20 \)
                     return 33

@@ -1,21 +1,22 @@
-set -gx PATH (du "$HOME/scripts" | cut -f2 | tr '\n' ' ') $PATH
-set -U fish_user_paths $PATH 
+set PATH $PATH (du "$HOME/.scripts" | cut -f2 | tr '\n' ' ')
 
 set -gx EDITOR "nvim"
 set -gx TERMINAL "kitty"
 set -gx BROWSER "firefox"
 
+# Set ssh-agent process's socket file so ssh knows what keys to use
+set -gx SSH_AUTH_SOCK (find /tmp/ -type s -name agent.\* 2> /dev/null | grep '/tmp/ssh-.*/agent.*')
+
 # Human readable size, order by date, dir first
-alias lsa='ls -Alhtr --color=auto --group-directories-first'
+abbr lsa 'ls -Alhtr --color=auto --group-directories-first'
 
 # Other
-alias mkd="mkdir -pv" 
-alias vi="nvim"
-alias vim="nvim"
-alias ethspeed="speedometer -r enp0s25"
+abbr mkd "mkdir -pv" 
+abbr vi "nvim"
+abbr vim "nvim"
+abbr ethspeed "speedometer -r enp0s25"
 
-alias wl='clear && cd /repository-ssd/work-leeruniek && ls'
-alias wo='clear && cd /repository-ssd/work-own && ls'
+abbr wo 'clear && cd $HOME/work-own && lsa'
 
 alias cv='nvim ~/.config/nvim/init.vim'
 alias ci='nvim ~/.config/i3/config'
@@ -25,9 +26,8 @@ alias cf='nvim ~/.config/fish/config.fish'
 # npm
 abbr npu npm run update
 abbr nps npm run setup
-
-# bang bang
-abbr !! eval command sudo $history[1]
+abbr npsd npm run start:dev
+abbr npb npm run build
 
 #######
 # Common functions
