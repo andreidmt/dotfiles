@@ -29,7 +29,7 @@
     # the top and down respectively.
     # The width can be negative.  In this case the actual width is the
     # screen width minus the width defined in within the geometry option.
-    geometry = "350x5-60+60"
+    geometry = "350x5-20+50"
 
     # Show how many messages are currently hidden (because of geometry).
     indicate_hidden = yes
@@ -162,7 +162,7 @@
     icon_position = left
 
     # Scale larger icons down to this size, set to 0 to disable
-    max_icon_size = 40
+    max_icon_size = 60
 
     # Paths to default icons.
     icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
@@ -252,9 +252,9 @@
     #icon = /path/to/icon
 
 [urgency_normal]
-    background = "#1d1f21"
-    foreground = "#de935f"
-    frame_color = "#de935f"
+    background = "#1d2021"
+    foreground = "#ebdbb2"
+    frame_color = "#ebdbb2"
     timeout = 5
     # Icon for notifications with normal urgency, uncomment to enable
     #icon = /path/to/icon
