@@ -1,10 +1,17 @@
 function sys -a cmd -d "Check for errors and clean pacman"
     switch "$cmd"
+        case "wall"
+            sxiv "$HOME/work-luke/wallpapers/Future/"
         case "upgrade"
             notify 'System upgrade' 'Running: pacman -Syyuv --noconfirm' && \
             neofetch && \
             sudo pacman -Syyuv --noconfirm && \
             notify 'System upgrade complete'
+
+            # update i3blocks if running 
+            if pgrep -f i3blocks > /dev/null
+                pkill -SIGRTMIN+11 i3blocks
+            end
         case "check"
             echo-head "Failed systemd services..."
             sudo systemctl --failed

@@ -106,7 +106,7 @@ bar {
 exec --no-startup-id fish -c "io ssh-add" &
 
 # Start end-to-end encripted chat
-exec --no-startup-id run_keybase &
+exec --no-startup-id run_keybase -a &
 
 # Wallpaper
 exec --no-startup-id feh --bg-scale "$HOME/wall.png" &
@@ -123,20 +123,11 @@ exec --no-startup-id compton -b &
 # Key remapping scripts
 exec --no-startup-id ~/.scripts/remaps
 
-# Network Manager applet
-# exec --no-startup-id nm-applet &
-
 # Bluetooth applet
 # exec --no-startup-id blueman-applet &
 
-
 ##bindsym $mod+grave
 ##bindsym $mod+asciitilde
-
-##
-## STOP/HIDE EVERYTHING:
-##
-bindsym $mod+Shift+Delete exec --no-startup-id vol mute; exec $truepause ; workspace lmao ; exec $term -e htop ; exec $term -e mc
 
 ##
 ## Applications
@@ -146,7 +137,7 @@ bindsym $mod+p             exec --no-startup-id rofi -show run
 bindsym $mod+Shift+q       kill
 
 bindsym $mod+t             gaps inner current set 0; gaps outer current set 0
-bindsym $mod+Shift+t	   gaps inner current set 10; gaps outer current set 50
+bindsym $mod+Shift+t	   gaps inner current set 20; gaps outer current set 0
 
 bindsym $mod+Shift+y	   exec --no-startup-id ~/.scripts/i3resize left
 bindsym $mod+Shift+u	   exec --no-startup-id ~/.scripts/i3resize down

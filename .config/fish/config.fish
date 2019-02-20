@@ -8,7 +8,7 @@ set -gx BROWSER "firefox"
 set -gx SSH_AUTH_SOCK (find /tmp/ -type s -name agent.\* 2> /dev/null | grep '/tmp/ssh-.*/agent.*')
 
 # Human readable size, order by date, dir first
-abbr lsa 'ls -Alhtr --color=auto --group-directories-first'
+alias lsa='ls -Alhtr --color=auto --group-directories-first'
 
 # Other
 abbr mkd "mkdir -pv" 
