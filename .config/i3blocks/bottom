@@ -1,0 +1,28 @@
+[public-ip]
+command=curl http://ipv4.icanhazip.com
+interval=once
+
+[wifi-network]
+label=
+command=wpa_cli status | grep "^ssid" | awk '{split($0,a,"="); print a[2]}'
+interval=once
+signal=12
+
+[bandwidth]
+command=~/.scripts/i3blocks__bandwidth
+interval=2
+
+[memmory]
+label=
+command=fish -c "stats memory"
+interval=2
+
+[load]
+label= 
+command=/usr/lib/i3blocks/cpu_usage
+interval=2
+
+[cpu-temp]
+label=
+command=fish -c "stats cpu-temp"
+interval=2
