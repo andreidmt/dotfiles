@@ -1,11 +1,12 @@
 [public-ip]
+label=
 command=curl http://ipv4.icanhazip.com
 interval=once
 
 [wifi-network]
 label=
-command=wpa_cli status | grep "^ssid" | awk '{split($0,a,"="); print a[2]}'
-interval=once
+command=fish -c "stats wifi"
+interval=10
 signal=12
 
 [bandwidth]
