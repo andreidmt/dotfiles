@@ -65,14 +65,19 @@ client.background       $black
 bar {
     status_command i3blocks -c $HOME/.config/i3blocks/top
     tray_output none
-
+   
+    # transparent color support
+    i3bar_command i3bar -t
+    
     font pango:mono 11
     tray_padding 5
     position top
     height 30
     separator_symbol "::"
     colors {
-        background $darkblack
+        # background $darkblack
+
+        background $transp
         statusline $white
         separator $darkyellow
         focused_workspace  $blue      $darkblue  $white 
@@ -84,13 +89,16 @@ bar {
 bar {
     status_command i3blocks -c $HOME/.config/i3blocks/bottom
 
+    # transparent color support
+    i3bar_command i3bar -t
+
     workspace_buttons no
     font pango:mono 11
     position bottom
     height 30
     separator_symbol "::"
     colors {
-        background $darkblack
+        background $transp
         statusline $white
         separator $darkyellow
         focused_workspace  $blue      $darkblue  $white 
@@ -106,7 +114,7 @@ bar {
 exec --no-startup-id fish -c "io ssh-add" &
 
 # Start end-to-end encripted chat
-exec --no-startup-id run_keybase -a &
+# exec --no-startup-id run_keybase -a &
 
 # Wallpaper
 exec --no-startup-id feh --bg-scale "$HOME/wall.png" &
@@ -240,7 +248,7 @@ bindsym $mod+minus          exec --no-startup-id fish -c "vol down"
 bindsym $mod+Shift+plus     exec --no-startup-id fish -c "mic up"
 bindsym $mod+Shift+minus    exec --no-startup-id fish -c "mic down"
 
-bindsym Print               exec --no-startup-id screenshot
+bindsym Print               exec --no-startup-id fish -c "screenshot"
 bindsym Shift+Print 		exec --no-startup-id screenshot -t focus
 bindsym $mod+Print		    exec --no-startup-id cm__record
 
