@@ -132,6 +132,7 @@ syntax enable
 set background=dark
 colorscheme gruvbox " palenight,solarized8 
 set termguicolors
+hi Normal guibg=NONE ctermbg=NONE
 
 "" 
 "" Config Plugins
