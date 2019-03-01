@@ -1,0 +1,5 @@
+#!/bin/sh
+
+curl https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-social/hosts > /etc/hosts.steven
+
+# something with sed
