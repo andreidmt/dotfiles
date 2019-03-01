@@ -1,7 +1,7 @@
 function sys -a cmd prop -d "System operations"
     switch "$cmd"
         ##
-        ## Run sxiv will all images in folder
+        ## Run sxiv on all images in folder
         ##    
         case "wall"
             set wall_folder (test $prop && echo $prop || echo "Future")
@@ -17,8 +17,8 @@ function sys -a cmd prop -d "System operations"
         ## Update package database
         ##    
         case "update"
-            sudo pacman -Syy --noconfirm
-            notify "~> sys" "Package database updated"
+            sudo pacman -Syy --noconfirm && \
+                notify "~> sys" "Package database updated"
 
         ##
         ## Update packages 
