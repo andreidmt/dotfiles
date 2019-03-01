@@ -1,12 +1,17 @@
+[proton-vpn]
+label=
+command=
+interval=3
+
 [public-ip]
 label=
 command=curl http://ipv4.icanhazip.com
-interval=once
+interval=3
 
 [wifi-network]
 label=
 command=fish -c "stats wifi"
-interval=10
+interval=3
 signal=12
 
 [bandwidth]
