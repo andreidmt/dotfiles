@@ -1,17 +1,37 @@
-function sys -a cmd -d "Check for errors and clean pacman"
+function sys -a cmd prop -d "System operations"
     switch "$cmd"
+        ##
+        ## Run sxiv will all images in folder
+        ##    
         case "wall"
-            sxiv "$HOME/work-luke/wallpapers/Future/"
-        case "upgrade"
-            notify 'System upgrade' 'Running: pacman -Syyuv --noconfirm' && \
-            neofetch && \
-            sudo pacman -Syyuv --noconfirm && \
-            notify 'System upgrade complete'
+            set wall_folder (test $prop && echo $prop || echo "Future")
+            set wall_path "$HOME/work-luke/wallpapers/$wall_folder"
 
-            # update i3blocks if running 
-            if pgrep -f i3blocks > /dev/null
-                pkill -SIGRTMIN+11 i3blocks
+            if test -d "$wall_path" 
+                sxiv "$wall_path"
+            else
+                notify "~> sys" "Wallpaper \"$wall_folder\" folder does not exist"
             end
+
+        ##
+        ## Update package database
+        ##    
+        case "update"
+            sudo pacman -Syy --noconfirm
+            notify "~> sys" "Package database updated"
+
+        ##
+        ## Update packages 
+        ##    
+        case "upgrade"
+            notify "~> sys" "Starting system upgrade, fingers crossed" && \
+                neofetch && \
+                sudo pacman -Syyuv --noconfirm && \
+                notify "~> sys" "Packages updated"
+
+        ##
+        ## Maintenance check and package cleanup
+        ##    
         case "check"
             echo-head "Failed systemd services..."
             sudo systemctl --failed
@@ -24,10 +44,26 @@ function sys -a cmd -d "Check for errors and clean pacman"
 
             echo-head "Clear pacman cache..."
             sudo paccache -r && paccache -ruk0
+
+        ##
+        ## Reload fish and X settings
+        ##
         case "reload"
             source ~/.config/fish/config.fish 
             xrdb ~/.Xresources
+    
+        ##
+        ## Lock screen
+        ##
         case "lock"
             i3lock -i "$HOME/wall.png" -n -b
+
+        case "*"
+            notify "~> sys" "command \"$cmd\" is invalid"
+    end
+
+    # update i3blocks 
+    if pgrep -f i3blocks > /dev/null
+        pkill -SIGRTMIN+11 i3blocks
     end
 end

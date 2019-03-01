@@ -13,9 +13,9 @@ function mic -a cmd -d "~> Microfone amixer wrapper"
     end
 
     set volume (amixer get Capture | grep -E 'Front Left:' | awk '{print $(NF-1)}' | grep -Eo '[0-9]{1,}')
-    set is_on (amixer get Capture | grep -E 'Front Left:' | awk '{print $NF}' | grep -Eo '\w{2,3}')
+    set _status  (amixer get Capture | grep -E 'Front Left:' | awk '{print $NF}' | grep -Eo '\w{2,3}')
 
-    switch "$is_on"
+    switch "$_status"
         case "on"
             set info $volume"%"
         case "off" 
@@ -28,10 +28,10 @@ function mic -a cmd -d "~> Microfone amixer wrapper"
         notify "~> microphone ($cmd)" "$info $change"
     end
 
-    # custom i3blocks response 
+    # i3blocks red 
     if pgrep -f i3blocks > /dev/null
         pkill -SIGRTMIN+10 i3blocks
-        if test $is_on = "on"
+        if test $_status = "on"
             return 33
         end
     end
