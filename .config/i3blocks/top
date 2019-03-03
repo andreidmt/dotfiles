@@ -14,13 +14,13 @@ command=fish -c "vol status"
 interval=once
 signal=10
 
-[battery]
-label=
-command=fish -c "stats battery"
-interval=2
-
 [pacman]
 label=
 command=fish -c "stats pacman"
 interval=30
 signal=11
+
+[battery]
+label=
+command=fish -c "stats battery"
+interval=3

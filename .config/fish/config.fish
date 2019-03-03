@@ -18,11 +18,8 @@ abbr vi "nvim"
 abbr vim "nvim"
 abbr ethspeed "speedometer -r enp0s25"
 
-alias wo "clear && cd $HOME/work-own && lsa"
-
 alias cv "nvim ~/.config/nvim/init.vim"
 alias ci "nvim ~/.config/i3/config"
-alias cib "nvim ~/.config/i3blocks/config"
 alias cf "nvim ~/.config/fish/config.fish"
 
 # npm
