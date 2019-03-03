@@ -1,4 +1,4 @@
-function sys -a cmd prop -d "System operations"
+function sys -a cmd prop -d "~> System operations"
     switch "$cmd"
         ##
         ## Run sxiv on all images in folder
@@ -33,16 +33,16 @@ function sys -a cmd prop -d "System operations"
         ## Maintenance check and package cleanup
         ##    
         case "check"
-            echo-head "Failed systemd services..."
+            echo-head "Failed systemd services"
             sudo systemctl --failed
 
-            echo-head "Errors in logfiles..."
+            echo-head "Errors in logfiles"
             sudo journalctl -p 3 -xb --no-pager
 
-            echo-head "Removing orphan packages..."
+            echo-head "Removing orphan packages"
             sudo pacman -Rns (pacman -Qtdq)
 
-            echo-head "Clear pacman cache..."
+            echo-head "Clear pacman cache"
             sudo paccache -r && paccache -ruk0
 
         ##
@@ -60,6 +60,7 @@ function sys -a cmd prop -d "System operations"
 
         case "*"
             notify "~> sys" "command \"$cmd\" is invalid"
+            return 1
     end
 
     # update i3blocks 

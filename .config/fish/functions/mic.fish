@@ -25,7 +25,7 @@ function mic -a cmd -d "~> Microfone amixer wrapper"
     if [ "$cmd" = "status" ]
         echo $info
     else
-        notify "~> microphone ($cmd)" "$info $change"
+        notify "~> microphone" "$info $change"
     end
 
     # i3blocks red 

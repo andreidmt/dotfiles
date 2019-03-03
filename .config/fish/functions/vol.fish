@@ -25,7 +25,7 @@ function vol -a cmd -d "~> Volume amixer wrapper"
     if [ "$cmd" = "status" ]
         echo $info
     else
-        notify "~> volume ($cmd)" "$info $change" &
+        notify "~> volume" "$info $change" &
 
         # update i3blocks if running 
         if pgrep -f i3blocks > /dev/null

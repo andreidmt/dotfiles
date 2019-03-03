@@ -1,4 +1,4 @@
-function wall -a path -d "Set file as wallpaper"    
+function wall -a path -d "~> Set file as wallpaper"    
     set resolution (xrandr | fgrep '*' | awk '{print $1}')
 
     # scale & crop
