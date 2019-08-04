@@ -11,7 +11,18 @@ function io -a cmd -a subcmd -d "~> IO"
 
             ssh-add ~/.ssh/github_t420
             ssh-add ~/.ssh/asd14__nginx--tiny-1
-            
+
+        ##
+        ## Proton VPN 
+        ##
+        case "vpn"
+            echo-head "Connect to fastest VPN server"
+            sudo pvpn -d
+            sudo pvpn -f
+
+            echo-head "VPN status"
+            sudo pvpn --status
+
         ##
         ## Wifi interaction
         ##
@@ -29,9 +40,6 @@ function io -a cmd -a subcmd -d "~> IO"
                 case "*"
                     sudo wifi-menu
             end
-            
-            # connect to fastest vpn server
-            sudo pvpn -f
         
         case "*"
             notify "~> IO" "command \"$cmd\" is invalid"

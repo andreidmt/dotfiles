@@ -27,6 +27,7 @@ abbr npu npm run update
 abbr nps npm run setup
 abbr npsd npm run start:dev
 abbr npb npm run build
+abbr npl npm run lint
 
 #######
 # Common functions

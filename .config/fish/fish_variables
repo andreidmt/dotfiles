@@ -9,13 +9,13 @@ SETUVAR _fish_abbr_ethspeed:speedometer\x20\x2dr\x20enp0s25
 SETUVAR _fish_abbr_lsa:ls\x20\x2dAlhtr\x20\x2d\x2dcolor\x3dauto\x20\x2d\x2dgroup\x2ddirectories\x2dfirst
 SETUVAR _fish_abbr_mkd:mkdir\x20\x2dpv
 SETUVAR _fish_abbr_npb:npm\x20run\x20build
+SETUVAR _fish_abbr_npl:npm\x20run\x20lint
 SETUVAR _fish_abbr_nps:npm\x20run\x20setup
 SETUVAR _fish_abbr_npsd:npm\x20run\x20start\x3adev
 SETUVAR _fish_abbr_npu:npm\x20run\x20update
 SETUVAR _fish_abbr_vi:nvim
 SETUVAR _fish_abbr_vim:nvim
 SETUVAR _fish_abbr_wifi:sudo\x20wifi\x2dmenu
-SETUVAR _fish_abbr_wo:clear\x20\x26\x26\x20cd\x20\x24HOME/work\x2down\x20\x26\x26\x20lsa
 SETUVAR fish:/home/andreid/\x2escripts/tools\x20/home/andreid/\x2escripts/cron\x20/home/andreid/\x2escripts\x20
 SETUVAR fish_color_autosuggestion:555\x1ebrblack
 SETUVAR fish_color_cancel:\x2dr
