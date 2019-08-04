@@ -1,0 +1,24 @@
+snippet icx
+  import cx from "classnames"
+
+snippet ipt
+  import PropTypes from "prop-types"
+
+snippet rfc
+  const debug = require("debug")("${1}:${2:FComponent}")
+
+  import * as React from "react"
+  import PropTypes from "prop-types"
+
+  const $2 = React.memo(({ children }) => (
+    <div>{children}</div>
+  ))
+
+  $2.propTypes = {
+    children: PropTypes.node.isRequired,
+  }
+
+  $2.defaultProps = {
+  }
+
+  export { $2 }

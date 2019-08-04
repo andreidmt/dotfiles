@@ -7,8 +7,8 @@ set linebreak           " Only wrap at a character in the breakat
                         " (" ^I!@*-+;:,./?").
 set autoindent          " Copy indent from current line when starting new line.
 
-set tabstop=4           " Use the appropriate number of spaces to insert a tab. 
-set shiftwidth=4
+set tabstop=2           " Use the appropriate number of spaces to insert a tab. 
+set shiftwidth=2
 set expandtab 
 
 set backupcopy=yes      " Make a copy of the file and overwrite the original.
@@ -32,15 +32,19 @@ highlight clear SignColumn
 "
 let mapleader="\<SPACE>"
 
-" run macro in q register
+" run macro in q and w registers
 nnoremap <LEADER>q @q            " current line
+nnoremap <LEADER>w @w            " current line
 vnoremap <LEADER>q :norm! @q<CR> " selected lines
+vnoremap <LEADER>w :norm! @w<CR> " selected lines
 
 nnoremap <LEADER>d =strftime('%Y-%m-%d_%H:%M:%S')<CR>
 nnoremap <LEADER>i :ALEDetail<CR>
 nnoremap <LEADER>f :ALEFix<CR>
 
-" yank/paste from/to + register
+nnoremap <LEADER>T :GenTocGFM<CR>
+
+" yank/paste from/to +,* registers
 nnoremap <LEADER>p "+p<CR>
 nnoremap <LEADER>P "*p<CR>
 vnoremap <LEADER>y "+y<CR>
@@ -87,29 +91,32 @@ Plug 'tpope/vim-fugitive' " git commands
 Plug 'airblade/vim-gitgutter' " git diff info in buffer gutter
 Plug 'ap/vim-css-color' " color highlighting
 Plug 'w0rp/ale' " linter manager
-Plug 'Shougo/deoplete.nvim' " autocomplete
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " autocomplete
 Plug 'junegunn/fzf' " fuzzy finder
 Plug 'jremmen/vim-ripgrep' " search in files
 Plug 'wellle/targets.vim'
 Plug 'majutsushi/tagbar'
+
+" Templates & snippets
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
 
 " Color schemes
 Plug 'lifepillar/vim-solarized8'
 Plug 'drewtempelmeyer/palenight.vim' 
 Plug 'morhetz/gruvbox'
 
-
 " Javascript
 Plug 'pangloss/vim-javascript'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'mxw/vim-jsx'
-Plug 'steelsojka/deoplete-flow'
-Plug 'ternjs/tern_for_vim'
+Plug 'ternjs/tern_for_vim', {'do': 'npm install'}
 
 " Writing
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'mzlogin/vim-markdown-toc'
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 
 " File browser
 Plug 'scrooloose/nerdtree' 
@@ -138,6 +145,23 @@ hi Normal guibg=NONE ctermbg=NONE
 "" Config Plugins
 ""
 
+" Neosnippet 
+let g:neosnippet#snippets_directory='~/.config/nvim/snippets'
+
+" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+" SuperTab like snippets behavior.
+" Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+"imap <expr><TAB>
+" \ pumvisible() ? "\<C-n>" :
+" \ neosnippet#expandable_or_jumpable() ?
+" \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+
 " File browser
 let NERDTreeShowHidden=1
 let g:NERDTreeIndicatorMapCustom = {
@@ -159,6 +183,9 @@ let g:netrw_banner = 0
 let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 let g:netrw_winsize = 25
+
+" Markdown preview
+let g:mkdp_browser = 'surf'
 
 " Status bar
 let g:lightline = {
@@ -200,17 +227,19 @@ let g:ale_lint_on_save = 1
 let g:ale_lint_delay = 5
 
 " fix before saving to avoid double write
-let g:ale_fix_on_save = 0
-autocmd BufWritePre * ALEFix
+let g:ale_fix_on_save = 1
+" autocmd BufWritePre * ALEFix
 
 let g:ale_linters_explicit = 1
 let g:ale_sign_column_always = 1
 let g:ale_echo_msg_format = '[%linter%][%code%] %severity%: %s' 
 let g:ale_linters = {
+\       'css': ['stylelint'],
 \       'javascript': ['eslint'],
 \       'markdown': ['markdownlint']
 \ }
 let g:ale_fixers = {
+\       'css': ['stylelint'],
 \       'javascript': ['eslint']
 \ }
 let g:ale_javascript_eslint_use_global = 1
