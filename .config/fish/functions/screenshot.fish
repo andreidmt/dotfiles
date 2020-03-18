@@ -1,4 +1,4 @@
-function screenshot -d "Capture current screen content"
+function screenshot -a cmd -d "Capture current screen content"
   set DIR "$HOME/Pictures/Screenshots"
   set NOW (date +"%Y-%B-%d-%A-%R:%S")
   set FILENAME "Screenshot_$NOW.png"
@@ -7,7 +7,13 @@ function screenshot -d "Capture current screen content"
   mkdir -pv "$DIR"
 
   # capture screen and save it to file
-  scrot "$FILENAME" -e "mv \$f $DIR"
+
+  if test "$cmd" = "focused"
+    scrot --focused "$FILENAME" -e "mv \$f $DIR"
+  else 
+    scrot "$FILENAME" -e "mv \$f $DIR"
+  end
+
 
   notify "~> screenshot" "$DIR/$FILENAME"
 end

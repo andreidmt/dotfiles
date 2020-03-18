@@ -1,6 +1,12 @@
 function sys -a cmd prop -d "~> System operations"
     switch "$cmd"
         ##
+        ## Generate new private/public key pair
+        ##
+        case "newkey"
+				  ssh-keygen -m pem -t rsa -b 4096 -C "andrei@mutant.love"	
+
+        ##
         ## Run sxiv on all images in folder
         ##    
         case "wall"
@@ -49,9 +55,12 @@ function sys -a cmd prop -d "~> System operations"
         ## Reload fish and X settings
         ##
         case "reload"
-            source ~/.config/fish/config.fish 
+            notify "~sys" "Reloading Fish, X and i3"
+
+            source ~/.config/fish/config.fish
             xrdb ~/.Xresources
-    
+            i3-msg reload
+
         ##
         ## Lock screen
         ##

@@ -10,7 +10,8 @@ function io -a cmd -a subcmd -d "~> IO"
             end
 
             ssh-add ~/.ssh/github_t420
-            ssh-add ~/.ssh/asd14__nginx--tiny-1
+            ssh-add ~/.ssh/asd14__andreid
+            ssh-add ~/.ssh/asd14__ci
 
         ##
         ## Proton VPN 
@@ -35,6 +36,12 @@ function io -a cmd -a subcmd -d "~> IO"
                 # Connect to home network
                 case "home"
                     sudo netctl start wifi-112357
+
+                # Reset home connection
+
+                case "reset"
+                    sudo rfkill unblock all
+                    sudo systemctl restart netctl@wifi\\x2d112357.service
 
                 # Choose wifi network
                 case "*"

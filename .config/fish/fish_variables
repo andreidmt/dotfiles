@@ -4,8 +4,10 @@ SETUVAR --path PATH:/home/andreid/\x2escripts/tools\x20/home/andreid/\x2escripts
 SETUVAR __fish_init_2_39_8:\x1d
 SETUVAR __fish_init_2_3_0:\x1d
 SETUVAR __fish_init_3_x:\x1d
+SETUVAR __fish_initialized:3100
 SETUVAR _fish_abbr__21_21_:eval\x20command\x20sudo\x20sys\x20check
 SETUVAR _fish_abbr_ethspeed:speedometer\x20\x2dr\x20enp0s25
+SETUVAR _fish_abbr_jcurl:curl\x20\x2d\x2dverbose\x20\x2d\x2dheader\x20\x22Content\x2dType\x3a\x20application/json\x22
 SETUVAR _fish_abbr_lsa:ls\x20\x2dAlhtr\x20\x2d\x2dcolor\x3dauto\x20\x2d\x2dgroup\x2ddirectories\x2dfirst
 SETUVAR _fish_abbr_mkd:mkdir\x20\x2dpv
 SETUVAR _fish_abbr_npb:npm\x20run\x20build
@@ -28,6 +30,7 @@ SETUVAR fish_color_error:ff0000
 SETUVAR fish_color_escape:00a6b2
 SETUVAR fish_color_history_current:\x2d\x2dbold
 SETUVAR fish_color_host:normal
+SETUVAR fish_color_host_remote:yellow
 SETUVAR fish_color_match:\x2d\x2dbackground\x3dbrblue
 SETUVAR fish_color_normal:normal
 SETUVAR fish_color_operator:00a6b2
@@ -45,4 +48,4 @@ SETUVAR fish_pager_color_completion:\x1d
 SETUVAR fish_pager_color_description:B3A06D\x1eyellow
 SETUVAR fish_pager_color_prefix:white\x1e\x2d\x2dbold\x1e\x2d\x2dunderline
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
-SETUVAR fish_user_paths:/home/andreid/\x2econfig/nvm/10\x2e15\x2e1/bin
+SETUVAR fish_user_paths:/home/andreid/\x2econfig/nvm/12\x2e13\x2e1/bin
