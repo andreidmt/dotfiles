@@ -3,12 +3,11 @@
 !!
 rofi.run-command: fish -c '{cmd}'
 rofi.run-list-command: 'fish -c functions'
-rofi.font: monospace 11
+rofi.font: monospace 12
 
 !!
 !! Font rendering 
 !!
-
 Xft.autohint: 0
 Xft.lcdfilter:  lcddefault
 Xft.hintstyle:  hintfull
@@ -19,22 +18,25 @@ Xft.rgba: rgb
 !!
 !! Screen lock
 !!
-
 Xautolock.time: 30
 Xautolock.locker: ~/scripts/i3lock
 Xautolock.detectsleep: true
 Xautolock.secure: true
 Xautolock.noclose: true
 
-st.alpha: 230
-*.font: Monospace-14;
+!!
+!! Suckless terminal
+!!
+st.alpha: 0.9
+st.font: Monospace-11;
+st.termname: st-256color
 
 !!
-!! Gruvbox
+!! Gruvbox color scheme
 !!
-
-*background: #1d2021
-*foreground: #ebdbb2
+*.background: #1d2021
+*.foreground: #ebdbb2
+*.cursorColor: #ebdbb2
 
 ! Black + DarkGrey
 *color0:  #282828
