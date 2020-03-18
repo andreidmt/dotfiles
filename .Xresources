@@ -28,7 +28,7 @@ Xautolock.noclose: true
 !! Suckless terminal
 !!
 st.alpha: 0.9
-st.font: Monospace-11;
+st.font: Monospace-12;
 st.termname: st-256color
 
 !!
