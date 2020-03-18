@@ -1,24 +1,393 @@
-snippet icx
+snippet keys
+  // keyboard shortcuts
+  const { addShortcuts, removeShortcuts } = useKeyboard()
+
+  useEffect(() => {
+    addShortcuts({
+      layer: "${1}",
+      shortcuts: {
+        "key": () => {},
+      },
+    })
+
+    return () => removeShortcuts({ layer: "$1" })
+  }, [addShortcuts, removeShortcuts])
+
+snippet cmd
+  // command line
+  useEffect(() => {
+    addCommands({
+      layer: "${1}",
+      commands: [
+        {
+          name: "do-something",
+          description: "Lorem",
+          weight: 1,
+          params: [{ name: "email", isRequired: true }],
+          onFinish: () => {}, 
+        },
+      ],
+    })
+
+    return () => removeCommands({ layer: "$1" })
+  }, [])
+
+snippet m 
+  import {${1}} from "@mutant-ws/m"
+
+snippet r 
+  import {${1}} from "ramda"
+
+snippet cx
   import cx from "classnames"
 
-snippet ipt
+snippet pt
   import PropTypes from "prop-types"
 
-snippet rfc
-  const debug = require("debug")("${1}:${2:FComponent}")
+snippet list
+  const debug = require("debug")("${1}:${2}")
+  
+  import { buildList } from "@mutantlove/redux-list"
 
-  import * as React from "react"
+  // import { GET, POST } from "../../core/api.helper"
+
+  export const $2 = buildList({
+    name: "${3}",
+
+    create: data => data,
+    
+    read: () => [{ id: 1, title: "lorem ipsum" }],
+    
+    update: (id, data) => ({ id, ...data }),
+    
+    remove: id => ({ id }),
+  })
+
+snippet container
+  const debug = require("debug")("${1}:${2}Container")
+
+  import React, { useEffect } from "react"
   import PropTypes from "prop-types"
 
-  const $2 = React.memo(({ children }) => (
-    <div>{children}</div>
-  ))
+  import { useMutantList } from "../core/use-list"
 
-  $2.propTypes = {
-    children: PropTypes.node.isRequired,
+  import { $2List } from "./$2.list"
+  import { $2UI } from "./$2.ui"
+
+  const $2Container = ({ productId }) => {
+    const {
+      selector: { items },
+      read,
+    } = useMutantList($2List)
+
+    useEffect(() => {
+      read({ productId })
+    }, [productId, read])
+
+    return (
+      <$2UI productId={productId} items={items()} />
+    )
   }
 
-  $2.defaultProps = {
+  $2Container.propTypes = {
+    productId: PropTypes.string.isRequired,
   }
 
-  export { $2 }
+  $2Container.defaultProps = {
+  }
+
+  export { $2Container }
+
+snippet ui
+  const debug = require("debug")("${1}:${2}UI")
+
+  import React from "react"
+  import cx from "classnames"
+  import PropTypes from "prop-types"
+  import { map, keys } from "ramda"
+
+  import { deepReactMemo } from "../core/use-deep"
+
+  import css from "./$2.css"
+
+  const $2UI = ({ productId, items }) => {
+    return (
+      <div className={cx(css.$2)}>
+        {map(({ id, value }) => <div key={id}>{value}</div>)(items)}
+      </div>
+    )
+  }
+
+  $2UI.propTypes = {
+    productId: PropTypes.string.isRequired,
+    items: PropTypes.arrayOf(PropTypes.shape({})),
+  }
+
+  $2UI.defaultProps = {
+    items: [],
+  }
+  
+  const memo = deepReactMemo($2UI, keys($2UI.propTypes))
+
+  export { memo as $2UI }
+
+snippet rt
+  import React from "react"
+  import render from "riteway/render-component"
+  import { describe } from "riteway"
+
+  import { ${1} } from "./${2}"
+
+  describe("$1", async assert => {
+    {
+      const $ = render(<$1 />)
+
+      assert({
+        given: "no props",
+        should: "render something",
+        actual: $("[data-test-id]").length,
+        expected: 1,
+      })
+    }
+  })
+
+snippet rtt
+  {
+    const $ = render(<${1} />)
+
+    assert({
+      given: "props",
+      should: "render something",
+      actual: $("[data-test-id]").length,
+      expected: 1,
+    })
+  }
+
+snippet rm
+  const memo = React.memo(${1}, (prev, next) => {
+    const changingProps = [${2}]
+
+    return deepEqual(pick(changingProps)(prev))(pick(changingProps)(next))
+  })
+
+snippet bp
+  const debug = require("debug")("${1}:${2}")
+
+  export default {
+    depend: ["Config"],
+
+    create: Config => {
+      return {
+        getMessage: "Hello Plugin World!",
+      }
+    },
+  }
+
+snippet bs
+  /**
+   * foo: {
+   *   type: "string",
+   *   pattern: "^[a-z0-9-]+$",
+   *   maxLength: 25,
+   *   minLength: 25,
+   * },
+   *
+   * limit: {
+   *   type: "integer",
+   *   minimum: 1,
+   *   maximum: 100,
+   *   default: 20,
+   * },
+   *
+   * bar: {
+   *   type: "string",
+   *   enum: ["lorem", "dolor", "bobby"],
+   * },
+   *
+   * ipsum: {
+   *   type: ["integer", "null"],
+   *   enum: ["lorem", "dolor", "bobby"],
+   * },
+   *
+   * id: {
+   *   oneOf: [
+   *     { type: "integer" },
+   *     {
+   *       type: "array",
+   *       items: { type: "integer" },
+   *       minItems: 1,
+   *       uniqueItems: true,
+   *     },
+   *   ],
+   * },
+   */
+
+  module.exports = {
+    headers: {
+      type: "object",
+      required: ["x-content-type", "authorization"],
+      properties: {
+        "x-content-type": {
+          enum: ["application/json"],
+        },
+        authorization: {
+          type: "string",
+        },
+      },
+    },
+
+    params: {
+      type: "object",
+      additionalProperties: false,
+    },
+
+    query: {
+      type: "object",
+      additionalProperties: false,
+    },
+
+    body: {
+      type: "object",
+      additionalProperties: false,
+    },
+  }
+
+snippet n404
+  if (isEmpty(users)) {
+    throw new ApplicationError("${1} not found", {
+      status: 404,
+      fieldErrors: [
+        {
+          dataPath: "body.${2}",
+          message: "$1 not found",
+        },
+      ],
+    })
+  }
+
+snippet ba
+  /**
+   * Permission checking, if allowed:
+   *  -> continue to action
+   *  -> otherwise return 403
+   *
+   * @param  {Object}  plugins  Plugins
+   * @param  {Object}  req      Node request
+   *
+   * @return {boolean}
+   */
+  isAllowed: ({ Models: { JWT } }) => ({
+    ctx: {
+      jwt: { jti, userId },
+    },
+  }) => {
+    const checks = [
+      // cross check outisice jwt signed data with db info
+      () => JWT.isValid(jti, { issuedBy: userId }),
+
+      // context related permission checks
+    ]
+
+    return sequenceWhile(isTrue, checks).then(all(equals(true)))
+  },
+
+snippet br
+  const debug = require("debug")("mutant:${1}Route")
+
+  import { sequenceWhile, isTrue } from "@mutant-ws/m"
+  import { all, equals } from "ramda"
+
+  module.exports = {
+    method: "${2}",
+    path: "/${3}",
+
+    /**
+     * If req data is valid
+     *  -> continue to permissionn check
+     *  -> otherwise return 409
+     */
+    schema: require("./${4}.schema"),
+
+    /**
+     * Permission checking, if allowed:
+     *  -> continue to action
+     *  -> otherwise return 403
+     *
+     * @param  {Object}  plugins  Plugins
+     * @param  {Object}  req      Node request
+     *
+     * @return {boolean}
+     */
+    isAllowed: ({ Models: { JWT } }) => ({
+      ctx: {
+        jwt: { jti, userId },
+      },
+    }) => {
+      const checks = [
+        // cross check outisice jwt signed data with db info
+        () => JWT.isValid(jti, { issuedBy: userId }),
+
+        // context related permission checks
+      ]
+
+      return sequenceWhile(isTrue, checks).then(all(equals(true)))
+    },
+
+    /**
+     * After schema validation and permission checking, do route logic
+     *
+     * @param  {Object}  plugins  Plugins
+     * @param  {Object}  req      Node request
+     *
+     * @return {mixed}
+     */
+    action: () => async ({ctx: {query, body, params}}) => {
+      return {
+        message: "This ${req.ctx.params.id} is something else!"
+      }
+    },
+  }
+
+snippet nm
+  const debug = require("debug")("mutant:${1}Model")
+
+  // import r from "rethinkdb"
+
+  module.exports = {
+    table: "$1",
+
+    /**
+     * Check if $1 exists by id
+     *
+     * @param {Object} table ReQL table
+     * @param {Object} conn  ReDB connection
+     * @param {String} id    Component id
+     *
+     * @returns {Promise<boolean>}
+     */
+    exists: (table, conn) => id =>
+      table
+        .count(id)
+        .run(conn)
+        .then(count => count !== 0),
+
+    /**
+     * Fetch all $1
+     *
+     * @param {Object}   table      ReQL table
+     * @param {Object}   conn       ReDB connection
+     * @param {Object}   opt.filter Field conditions
+     * @param {String[]} opt.pluck  Only return specific fields
+     * @param {Number}   opt.limit  How many to return
+     * @param {Number}   opt.offset Start selecting from position
+     *
+     * @returns {Promise<Object[]>}
+     */
+    readAll: (table, conn) => ({ filter = {}, pluck = [], limit, offset } = {}) =>
+      table
+        .filter(filter)
+        .pluck("id", ...pluck)
+        .limit(limit)
+        .skip(offset)
+        .run(conn),
+  }

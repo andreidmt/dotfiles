@@ -23,6 +23,7 @@ set rnu                 " Relative numbering from current line.
 set nostartofline       " Do not jump to first character with page commands.
 set noshowmode          " Already shown in lightline
 set nospell spelllang=en_us
+set wildignore+=*node_modules/**,*dist/**
 
 highlight Comment cterm=italic
 highlight clear SignColumn
@@ -92,10 +93,11 @@ Plug 'airblade/vim-gitgutter' " git diff info in buffer gutter
 Plug 'ap/vim-css-color' " color highlighting
 Plug 'w0rp/ale' " linter manager
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " autocomplete
-Plug 'junegunn/fzf' " fuzzy finder
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " fuzzy file finder
 Plug 'jremmen/vim-ripgrep' " search in files
 Plug 'wellle/targets.vim'
-Plug 'majutsushi/tagbar'
+" Plug 'ludovicchabant/vim-gutentags'
+" Plug 'majutsushi/tagbar'
 
 " Templates & snippets
 Plug 'Shougo/neosnippet.vim'
@@ -111,6 +113,7 @@ Plug 'pangloss/vim-javascript'
 Plug 'heavenshell/vim-jsdoc'
 Plug 'mxw/vim-jsx'
 Plug 'ternjs/tern_for_vim', {'do': 'npm install'}
+" Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
 
 " Writing
 Plug 'junegunn/goyo.vim'
@@ -129,6 +132,8 @@ Plug 'maximbaz/lightline-ale'
 " Other
 Plug 'editorconfig/editorconfig-vim'
 Plug 'dag/vim-fish'
+Plug 'wakatime/vim-wakatime'
+
 call plug#end()
 
 ""
@@ -136,14 +141,17 @@ call plug#end()
 ""
 
 syntax enable
-set background=dark
-colorscheme gruvbox " palenight,solarized8 
+" set background=dark
+colorscheme gruvbox " gruvbox,palenight,solarized8 
 set termguicolors
 hi Normal guibg=NONE ctermbg=NONE
 
 "" 
 "" Config Plugins
 ""
+
+" JS file auto import
+let g:js_file_import_string_quote='"'
 
 " Neosnippet 
 let g:neosnippet#snippets_directory='~/.config/nvim/snippets'
@@ -159,7 +167,7 @@ xmap <C-k>     <Plug>(neosnippet_expand_target)
 " \ pumvisible() ? "\<C-n>" :
 " \ neosnippet#expandable_or_jumpable() ?
 " \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+smap <expr><C-k> neosnippet#expandable_or_jumpable() ?
 \ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
 
 " File browser
