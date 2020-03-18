@@ -1,8 +1,8 @@
-function wo -a name -d "~> Switch to work-own project folder"
-    set project_path "$HOME/work-own/$name"
+function wo -a name -d "~> Switch to Work project folder"
+    set project_path "$HOME/Work/$name"
 
     if ! test -d "$project_path" 
-        notify "~> work-own" "Project folder \"$name\" does not exist"
+        notify "~> Work" "Project folder \"$name\" does not exist"
         return 1
     end
 

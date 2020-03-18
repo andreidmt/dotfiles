@@ -1,4 +1,3 @@
-# =============================================================================
 # Basic Definitions
 # =============================================================================
 
@@ -126,7 +125,7 @@ exec --no-startup-id feh --bg-scale "$HOME/wall.png" &
 exec --no-startup-id dunst &
 
 # Composite manager
-exec --no-startup-id compton -b &
+exec --no-startup-id picom -b &
 
 # Key remapping scripts
 exec --no-startup-id ~/.scripts/remaps
@@ -140,18 +139,16 @@ exec --no-startup-id ~/.scripts/remaps
 ##
 ## Applications
 ##
-bindsym $mod+p             exec --no-startup-id rofi -show run
+bindsym $mod+p           exec --no-startup-id rofi -show run
+bindsym $mod+Shift+q     kill
 
-bindsym $mod+Shift+q       kill
-
-bindsym $mod+t             gaps inner current set 0; gaps outer current set 0
+bindsym $mod+t           gaps inner current set 0; gaps outer current set 0
 bindsym $mod+Shift+t	   gaps inner current set 20; gaps outer current set 0
 
 bindsym $mod+Shift+u	   resize grow width 15 px 
 bindsym $mod+Shift+i	   resize shrink height 15 px 
 bindsym $mod+Shift+o	   resize grow height 15 px 
 bindsym $mod+Shift+p	   resize shrink width 15 px 
-
 
 bindsym $mod+Shift+h	   move left 30
 bindsym $mod+Shift+j	   move down 30
