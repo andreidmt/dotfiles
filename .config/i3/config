@@ -4,11 +4,11 @@
 
 default_border pixel 3
 
-font pango:monospace 11
+font pango:monospace 12
 workspace_auto_back_and_forth yes
 
 set $mod Mod4
-set $term --no-startup-id kitty
+set $term --no-startup-id st
 set $netrefresh --no-startup-id sudo systemctl restart NetworkManager
 set $shutdown sudo -A shutdown -h now
 set $reboot sudo -A reboot
@@ -161,10 +161,10 @@ bindsym $mod+Shift+l	   move right 30
 bindsym $mod+h			   focus left
 bindsym $mod+j			   focus down
 bindsym $mod+k			   focus up
-bindsym $mod+l		       focus right
+bindsym $mod+l		     focus right
 
 bindsym $mod+b			   bar mode toggle
-bindsym $mod+Shift+b       floating toggle; sticky toggle; exec --no-startup-id bottomleft
+bindsym $mod+Shift+b   floating toggle; sticky toggle; exec --no-startup-id bottomleft
 bindsym $mod+s			   sticky toggle
 bindsym $mod+f			   fullscreen toggle
 
@@ -224,8 +224,8 @@ bindsym $mod+Shift+9	move container to workspace $ws9
 bindsym $mod+Shift+0	move container to workspace $ws10
 
 # Function Buttons
-bindsym $mod+F1     reload
-bindsym $mod+F2		restart
+# bindsym $mod+F1   reload
+bindsym $mod+F2		exec --no-startup-id fish -c "sys reload"
 bindsym $mod+F3		exec --no-startup-id displayselect
 bindsym $mod+F4		exec --no-startup-id $hibernate
 bindsym $mod+F9		exec --no-startup-id dmenumount
@@ -233,8 +233,8 @@ bindsym $mod+F10	exec --no-startup-id dmenuumount
 
 # Arrow Keys
 bindsym $mod+Left	      	focus left
-bindsym $mod+Down           focus down
-bindsym $mod+Up	            focus up
+bindsym $mod+Down         focus down
+bindsym $mod+Up	          focus up
 bindsym $mod+Right  	  	focus right
 
 bindsym $mod+Shift+Left		move left
@@ -248,19 +248,18 @@ bindsym $mod+minus          exec --no-startup-id fish -c "vol down"
 bindsym $mod+Shift+plus     exec --no-startup-id fish -c "mic up"
 bindsym $mod+Shift+minus    exec --no-startup-id fish -c "mic down"
 
-bindsym Print               exec --no-startup-id fish -c "screenshot"
-bindsym Shift+Print 		exec --no-startup-id screenshot -t focus
-bindsym $mod+Print		    exec --no-startup-id cm__record
+bindsym Print           exec --no-startup-id fish -c "screenshot"
+bindsym Shift+Print 		exec --no-startup-id fish -c "screenshot focused"
 
 # #---Extra XF86 Keys---# #
 
 bindsym XF86MonBrightnessDown	exec --no-startup-id xbacklight -dec 15
-bindsym XF86MonBrightnessUp	    exec --no-startup-id xbacklight -inc 15
-bindsym XF86AudioMicMute   	    exec --no-startup-id fish -c "mic toggle"
-bindsym XF86AudioMute		    exec --no-startup-id fish -c "vol toggle"
+bindsym XF86MonBrightnessUp	  exec --no-startup-id xbacklight -inc 15
+bindsym XF86AudioMicMute   	  exec --no-startup-id fish -c "mic toggle"
+bindsym XF86AudioMute		      exec --no-startup-id fish -c "vol toggle"
 bindsym XF86AudioLowerVolume	exec --no-startup-id fish -c "vol down"
 bindsym XF86AudioRaiseVolume	exec --no-startup-id fish -c "vol up"
-bindsym XF86PowerOff		    exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
+bindsym XF86PowerOff		      exec --no-startup-id prompt "Are you sure you want to shutdown?" "$shutdown"
 
 # bindsym XF86Copy		exec
 # bindsym XF86Open		exec
