@@ -163,14 +163,14 @@ snippet rtt
     })
   }
 
-snippet rm
+snippet memo
   const memo = React.memo(${1}, (prev, next) => {
     const changingProps = [${2}]
 
     return deepEqual(pick(changingProps)(prev))(pick(changingProps)(next))
   })
 
-snippet bp
+snippet plugin
   const debug = require("debug")("${1}:${2}")
 
   export default {
@@ -183,7 +183,7 @@ snippet bp
     },
   }
 
-snippet bs
+snippet schema
   /**
    * foo: {
    *   type: "string",
@@ -265,7 +265,7 @@ snippet n404
     })
   }
 
-snippet ba
+snippet isAllowed
   /**
    * Permission checking, if allowed:
    *  -> continue to action
@@ -291,7 +291,7 @@ snippet ba
     return sequenceWhile(isTrue, checks).then(all(equals(true)))
   },
 
-snippet br
+snippet route
   const debug = require("debug")("mutant:${1}Route")
 
   import { sequenceWhile, isTrue } from "@mutant-ws/m"
@@ -348,7 +348,7 @@ snippet br
     },
   }
 
-snippet nm
+snippet model
   const debug = require("debug")("mutant:${1}Model")
 
   // import r from "rethinkdb"
@@ -390,4 +390,19 @@ snippet nm
         .limit(limit)
         .skip(offset)
         .run(conn),
+  }
+
+snippet migration 
+  import r from "rethinkdb"
+
+  /**
+   * 
+   *
+   * Safe to run multiple times (idempotent): YES/NO
+   * Reversable without side-effects: YES/NO
+   */
+  module.exports = {
+    up: () => [],
+
+    down: () => [],
   }
