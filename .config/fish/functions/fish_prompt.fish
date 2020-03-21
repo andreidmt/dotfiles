@@ -62,23 +62,34 @@ function fish_prompt
         set -g __fish_prompt_normal (set_color normal)
     end
 
-    printf '%s :: ' (__fish_vcs_prompt)
-    
+    # Line 1
+
+    # user
     set_color yellow
     printf '%s' (whoami)
     set_color normal
-    printf ' at '
+    printf ' :: '
 
+    # host
     set_color magenta
     echo -n (prompt_hostname)
-    set_color normal
-    printf ' in '
 
-    set_color $fish_color_cwd
-    printf '%s' (prompt_pwd)
+    # git
+    set -l gitStatus (fish_vcs_prompt)
     set_color normal
+    if test $gitStatus
+      printf ' ::%s' $gitStatus
+    end
 
     # Line 2
+    
+    # current dir
+    echo
+    set_color $fish_color_cwd
+    printf '%s' (pwd)
+    set_color normal
+
+    # Line 3 
     echo
     if test $VIRTUAL_ENV
         printf "(%s) " (set_color blue)(basename $VIRTUAL_ENV)(set_color normal)
@@ -100,8 +111,8 @@ function fish_prompt
 
   set -l project
 
-  if echo (pwd) | grep -qEi "^/Users/$USER/Sites/"
-      set  project (echo (pwd) | sed "s#^/Users/$USER/Sites/\\([^/]*\\).*#\\1#")
+  if echo (pwd) | grep -qEi "^/home/$USER/Work/"
+      set  project (echo (pwd) | sed "s#^/home/$USER/Work/\\([^/]*\\).*#\\1#")
   else
       set  project "Terminal"
   end
