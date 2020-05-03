@@ -1,0 +1,72 @@
+!!
+!! Rofi + fish
+!!
+rofi.run-command: fish -c '{cmd}'
+rofi.run-list-command: 'fish -c functions'
+rofi.font: monospace 12
+
+!!
+!! Font rendering 
+!!
+Xft.autohint: 0
+Xft.lcdfilter:  lcddefault
+Xft.hintstyle:  hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
+
+!!
+!! Screen lock
+!!
+Xautolock.time: 30
+Xautolock.locker: ~/scripts/i3lock
+Xautolock.detectsleep: true
+Xautolock.secure: true
+Xautolock.noclose: true
+
+!!
+!! Suckless terminal
+!!
+st.alpha: 0.8
+st.font: Monospace-11;
+st.termname: st-256color
+
+!!
+!! Gruvbox color scheme
+!!
+!!*.background: #1d2021
+*.background: #111111
+*.foreground: #ebdbb2
+*.cursorColor: #ebdbb2
+
+! Black + DarkGrey
+*color0:  #282828
+*color8:  #928374
+
+! DarkRed + Red
+*color1:  #cc241d
+*color9:  #fb4934
+
+! DarkGreen + Green
+*color2:  #98971a
+*color10: #b8bb26
+
+! DarkYellow + Yellow
+*color3:  #d79921
+*color11: #fabd2f
+
+! DarkBlue + Blue
+*color4:  #458588
+*color12: #83a598
+
+! DarkMagenta + Magenta
+*color5:  #b16286
+*color13: #d3869b
+
+! DarkCyan + Cyan
+*color6:  #689d6a
+*color14: #8ec07c
+
+! LightGrey + White
+*color7:  #a89984
+*color15: #ebdbb2

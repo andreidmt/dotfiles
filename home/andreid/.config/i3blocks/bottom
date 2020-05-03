@@ -1,0 +1,26 @@
+[wifi-speed]
+command=~/.scripts/i3blocks__bandwidth
+interval=3
+
+[wifi-network]
+label= 
+command=fish -c "stats wifi"
+interval=3
+signal=12
+
+[memmory]
+command=fish -c "stats memory"
+interval=3
+
+[load]
+label= 
+command=~/.scripts/i3blocks__cpu
+interval=2
+
+[cpu-speeds]
+command=fish -c "stats cpu-speeds"
+interval=2
+
+[cpu-temp]
+command=fish -c "stats cpu-temp"
+interval=2
