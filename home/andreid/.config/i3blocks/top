@@ -1,25 +1,23 @@
-[data]
-command=date "+%A %T on %B %d"
-interval=1
+[vol]
+command=~/.local/bin/statusbar/vol
+interval=once
+signal=12
 
 [mic]
-label= 
-command=fish -c "mic status"
+command=~/.local/bin/statusbar/mic
 interval=once
-signal=10
-
-[vol]
-label= 
-command=fish -c "vol status"
-interval=once
-signal=10
+signal=11
 
 [pacman]
 label= 
-command=fish -c "stats pacman"
-interval=30
-signal=11
+command=~/.local/bin/statusbar/pacman
+interval=once
+signal=10
 
 [battery]
-command=fish -c "stats battery"
+command=~/.local/bin/statusbar/battery
 interval=3
+
+[data]
+command=~/.local/bin/statusbar/now
+interval=1

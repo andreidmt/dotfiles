@@ -2,26 +2,29 @@
 
 while read file
 do
-    case "$1" in
-    # Set wallpaper
-    "w") fish -c "wall set \"$file\"" & ;;
+  case "$1" in
+  # Set wallpaper
+  "w")
+    wallpaper set "$(readlink -f "$file")" &
+  ;;  
 
-    #
-	"y")
-		echo -n "$file" | xclip -selection clipboard &&
-		notify-send "$file copied to clipboard" & ;;
-	
-    #
-    "Y")
-		echo -n "$(readlink -f "$file")" | xclip -selection clipboard &&
-		notify-send "$(readlink -f "$file") copied to clipboard" & ;;
-	
-    # Delete file via rofi confirm
-    "d")
-		[ "$(printf "No\\nYes" | dmenu -i -p "Really delete $file?")" = "Yes" ] && rm "$file" && notify-send "$file deleted." ;;
-    
-    # Open with Gimp
-    "g")
-        gimp "$file" & ;;
-    esac
+  # Rotate 90deg
+  "r")
+    convert -rotate 90 "$file" "$file" ;;
+
+  #
+  "y")
+    echo -n "$(readlink -f "$file")" | xclip -selection clipboard && 
+    notify "sxiv" "Path copied to clipboard.\n\n$(readlink -f "$file")" & 
+  ;;  
+
+  # Delete file via rofi confirm
+  "d")
+    [ "$(printf "No\\nYes" | rofi -dmenu -p "Delete $file?")" = "Yes" ] && rm "$file" && notify "sxiv" "File deleted.\n\n$file" 
+  ;;  
+
+  # Open with Gimp
+  "g")
+    gimp "$file" & ;;
+  esac
 done

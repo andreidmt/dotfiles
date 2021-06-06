@@ -1,26 +1,20 @@
-[wifi-speed]
-command=~/.scripts/i3blocks__bandwidth
+[wifi-bandwidth]
+command=~/.local/bin/statusbar/bandwidth
 interval=3
-
-[wifi-network]
-label= 
-command=fish -c "stats wifi"
-interval=3
-signal=12
+INTERFACE=wlp3s0
+INLABEL= 
+OUTLABEL= 
+#TREAT_UNKNOWN_AS_UP=0
 
 [memmory]
-command=fish -c "stats memory"
-interval=3
-
-[load]
-label= 
-command=~/.scripts/i3blocks__cpu
+command=~/.local/bin/statusbar/memory
 interval=2
+label= 
 
 [cpu-speeds]
-command=fish -c "stats cpu-speeds"
+command=~/.local/bin/statusbar/cpu-speed
 interval=2
 
 [cpu-temp]
-command=fish -c "stats cpu-temp"
+command=~/.local/bin/statusbar/cpu-temp
 interval=2

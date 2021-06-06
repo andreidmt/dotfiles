@@ -1,61 +1,148 @@
-/* ==========================================================================
-   Rofi color theme
-
-   Based on the Gruvbox color scheme for Vim by morhetz
-   https://github.com/morhetz/gruvbox
-
-   File: gruvbox-dark-hard.rasi
-   Desc: Gruvbox dark (hard contrast) color theme for Rofi
-   Author: bardisty <b@bah.im>
-   Source: https://github.com/bardisty/gruvbox-rofi
-   Modified: Mon Feb 12 2018 06:04:26 PST -0800
-   ========================================================================== */
-
 * {
-    /* Theme settings */
-    highlight: underline bold;
-    scrollbar: false;
+  highlight: bold underline;
+  scrollbar: true;
 
-    /* Gruvbox dark colors */
-    gruvbox-dark-bg0-hard:     #1d2021;
-    gruvbox-dark-bg0:          #282828;
-    gruvbox-dark-bg2:          #504945;
-    gruvbox-dark-fg0:          #fbf1c7;
-    gruvbox-dark-fg1:          #ebdbb2;
-    gruvbox-dark-red-dark:     #cc241d;
-    gruvbox-dark-red-light:    #fb4934;
-    gruvbox-dark-yellow-dark:  #d79921;
-    gruvbox-dark-yellow-light: #fabd2f;
-    gruvbox-dark-gray:         #a89984;
+  gruvbox-dark-bg0:          #282828de;
+  gruvbox-dark-bg0-soft:     #282828;
+  gruvbox-dark-bg3:          #282828;
+  gruvbox-dark-fg0:          #ebdbb2;
+  gruvbox-dark-fg1:          #999999;
+  gruvbox-dark-red-dark:     #cc241d;
+  gruvbox-dark-red-light:    #fb4934;
+  gruvbox-dark-yellow-dark:  #d79921;
+  gruvbox-dark-yellow-light: #fabd2f;
+  gruvbox-dark-gray:         #ebdbb2;
+  gruvbox-dark-bc:           #ebdbb2;
+  gruvbox-cyan:              #8ec07c;
 
-    /* Theme colors */
-    background:                  @gruvbox-dark-bg0-hard;
-    background-color:            @background;
-    foreground:                  @gruvbox-dark-fg1;
-    separatorcolor:              @border-color;
-    scrollbar-handle:            @border-color;
+  background:                  @gruvbox-dark-bg0;
+  foreground:                  @gruvbox-dark-fg0;
+  background-color:            #00000000;
+  border-color:                @gruvbox-dark-bc;
+  separatorcolor:              @background;
+  scrollbar-handle:            @gruvbox-dark-bc;
 
-    normal-background:           @background;
-    normal-foreground:           @foreground;
-    alternate-normal-background: @background;
-    alternate-normal-foreground: @foreground;
-    selected-normal-background:  @gruvbox-dark-yellow-light;
-    selected-normal-foreground:  @gruvbox-dark-bg0-hard;
+  normal-background:           @background;
+  normal-foreground:           @foreground;
+  alternate-normal-background: @gruvbox-dark-bg0-soft;
+  alternate-normal-foreground: @foreground;
+  selected-normal-background:  @gruvbox-dark-bg3;
+  selected-normal-foreground:  @gruvbox-cyan;
 
-    active-background:           @gruvbox-dark-yellow-dark;
-    active-foreground:           @background;
-    alternate-active-background: @active-background;
-    alternate-active-foreground: @active-foreground;
-    selected-active-background:  @gruvbox-dark-yellow-light;
-    selected-active-foreground:  @active-foreground;
+  active-background:           @gruvbox-dark-yellow-dark;
+  active-foreground:           @background;
+  alternate-active-background: @active-background;
+  alternate-active-foreground: @active-foreground;
+  selected-active-background:  @gruvbox-dark-yellow-light;
+  selected-active-foreground:  @active-foreground;
 
-    urgent-background:           @gruvbox-dark-red-dark;
-    urgent-foreground:           @background;
-    alternate-urgent-background: @urgent-background;
-    alternate-urgent-foreground: @urgent-foreground;
-    selected-urgent-background:  @gruvbox-dark-red-light;
-    selected-urgent-foreground:  @urgent-foreground;
+  urgent-background:           @gruvbox-dark-red-dark;
+  urgent-foreground:           @background;
+  alternate-urgent-background: @urgent-background;
+  alternate-urgent-foreground: @urgent-foreground;
+  selected-urgent-background:  @gruvbox-dark-red-light;
+  selected-urgent-foreground:  @urgent-foreground;
 }
 
-@import "gruvbox-common.rasi"
+window,
+case-indicator,
+mainbox,
+entry,
+prompt,
+message,
+button {
+  text-color: @foreground;
+}
 
+textbox {
+  highlight: @highlight;
+  text-color: @foreground;
+}
+
+inputbar,
+message,
+listview {
+  padding: 1em;
+}
+
+inputbar {
+  border: 1;
+}
+
+message {
+  background-color: @background;
+  margin: 0 0 1em 0;
+}
+
+listview {
+  scrollbar: @scrollbar;
+  background-color: @background;
+}
+
+scrollbar {
+  handle-color: @foreground;
+  handle-width: 3px;
+}
+
+inputbar {
+  children: [prompt, textbox-prompt-sep, entry, case-indicator];
+  background-color: @background;
+  margin: 0 0 1em 0;
+}
+
+case-indicator {
+  spacing: 0;
+  text-color: var(normal-foreground);
+}
+
+textbox-prompt-sep {
+  expand: false;
+  str: ":";
+  text-color: @normal-foreground;
+  margin: 0 0.5em 0 0;
+}
+
+element {
+  padding: 2px 0;
+}
+
+element.normal.normal {
+  text-color: @normal-foreground;
+}
+
+element.normal.urgent {
+  text-color: @urgent-foreground;
+}
+
+element.normal.active {
+  text-color: @active-foreground;
+}
+
+element.selected.normal {
+  text-color: @selected-normal-foreground;
+}
+
+element.selected.urgent {
+  text-color: @selected-urgent-foreground;
+}
+
+element.selected.active {
+  text-color: @selected-active-foreground;
+}
+
+element.alternate.normal {
+  text-color: @alternate-normal-foreground;
+}
+
+element.alternate.urgent {
+  text-color: @alternate-urgent-foreground;
+}
+
+element.alternate.active {
+  text-color: @alternate-active-foreground;
+}
+
+button.selected {
+  background-color: @selected-normal-background;
+  text-color: @selected-normal-foreground;
+}

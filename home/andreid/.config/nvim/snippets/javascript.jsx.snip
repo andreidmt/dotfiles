@@ -1,19 +1,205 @@
-snippet keys
+snippet lintdisable 
+   /* eslint-disable ${1} */
+
+snippet jsdoc-typedef
+  /** 
+   * @typedef {${1}} ${2} 
+   */
+
+snippet jsdoc-type
+  /** @type {${1}} ${2} */
+
+snippet plugin
+  /**
+   * @typedef {Object} ${1}Plugin
+   */
+
+  module.exports = {
+    /**
+     * Used by other plugins to request it's content
+     *
+     * @type {string}
+     */
+    name: "$1",
+
+    /**
+     * List of plugin names who's content we're dependent on. Dependent plugins
+     * are evaluated first.
+     *
+     * @type {string[]}
+     */
+    depend: [],
+
+    /**
+     * Plugin factory function. Will run once and it's content cached by the
+     * @asd14/pluginus dependency injector.
+     *
+     * @returns {Object}
+     */
+    create: () => {
+
+      return {
+      }
+    },
+  }
+
+snippet model
+  const { pick } = require("@asd14/m")
+
+  /**
+   * Document type of \`$1\` collection
+   *
+   * @typedef {Object} ${1:model name}Instance
+   *
+   * @property {string}   id
+   * @property {number}   createdAt
+   * @property {number}   updatedAt
+   */
+
+  module.exports = {
+    name: "$1Model",
+
+    depend: ["Firebase"],
+
+    create: ({ Firestore }) => {
+      const modelCollection = Firestore.collection("$1")
+
+      return {
+        /**
+         * Create one
+         *
+         * @param {$1Instance} data Data of new resource
+         *
+         * @return {Promise<{id: string}>}
+         */
+        createOne: data =>
+          modelCollection
+            .add({
+              ...data,
+              createdAt: new Date().toISOString(),
+            })
+            .then(snapshot => ({
+              id: snapshot.id,
+            })),
+
+        /**
+         * Retrieve one
+         *
+         * @param {string}   id               Resource id
+         * @param {Object}   [props={}]       Named parameters
+         * @param {string[]} [props.pluck=[]] Only return specific fields
+         *
+         * @return {Promise<$1Instance|undefined>}
+         */
+        readOne: (id, { pluck = [] } = {}) =>
+          modelCollection
+            .doc(id)
+            .get()
+            .then(doc =>
+              doc.exists
+                ? {
+                    id: doc.id,
+                    ...pick(pluck, doc.data()),
+                  }
+                : undefined
+            ),
+
+        /**
+         * Retrieve multiple
+         *
+         * @param {Object}   [props={}]       Named parameters
+         * @param {number}   [props.limit=10] How many items to return
+         * @param {number}   [props.offset=0] Start selecting from position
+         * @param {string[]} [props.pluck=[]] Only return specific fields
+         *
+         * @return {Promise<$1Instance[]>}
+         */
+        readAll: ({ limit = 10, offset = 0, pluck = [] } = {}) =>
+          modelCollection
+            .orderBy("createdAt", "desc")
+            .offset(offset)
+            .limit(limit)
+            .get()
+            .then(snapshot => {
+              /** @type {$1Instance[]} */
+              const result = []
+
+              // TODO: Find a way to _retrieve_ partial data from the database,
+              // not filter it out on the server
+              snapshot.forEach(doc => {
+                result.push({
+                  id: doc.id,
+                  ...pick(pluck, doc.data()),
+                })
+              })
+
+              return result
+            }),
+
+        /**
+         * Update one
+         *
+         * @param {string}        id   Resource id
+         * @param {$1Instance} data Resource data to update
+         *
+         * @return {Promise<{id: number}|undefined>}
+         */
+        updateOne: (id, data) => {
+          const doc = modelCollection.doc(id)
+
+          return doc
+            .get()
+            .then(snapshot =>
+              snapshot.exists
+                ? doc.update(data).then(() => ({ id, asd: 2 }))
+                : undefined
+            )
+        },
+
+        /**
+         * Delete one
+         *
+         * @param {String} id Resource id
+         *
+         * @return {Promise<{id: number}|undefined>}
+         */
+        deleteOne: id => {
+          const doc = modelCollection.doc(id)
+
+          return doc
+            .get()
+            .then(snapshot =>
+              snapshot.exists ? doc.delete().then(() => ({ id })) : undefined
+            )
+        },
+      }
+    },
+  }
+
+snippet curried
+  export const ${1} = (...params) => {
+    // @signature (${2}) => (source)
+    if (params.length <= 1) {
+      return source => _$1(params[0], source)
+    }
+
+    // @signature ($2, source)
+    return _$1(...params)
+  }
+
+snippet hook-keyboard
   // keyboard shortcuts
-  const { addShortcuts, removeShortcuts } = useKeyboard()
+  const { addShortcuts, removeShortcuts } = useKeyboard("${1}")
 
   useEffect(() => {
     addShortcuts({
-      layer: "${1}",
-      shortcuts: {
-        "key": () => {},
-      },
+      "key": () => {},
     })
 
-    return () => removeShortcuts({ layer: "$1" })
+    return () => removeShortcuts()
   }, [addShortcuts, removeShortcuts])
 
-snippet cmd
+snippet hook-cli
   // command line
   useEffect(() => {
     addCommands({
@@ -33,10 +219,10 @@ snippet cmd
   }, [])
 
 snippet m 
-  import {${1}} from "@mutant-ws/m"
+  import {${1}} from "@asd14/m"
 
-snippet r 
-  import {${1}} from "ramda"
+snippet mr 
+  const {${1}} = require("@asd14/m")
 
 snippet cx
   import cx from "classnames"
@@ -47,9 +233,9 @@ snippet pt
 snippet list
   const debug = require("debug")("${1}:${2}")
   
-  import { buildList } from "@mutantlove/redux-list"
+  import { buildList } from "@asd14/state-list"
 
-  // import { GET, POST } from "../../core/api.helper"
+  // import { GET, POST } from "@asd14/fetch-browser"
 
   export const $2 = buildList({
     name: "${3}",
@@ -63,13 +249,13 @@ snippet list
     remove: id => ({ id }),
   })
 
-snippet container
+snippet react-container
   const debug = require("debug")("${1}:${2}Container")
 
   import React, { useEffect } from "react"
   import PropTypes from "prop-types"
 
-  import { useMutantList } from "../core/use-list"
+  import { useList } from "@asd14/react-hooks"
 
   import { $2List } from "./$2.list"
   import { $2UI } from "./$2.ui"
@@ -78,7 +264,7 @@ snippet container
     const {
       selector: { items },
       read,
-    } = useMutantList($2List)
+    } = useList($2List)
 
     useEffect(() => {
       read({ productId })
@@ -98,19 +284,19 @@ snippet container
 
   export { $2Container }
 
-snippet ui
-  const debug = require("debug")("${1}:${2}UI")
+snippet react-ui
+  const debug = require("debug")("${1}:${2}")
 
   import React from "react"
   import cx from "classnames"
   import PropTypes from "prop-types"
-  import { is } from "@mutant-ws/m"
+  import { is } from "@asd14/m"
 
-  import { deepReactMemo } from "../core/use-deep"
+  import { deepReactMemo } from "@asd14/react-hooks"
 
-  import css from "./$2.css"
+  import css from "./$2.module.css"
 
-  const $2UI = ({ className, id }) => {
+  const $2 = ({ className, id }) => {
     return (
       <div className={cx({
         [className]: is(className)
@@ -120,20 +306,34 @@ snippet ui
     )
   }
 
-  $2UI.propTypes = {
+  $2.propTypes = {
     className: PropTypes.string,
     id: PropTypes.string.isRequired,
   }
 
-  $2UI.defaultProps = {
+  $2.defaultProps = {
     className: null,
   }
   
-  const memo = deepReactMemo($2UI)
+  const memo = deepReactMemo($2)
 
-  export { memo as $2UI }
+  export { memo as $2 }
 
-snippet rt
+snippet test-js
+  import { describe } from "riteway"
+
+  import { ${1} } from "./${2}"
+
+  describe("$1", async assert => {
+    assert({
+      given: "some-context",
+      should: "some-outcome",
+      actual: $1(),
+      expected: 42,
+    })
+  })
+
+snippet test-react
   import React from "react"
   import render from "riteway/render-component"
   import { describe } from "riteway"
@@ -153,7 +353,7 @@ snippet rt
     }
   })
 
-snippet rtt
+snippet test-react-case
   {
     const $ = render(<${1} />)
 
@@ -171,19 +371,6 @@ snippet memo
 
     return deepEqual(pick(changingProps)(prev))(pick(changingProps)(next))
   })
-
-snippet plugin
-  const debug = require("debug")("${1}:${2}")
-
-  export default {
-    depend: ["Config"],
-
-    create: Config => {
-      return {
-        getMessage: "Hello Plugin World!",
-      }
-    },
-  }
 
 snippet schema
   /**
@@ -294,60 +481,68 @@ snippet isAllowed
   },
 
 snippet route
+  /**
+   * @typedef { import("../users.model").UsersPlugin} UsersPlugin
+   */
+
   const debug = require("debug")("mutant:${1}Route")
+  const { NotFoundError } = require("@asd14/blocks")
+  const { is } = require("@asd14/m")
 
-  import { sequenceWhile, isTrue } from "@mutant-ws/m"
-  import { all, equals } from "ramda"
-
+  /**
+   * 
+   *
+   * @api        {DELETE} /$3
+   * @permission {NONE}
+   *
+   * @throws {NotFoundError} 
+   *
+   * @returns {Promise<{}>}
+   *
+   * @example
+   */
   module.exports = {
     method: "${2}",
     path: "/${3}",
 
     /**
-     * If req data is valid
-     *  -> continue to permissionn check
-     *  -> otherwise return 409
+     * Check "req.query", "req.header", "req.params" and "req.body"
+     * against a JSON Schema. If check fails, respond with 409,
+     * otherwise continue to ".authenticate".
      */
     schema: require("./${4}.schema"),
 
     /**
-     * Permission checking, if allowed:
-     *  -> continue to action
-     *  -> otherwise return 403
+     * Check for valid JWT.
      *
-     * @param  {Object}  plugins  Plugins
-     * @param  {Object}  req      Node request
+     * @param {Object} plugins Application plugins
      *
-     * @return {boolean}
+     * @returns {function(Object): boolean | Promise<boolean>}
+     * If false, responds with 401, otherwise continue to ".authorize".
      */
-    isAllowed: ({ Models: { JWT } }) => ({
-      ctx: {
-        jwt: { jti, userId },
-      },
-    }) => {
-      const checks = [
-        // cross check outisice jwt signed data with db info
-        () => JWT.isValid(jti, { issuedBy: userId }),
-
-        // context related permission checks
-      ]
-
-      return sequenceWhile(isTrue, checks).then(all(equals(true)))
-    },
+    authenticate: () => ({ ctx: { jwt } }) => is(jwt.userId),
 
     /**
-     * After schema validation and permission checking, do route logic
+     * Check if is allowed to access underlying resource.
      *
-     * @param  {Object}  plugins  Plugins
-     * @param  {Object}  req      Node request
+     * @param {Object}            plugins             Application plugins
+     * @param {PermissionsPlugin} plugins.Permissions Permissions model
+     * @param {UsersPlugin}       plugins.Users       Users model
      *
-     * @return {mixed}
+     * @returns {function(Object): (boolean | Promise<boolean>)}
+     * If false, respond with 403, otherwise continue to ".action".
      */
-    action: () => async ({ctx: {query, body, params}}) => {
-      return {
-        message: "This ${req.ctx.params.id} is something else!"
-      }
-    },
+    authorize: () => () => true,
+
+    /**
+     * Route/Controller logic
+     *
+     * @param {Object}            plugins             Application plugins
+     *
+     * @returns {function(Object): Promise<*>} 500 if throws, 201 if POST, 200 otherwise
+     */
+    action: (/* plugins */) => (/* req */) => {
+    }
   }
 
 snippet model

@@ -1,0 +1,24 @@
+# configs
+alias cb="nvim ~/.bashrc"
+alias cx="nvim ~/.xinitrc"
+alias cs="nvim ~/.local/bin"
+alias cz="nvim ~/.config/zsh/.zshrc"
+alias ci="nvim ~/.config/i3/config"
+alias cv="nvim ~/.config/nvim/init.vim"
+
+# npm
+alias npu="npm run update"
+alias nps="npm run setup"
+alias npb="npm run build"
+alias npl="npm run lint"
+alias npt="npm run test"
+
+#
+alias jcurl='curl --verbose --header "Content-Type: application/json"'
+alias lsa='ls -Alhtr --color=auto --group-directories-first'
+alias vi='nvim'
+alias vim='nvim'
+alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit'
+
+# find in file names
+alias rgf="rg --files | rg"
