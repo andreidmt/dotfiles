@@ -1,11 +1,13 @@
 # dotfiles
 
-![dotfiles](/screenshot.png)
+![dotfiles](/screenshot-t440p.png)
+
+![dotfiles](/screenshot-t420.png)
 
 ## Stack
 
 - Terminal: [Luke's fork](https://github.com/LukeSmithxyz/st) of [st](https://st.suckless.org)
-- Shell: [fish](https://wiki.archlinux.org/index.php/Fish)
+- Shell: [zsh](https://www.zsh.org/)
 - Text editor: [nvim](https://wiki.archlinux.org/index.php/Neovim)
 - Window manager: [i3-gaps](https://github.com/Airblader/i3), [i3blocks](https://github.com/vivien/i3blocks)
 - Compositor: [picom](https://wiki.archlinux.org/index.php/Picom)
@@ -17,3 +19,4 @@
 - Torrent: [transmission-gtk](https://wiki.archlinux.org/index.php/Transmission)
 - Video: [ffmpeg](https://wiki.archlinux.org/index.php/FFmpeg), [mpv](https://wiki.archlinux.org/index.php/Mpv)
 - Theme: Gruvbox
+
