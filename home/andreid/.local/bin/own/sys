@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sh
 
 SCRIPT_NAME="~/.local/bin/sys"
 CMD=$1
@@ -11,27 +11,31 @@ case $CMD in
     DOTFILES_REPO="$HOME/Work/dotfiles"
     DOTFILES_HOME="$DOTFILES_REPO$HOME"
 
-    #
-    mkdir -p "$DOTFILES_HOME/.local/bin"
+    rm -rf "$DOTFILES_HOME/.config/nvim"
+    rm -rf "$DOTFILES_HOME/.local/share"
 
+    mkdir -p "$DOTFILES_HOME/.local/bin"
+    mkdir -p "$DOTFILES_HOME/.local/share"
+    mkdir -p "$DOTFILES_HOME/.config/nvim"
+
+    # Custom scripts
     cp -r "$HOME/.local/bin/own" "$DOTFILES_HOME/.local/bin"
     cp -r "$HOME/.local/bin/statusbar" "$DOTFILES_HOME/.local/bin"
 
-    #
-    rm -rf "$DOTFILES_HOME/.local/share"
-    mkdir -p "$DOTFILES_HOME/.local/share"
-
+    # Share
     cp -r "$HOME/.local/share/applications" "$DOTFILES_HOME/.local/share"
     cp -r "$HOME/.local/share/fonts" "$DOTFILES_HOME/.local/share"
 
-    #
-    rm -rf "$DOTFILES_HOME/.config/nvim"
-    mkdir -p "$DOTFILES_HOME/.config/nvim"
-
-    cp -r "$HOME/.config/nvim/init.vim" "$DOTFILES_HOME/.config/nvim"
+    # Vim
+    cp "$HOME/.config/nvim/init.vim" "$DOTFILES_HOME/.config/nvim"
     cp -r "$HOME/.config/nvim/snippets" "$DOTFILES_HOME/.config/nvim"
 
+    # Files
+    cp "$HOME/.Xresources" $DOTFILES_HOME
+    cp "$HOME/.xinitrc" $DOTFILES_HOME
+    cp "$HOME/.gitconfig" $DOTFILES_HOME
 
+    # Folders
     cp -r "$HOME/.config/zsh" "$DOTFILES_HOME/.config"
     cp -r "$HOME/.config/i3" "$DOTFILES_HOME/.config"
     cp -r "$HOME/.config/i3blocks" "$DOTFILES_HOME/.config"
@@ -44,9 +48,26 @@ case $CMD in
   ;;
 
   #
+  # Update package database
+  #
+  update)
+    neofetch
+
+    sudo pacman -Syy --noconfirm
+
+    # Packages available for update
+    PACKAGE_COUNT=$(pacman -Qu | wc | awk '{print $1}')
+    
+    notify "$SCRIPT_NAME" "Pacman database updated, ${PACKAGE_COUNT} available."
+
+    # update i3blocks widgets with signal 10
+    pkill -SIGRTMIN+10 i3blocks
+  ;;
+
+  #
   # Update ZSH plugins
   #
-  zsh-update)
+  update-zsh)
     ZSH_SYNTAX="git@github.com:zsh-users/zsh-syntax-highlighting.git"
     ZSH_SUGGESTIONS="git@github.com:zsh-users/zsh-autosuggestions.git"
     ZSH_POWER10K="git@github.com:romkatv/powerlevel10k.git"
@@ -77,31 +98,12 @@ case $CMD in
     git clone $ZSH_NVM $HOME/.local/bin/zsh-plugins/nvm
   ;;
 
-  #
-  #
-  #
-  reload)
-    xrdb ~/.Xresources
-    # source ~/.config/zsh/.zshrc
-
-    notify $SCRIPT_NAME "Reloading ~/.Xresources and ~/.zshrc"
-  ;;
 
   #
-  # Update package database
   #
-  update)
-    neofetch
-
-    sudo pacman -Syy --noconfirm
-
-    # Packages available for update
-    PACKAGE_COUNT=$(pacman -Qu | wc | awk '{print $1}')
-    
-    notify "$SCRIPT_NAME" "Pacman database updated, ${PACKAGE_COUNT} available."
-
-    # update i3blocks widgets with signal 10
-    pkill -SIGRTMIN+10 i3blocks
+  #
+  update-hosts)
+    curl https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-social/hosts > /etc/hosts.steven
   ;;
 
   # 
@@ -153,6 +155,16 @@ case $CMD in
 
     i3lock -i $LOCK_WALLPAPER
     rm $LOCK_WALLPAPER
+  ;;
+
+  #
+  #
+  #
+  reload)
+    xrdb ~/.Xresources
+    # source ~/.config/zsh/.zshrc
+
+    notify $SCRIPT_NAME "Reloading ~/.Xresources and ~/.zshrc"
   ;;
 
   *)

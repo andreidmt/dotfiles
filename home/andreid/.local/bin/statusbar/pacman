@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 case "$BLOCK_BUTTON" in
   # Left click

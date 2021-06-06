@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 TEMP=$(sensors | grep "Package" | awk '{ print $4 }')
 FAN_LEVEL=$(grep 'level:' /proc/acpi/ibm/fan | awk '{ print $2 }')      

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_NAME="~/.local/bin/wo"
+
 PROJECT_FOLDER=$1
 PROJECT_PATH="$HOME/Work/$PROJECT_FOLDER" 
 

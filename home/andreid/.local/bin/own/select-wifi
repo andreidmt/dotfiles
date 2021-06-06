@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sh
 
 SCRIPT_NAME="~/.local/bin/select-wifi"
 

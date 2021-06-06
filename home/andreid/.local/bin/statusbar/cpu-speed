@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 CORE_SPEED=$(grep -e "cpu MHz" /proc/cpuinfo | awk '{print $4}' | numfmt --padding=4 --from-unit=M --to=si | sed "s/G//" | tr '\n' ' ')
 GOVERNOR=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)    

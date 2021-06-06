@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 CLOCK=$(date '+%I')
 
@@ -24,4 +24,14 @@ case $BLOCK_BUTTON in
   ;;
 esac
 
-printf '%s %s\n' "$ICON" "$(date '+ %a %d %T ')" 
+DAY=$(date +%-e)
+
+case $DAY in
+  1?) DAY=${DAY}th ;;
+  1)  DAY=${DAY}st ;;
+  2)  DAY=${DAY}nd ;;
+  3)  DAY=${DAY}rd ;;
+  *)  DAY=${DAY}th ;;
+esac
+
+printf '%s %s\n' "$ICON" "$(date "+$DAY %B %Y :: %T ")" 

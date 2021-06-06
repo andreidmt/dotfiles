@@ -1,10 +1,8 @@
-#!/bin/bash
-
-# Exit when any command fails
-set -e
+#!/usr/bin/sh
 
 SCRIPT_NAME="~/.local/bin/wallpaper"
 CMD=$1
+
 RESOLUTION="2560x1440"
 
 case $CMD in

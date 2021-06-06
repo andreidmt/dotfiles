@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/sh
 
 for battery in /sys/class/power_supply/BAT?
 do

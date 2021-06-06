@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sh
 
 # Location of package in AUR repository
 PKG_NAME=$1

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 
 SCRIPT_NAME="~/.local/bin/sanitize"
 CMD=${1:-html}

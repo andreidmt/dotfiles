@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/usr/bin/sh
+
+INPUT=${1:-$(</dev/stdin)}
 
 # Need at least one parameter
-if [ -z "$1" ]; then 
+if [ -z "$INPUT" ]; then 
   echo "No message provided"
   exit 1
 fi
 
-notify "$1" "$2" ~/doomguy-blood.png
+notify "$INPUT" "$2" ~/doomguy-blood.png

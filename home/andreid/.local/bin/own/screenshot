@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/sh
 
-# Props
 SCRIPT_NAME="~/.local/bin/screenshot"
 CMD=$1
+
 DIR="$HOME/Pictures/Screenshots"
 NOW=$(date +"%Y-%B-%d-%A-%R:%S")
 FILENAME=$([ "$CMD" = "focus" ] && echo "focus_$NOW.png" || echo "screen_$NOW.png")
