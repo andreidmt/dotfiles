@@ -45,7 +45,7 @@ for_window [floating] resize set width 1000px, resize set height 900px, move pos
 #####
 
 # Set wallpaper 
-# exec --no-startup-id wallpaper reload
+exec --no-startup-id wallpaper reload
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.

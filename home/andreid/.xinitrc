@@ -1,4 +1,4 @@
-#!/usr/bin/fish
+#!/usr/bin/bash
 
 # The typematic delay indicates the amount of time (typically in miliseconds) 
 # a key needs to be pressed and held in order for the repeating process to 
@@ -8,10 +8,29 @@
 # and for the virtual console. 
 xset r rate 220 20
 
-# dunst - https://github.com/dunst-project/dunst/issues/347
-systemctl --user import-environment DISPLAY
+# Extended mouse gestures
+libinput-gestures-setup start
 
-xrdb -merge -I $HOME ~/.Xresources
+# Audio daemon
+pulseaudio &
 
-# i3 window manager
+# Music player daemon
+mpd &
+
+# Network Manager applet
+nm-applet --indicator &
+
+# Bluetooth applet
+blueman-applet &
+
+# USB watcher
+#udiskie &
+
+# Notification daemon
+dunst &
+
+# Composite manager
+picom -b &
+
+# Window manager
 exec i3
