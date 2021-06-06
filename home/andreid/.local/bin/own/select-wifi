@@ -1,0 +1,37 @@
+#!/bin/bash
+
+SCRIPT_NAME="~/.local/bin/select-wifi"
+
+# All WiFi names
+WIFI_ALL=$(nmcli connection show | \
+  grep 'wifi' | \
+  awk '{print $1}')
+
+# Choose one
+WIFI_SELECT_NAME=$(echo "$WIFI_ALL Advanced" | \
+  tr ' ' '\n' | \
+  rofi -dmenu -p "Select WiFi")
+
+# Menu select canceled
+if [ -z "$DISPLAY_SELECT_NAME" ]; then
+  exit
+fi
+
+WIFI_SELECT_ID=$(nmcli connection show | \
+  grep "$WIFI_SELECT_NAME" | \
+  awk '{print $2}')
+
+case $CHOICE in
+  Advanced)
+    
+  ;;
+  
+  *)
+    notify "$SCRIPT_NAME" "Connection to \"$SELECTED_NAME\" network..."
+
+    # Connect and save response
+    CONNECTION_MSG=$(nmcli connection up "$SELECTED_ID" 2>&1)
+
+    notify "$SCRIPT_NAME" "Connection to \"$SELECTED_NAME\" finished:\n\n$CONNECTION_MSG"
+  ;;
+esac

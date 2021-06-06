@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Exit when any command fails
+set -e
+
+SCRIPT_NAME="~/.local/bin/wallpaper"
+CMD=$1
+RESOLUTION="2560x1440"
+
+case $CMD in
+  reload)
+    feh --no-fehbg --bg-center "$HOME/wall.png"
+  ;;
+
+  set)
+    #RESOLUTION=$(xrandr | fgrep '*' | awk '{print $1}')
+    IMAGE_PATH=$2
+    
+    notify $SCRIPT_NAME "Converting image to $RESOLUTION" $IMAGE_PATH
+
+    # scale & crop
+    convert "$IMAGE_PATH" -resize "$RESOLUTION^" -gravity center -crop "$RESOLUTION+0+0" ~/wall.png
+
+    # set wallpaper
+    feh --no-fehbg --bg-center "$HOME/wall.png"
+
+    notify $SCRIPT_NAME "Wallpaper changed.\n\n$(basename $IMAGE_PATH)" "$HOME/wall.png"
+  ;;
+
+  *)
+    notify-bad "$SCRIPT_NAME" "ERROR: Command not recognized.\n\n\"wallpaper $CMD\""
+  ;;
+esac

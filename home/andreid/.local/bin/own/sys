@@ -1,0 +1,163 @@
+#!/bin/bash
+
+SCRIPT_NAME="~/.local/bin/sys"
+CMD=$1
+
+case $CMD in
+  #
+  #
+  #
+  backup-config)
+    DOTFILES_REPO="$HOME/Work/dotfiles"
+    DOTFILES_HOME="$DOTFILES_REPO$HOME"
+
+    #
+    mkdir -p "$DOTFILES_HOME/.local/bin"
+
+    cp -r "$HOME/.local/bin/own" "$DOTFILES_HOME/.local/bin"
+    cp -r "$HOME/.local/bin/statusbar" "$DOTFILES_HOME/.local/bin"
+
+    #
+    rm -rf "$DOTFILES_HOME/.local/share"
+    mkdir -p "$DOTFILES_HOME/.local/share"
+
+    cp -r "$HOME/.local/share/applications" "$DOTFILES_HOME/.local/share"
+    cp -r "$HOME/.local/share/fonts" "$DOTFILES_HOME/.local/share"
+
+    #
+    rm -rf "$DOTFILES_HOME/.config/nvim"
+    mkdir -p "$DOTFILES_HOME/.config/nvim"
+
+    cp -r "$HOME/.config/nvim/init.vim" "$DOTFILES_HOME/.config/nvim"
+    cp -r "$HOME/.config/nvim/snippets" "$DOTFILES_HOME/.config/nvim"
+
+
+    cp -r "$HOME/.config/zsh" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/i3" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/i3blocks" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/dunst" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/rofi" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/fontconfig" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/picom" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/sxiv" "$DOTFILES_HOME/.config"
+    cp -r "$HOME/.config/neofetch" "$DOTFILES_HOME/.config"
+  ;;
+
+  #
+  # Update ZSH plugins
+  #
+  zsh-update)
+    ZSH_SYNTAX="git@github.com:zsh-users/zsh-syntax-highlighting.git"
+    ZSH_SUGGESTIONS="git@github.com:zsh-users/zsh-autosuggestions.git"
+    ZSH_POWER10K="git@github.com:romkatv/powerlevel10k.git"
+    ZSH_NVM="git@github.com:lukechilds/zsh-nvm.git"
+
+    rm -rf $HOME/.local/bin/zsh-plugins
+    mkdir -p $HOME/.local/bin/zsh-plugins
+
+    echo "###"
+    echo "### ZSH Syntax Highlighting"
+    echo "###"
+    git clone $ZSH_SYNTAX $HOME/.local/bin/zsh-plugins/zsh-syntax-highlighting
+    
+
+    echo "###"
+    echo "### ZSH Autosuggestions"
+    echo "###"
+    git clone $ZSH_SUGGESTIONS $HOME/.local/bin/zsh-plugins/zsh-autosuggestions
+
+    echo "###"
+    echo "### Powerlevel10k"
+    echo "###"
+    git clone $ZSH_POWER10K $HOME/.local/bin/zsh-plugins/powerlevel10k
+
+    echo "###"
+    echo "### nvm"
+    echo "###"
+    git clone $ZSH_NVM $HOME/.local/bin/zsh-plugins/nvm
+  ;;
+
+  #
+  #
+  #
+  reload)
+    xrdb ~/.Xresources
+    # source ~/.config/zsh/.zshrc
+
+    notify $SCRIPT_NAME "Reloading ~/.Xresources and ~/.zshrc"
+  ;;
+
+  #
+  # Update package database
+  #
+  update)
+    neofetch
+
+    sudo pacman -Syy --noconfirm
+
+    # Packages available for update
+    PACKAGE_COUNT=$(pacman -Qu | wc | awk '{print $1}')
+    
+    notify "$SCRIPT_NAME" "Pacman database updated, ${PACKAGE_COUNT} available."
+
+    # update i3blocks widgets with signal 10
+    pkill -SIGRTMIN+10 i3blocks
+  ;;
+
+  # 
+  # Update package database and upgrade all
+  #
+  upgrade)
+    neofetch
+
+    sudo pacman -Syyuv --noconfirm
+    
+    notify "$SCRIPT_NAME" "Packages updated."
+
+    # update i3blocks widgets with signal 10
+    pkill -SIGRTMIN+10 i3blocks
+  ;;
+
+  #
+  # Remove orphan packages
+  #
+  check)
+    ORPHAN_PACKAGES=$(pacman -Qtdq | tr '\n' ' ')
+
+    if [ ! -z "$ORPHAN_PACKAGES" ]; then 
+      echo "###"
+      echo "### Orphan packages: $ORPHAN_PACKAGES"
+      echo -e "###\n"
+
+      sudo pacman -Rns $ORPHAN_PACKAGES
+
+      notify "$SCRIPT_NAME check" "Removed $(echo $ORPHAN_PACKAGES | wc) orphan packages"
+    else
+      notify "$SCRIPT_NAME check" "No orphan packages found"
+    fi
+  ;;
+
+  #
+  #
+  #
+  lock)
+    LOCK_WALLPAPER=/tmp/i3lock-wall.png
+    
+    # Test this out with your email client open, 
+    # increase until you cant read the title
+    BLUR="10x5"
+
+    # PrintScreen + Blur
+    scrot $LOCK_WALLPAPER
+    convert $LOCK_WALLPAPER -blur $BLUR $LOCK_WALLPAPER
+
+    i3lock -i $LOCK_WALLPAPER
+    rm $LOCK_WALLPAPER
+  ;;
+
+  *)
+    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
+
+    exit 1
+  ;;
+esac

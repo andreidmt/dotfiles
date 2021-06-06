@@ -1,0 +1,23 @@
+#!/bin/bash
+
+INPUT=${1:-$(</dev/stdin)}
+
+echo -e "$INPUT"
+
+# Need at least one parameter
+if [ -z "$INPUT" ]; then 
+  echo "No message provided"
+  exit 1
+fi
+
+# Props
+TITLE=$INPUT
+MESSAGE=$2
+ICON=$3
+
+# default icon if none set
+if [ -z "$3" ]; then 
+  ICON=~/doomguy.png
+fi
+
+dunstify -i "$ICON" -t 5000 "$TITLE" "$MESSAGE"

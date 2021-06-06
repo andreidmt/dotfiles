@@ -1,0 +1,82 @@
+#!/usr/bin/bash
+
+# All display names
+DISPLAY_ALL=$(xrandr -q | \
+  grep " connected" | \
+  awk '{print $1}')
+
+# Choose one
+DISPLAY_SELECT=$(echo "$DISPLAY_ALL eDP-1+DP-1 Advanced" | \
+  tr ' ' '\n' | \
+  rofi -dmenu -p "Select display")
+
+# Menu select canceled
+if [ -z "$DISPLAY_SELECT" ]; then
+  exit
+fi
+
+if [ "$DISPLAY_SELECT" == "eDP-1" ] || [ "$DISPLAY_SELECT" == "DP-1" ]; then
+  # All resolutions for selected display
+  RES_ALL=$(xrandr | \
+    awk -v monitor="^$DISPLAY_SELECT connected" '/connected/ {p = 0} \
+      $0 ~ monitor {p = 1} \
+      p' | \
+    awk '{ print $1 }' | \
+    sed 1d
+    )
+
+  # Choose resolution
+  RES_SELECT=$(echo "$RES_ALL" | \
+    tr ' ' '\n' | \
+    rofi -dmenu -p "Select resolution for $DISPLAY_SELECT")
+
+  # Menu select canceled
+  if [ -z "$RES_SELECT" ]; then
+    exit
+  fi
+fi
+
+case $DISPLAY_SELECT in
+  eDP-1)
+    xrandr \
+      --output eDP-1 --primary \
+      --scale 1x1 \
+      --mode "$RES_SELECT" --pos 0x0 --rotate normal \
+      --output DP-1 --off \
+      --output HDMI-1 --off \
+      --output DP-2 --off \
+      --output VGA-1 --off \
+      --output HDMI-2 --off
+  ;;
+
+  DP-1)
+    xrandr \
+      --output DP-1 --primary \
+      --scale 1x1 \
+      --mode "$RES_SELECT" --pos 0x0 --rotate normal \
+      --output eDP-1 --off \
+      --output HDMI-1 --off \
+      --output DP-2 --off \
+      --output VGA-1 --off \
+      --output HDMI-2 --off
+  ;;
+
+  eDP-1+DP-1)
+    xrandr \
+      --output eDP-1 --scale 1x1 \
+      --primary --mode 1920x1080 --pos 0x0 --rotate normal \
+      --output DP-1 --scale 1x1 \
+      --mode 2560x1440 --pos 1920x0 --rotate normal \
+      --output VGA-1 --off \
+      --output HDMI-1 --off \
+      --output DP-2 --off \
+      --output HDMI-2 --off
+  ;;
+
+  Advanced)
+    arandr
+  ;;
+esac
+
+# Update wallpaper
+wallpaper reload

@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+
+for battery in /sys/class/power_supply/BAT?
+do
+  STATUS=$(cat $battery/status)
+  CHARGE=$(cat $battery/capacity)
+  WATTAGE=$(cat /sys/class/power_supply/BAT0/power_now | \
+    numfmt --from-unit=1 --to=si | \
+    sed "s/M/W/")
+
+  echo "$STATUS $CHARGE%  $WATTAGE " | sed "s/Charging//; s/Discharging//; s/Full//"
+
+  # i3blocks red background
+  if [ $CHARGE -lt 10 ]; then
+    exit 33
+  fi
+done

@@ -1,0 +1,121 @@
+#!/bin/sh
+
+SCRIPT_NAME="~/.local/bin/notes"
+CMD=${1:-search}
+
+NOTES_HOME="$HOME/Notes"
+NOTES_SRC="$NOTES_HOME/src"
+NOTES_DIST="$NOTES_HOME/dist"
+
+TODAY_PATH="$NOTES_SRC/$(date +%Y)/$(date +%m.%B)/$(date +%d.%A)"
+
+mkdir -p "$TODAY_PATH"
+mkdir -p "$NOTES_DIST"
+
+case $CMD in
+  #
+  #
+  #
+  find)
+    NOTE=$(notes ls \
+    | rofi -dmenu \
+      -eh 6 \
+      -sep '|' \
+      -p "notes" \
+      -i \
+      -markup-rows \
+      -lines 5 \
+      -case-sensitive false)
+
+    if [ -z "$NOTE" ]
+    then
+      echo "\$var is empty"
+    else
+      echo "$NOTE" \
+        | sanitize html \
+        | tail -n 1 \
+        | xargs st -e notes open
+    fi
+  ;;
+
+  #
+  # List all notes
+  #
+  ls)
+    ALL_NOTES=$(cd $NOTES_SRC && rg --files | rg .md | sort -r)
+
+    for NOTE_RELATIVE_PATH in $ALL_NOTES
+    do
+      TITLE=$(rg "^# " --max-count 1 "$NOTES_SRC/$NOTE_RELATIVE_PATH" | sed "s/# //g")
+      META=$(head -n 4 "$NOTES_SRC/$NOTE_RELATIVE_PATH")
+
+      echo -e "${TITLE:-"--"}\n<small>$META\n$NOTE_RELATIVE_PATH</small>|"
+    done
+  ;;
+
+  #
+  # Create a new markdown file, or open existing, for today's notes
+  #
+  create)
+    NOTE_PATH="$TODAY_PATH/$(date +%H:%M).md"
+
+    if [ ! -f $NOTE_PATH ]; then
+      echo -e "date: $(date +%Y-%m-%d)\ntime: $(date +%H:%M)\ntype: \ntopic: \ncontext: \n\n---\n\n" > $NOTE_PATH
+    fi
+
+    # Relevant context for vim's NerdTree
+    cd "$NOTES_SRC"
+
+    nvim -c "norm G" \
+      -c "norm zz" \
+      -c "set spell" \
+      $NOTE_PATH
+  ;;
+
+  open)
+    [ -z "$2" ] && read NOTE_PATH || NOTE_PATH="$2"
+
+    # Relevant context for vim's NerdTree
+    cd "$NOTES_SRC"
+
+    nvim -c "norm zz" \
+      -c "set spell" \
+      "$NOTES_SRC/$NOTE_PATH"
+  ;;
+
+  #
+  # Make a PDF out from a markdown note file
+  #
+  build)
+    NOTE_PATH=$2
+    PDF_NAME="$(basename "$NOTE_PATH" .md).pdf"
+
+    TITLE="$(cat $NOTE_PATH | grep '# Notes for' | sed 's/# //')"
+    CONTENT=""
+
+    pandoc \
+      --from gfm \
+      --pdf-engine=xelatex \
+      --toc \
+      --metadata=title:"$TITLE" \
+      -V geometry:a4paper \
+      -V geometry:margin=3.5cm \
+      -V linkcolor:blue \
+      -o "$NOTES_DIST/$PDF_NAME" "$NOTE_PATH" &
+  ;;
+
+  #
+  # Open zathura with the PDF of the most recent notes file
+  #
+  read-last)
+    PDF_PATH="$NOTES_DIST/$(ls -r "$NOTES_DIST" | head -n 1)"
+
+    zathura $PDF_PATH
+  ;;
+
+  *)
+    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
+
+    exit 1
+  ;;
+esac

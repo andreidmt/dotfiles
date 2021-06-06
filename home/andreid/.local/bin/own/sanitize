@@ -1,0 +1,26 @@
+#!/bin/sh
+
+SCRIPT_NAME="~/.local/bin/sanitize"
+CMD=${1:-html}
+
+case $CMD in
+  html)
+    TAG_REGEXP="s/<[^>]*>//g"
+
+    if [ -z "$2" ]
+    then
+      while read LINE
+      do
+        echo "$LINE" | sed "$TAG_REGEXP"
+      done
+    else
+      echo "$2" | sed "$TAG_REGEXP"
+    fi
+  ;;
+
+  *)
+    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
+
+    exit 1
+  ;;
+esac

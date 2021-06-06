@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Location of package in AUR repository
+PKG_NAME=$1
+PKG_FILE=$PKG_NAME.tar.gz
+URL=https://aur.archlinux.org/cgit/aur.git/snapshot/$PKG_FILE
+
+# Download and extract package
+curl -sO $URL
+tar -xvf $PKG_FILE
+
+# Build
+cd $PKG_NAME
+makepkg --noconfirm -si
+
+# Cleanup
+cd ..
+rm $PKG_FILE
+rm -rf $PKG_NAME

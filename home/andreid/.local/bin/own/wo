@@ -1,0 +1,14 @@
+#!/bin/bash
+
+SCRIPT_NAME="~/.local/bin/wo"
+PROJECT_FOLDER=$1
+PROJECT_PATH="$HOME/Work/$PROJECT_FOLDER" 
+
+if [ ! -d "$PROJECT_PATH" ]; then
+  notify-bad "$SCRIPT_NAME" "Project folder \"$PROJECT_FOLDER\" does not exist"
+
+  exit 1
+fi
+
+cd "$PROJECT_PATH"
+nvim "$PROJECT_PATH/README.md"

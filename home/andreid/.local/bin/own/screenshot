@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Props
+SCRIPT_NAME="~/.local/bin/screenshot"
+CMD=$1
+DIR="$HOME/Pictures/Screenshots"
+NOW=$(date +"%Y-%B-%d-%A-%R:%S")
+FILENAME=$([ "$CMD" = "focus" ] && echo "focus_$NOW.png" || echo "screen_$NOW.png")
+
+# Make sure folder exists
+mkdir -pv "$DIR"
+
+if [ "$CMD" = "focus" ]; then
+  scrot --focused "$FILENAME" -e "mv \$f $DIR"
+  notify "$SCRIPT_NAME" "<u>Capturing focused window</u> \n\n $DIR/$FILENAME"
+else
+  scrot "$FILENAME" -e "mv \$f $DIR"
+  notify "$SCRIPT_NAME" "<u>Capturing entire screen</u> \n\n $DIR/$FILENAME"
+fi
