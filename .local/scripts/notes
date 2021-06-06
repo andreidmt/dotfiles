@@ -79,7 +79,7 @@ case $CMD in
 
     nvim -c "norm zz" \
       -c "set spell" \
-      "$NOTES_SRC/$NOTE_PATH"
+      "$NOTE_PATH"
   ;;
 
   #
