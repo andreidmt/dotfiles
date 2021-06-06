@@ -1,6 +1,6 @@
-git
+neovim git nnn
 pandoc texlive-core pdflatex
-firefox
+firefox firefox-developer-edition
 blueman pulseaudio-bluetooth
 entr
 figlet
