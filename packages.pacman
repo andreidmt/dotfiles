@@ -1,0 +1,10 @@
+git
+pandoc texlive-core pdflatex
+firefox
+blueman pulseaudio-bluetooth
+entr
+figlet
+tldr
+youtube-dl
+arandr
+xclip xsel
