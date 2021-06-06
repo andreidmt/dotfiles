@@ -13,6 +13,7 @@ case $CMD in
 
     rm -rf "$DOTFILES_HOME/.config/nvim"
     rm -rf "$DOTFILES_HOME/.local/share"
+    rm -rf "$DOTFILES_HOME/.local/snippets"
 
     mkdir -p "$DOTFILES_HOME/.local/bin"
     mkdir -p "$DOTFILES_HOME/.local/share"
@@ -21,6 +22,7 @@ case $CMD in
     # Custom scripts
     cp -r "$HOME/.local/bin/own" "$DOTFILES_HOME/.local/bin"
     cp -r "$HOME/.local/bin/statusbar" "$DOTFILES_HOME/.local/bin"
+    cp -r "$HOME/.local/snippets" "$DOTFILES_HOME/.local"
 
     # Share
     cp -r "$HOME/.local/share/applications" "$DOTFILES_HOME/.local/share"
