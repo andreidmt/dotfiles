@@ -1,0 +1,7 @@
+#!/bin/sh
+
+TICKER=$1
+
+curl -s "https://query1.finance.yahoo.com/v8/finance/chart/$TICKER" \
+  | grep -o '"regularMarketPrice":[0-9]*\.[0-9]*' \
+  | cut -d':' -f2
