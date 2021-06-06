@@ -1,7 +1,7 @@
 #!/usr/bin/sh
 
 SCRIPT_NAME="~/.local/bin/notes"
-CMD=${1:-search}
+CMD=${1:-ls}
 
 NOTES_HOME="$HOME/Notes"
 NOTES_SRC="$NOTES_HOME/src"
@@ -13,46 +13,6 @@ mkdir -p "$TODAY_PATH"
 mkdir -p "$NOTES_DIST"
 
 case $CMD in
-  #
-  #
-  #
-  find)
-    NOTE=$(notes ls \
-    | rofi -dmenu \
-      -eh 6 \
-      -sep '|' \
-      -p "notes" \
-      -i \
-      -markup-rows \
-      -lines 5 \
-      -case-sensitive false)
-
-    if [ -z "$NOTE" ]
-    then
-      echo "\$var is empty"
-    else
-      echo "$NOTE" \
-        | sanitize html \
-        | tail -n 1 \
-        | xargs st -e notes open
-    fi
-  ;;
-
-  #
-  # List all notes
-  #
-  ls)
-    ALL_NOTES=$(cd $NOTES_SRC && rg --files | rg .md | sort -r)
-
-    for NOTE_RELATIVE_PATH in $ALL_NOTES
-    do
-      TITLE=$(rg "^# " --max-count 1 "$NOTES_SRC/$NOTE_RELATIVE_PATH" | sed "s/# //g")
-      META=$(head -n 4 "$NOTES_SRC/$NOTE_RELATIVE_PATH")
-
-      echo -e "${TITLE:-"--"}\n<small>$META\n$NOTE_RELATIVE_PATH</small>|"
-    done
-  ;;
-
   #
   # Create a new markdown file, or open existing, for today's notes
   #
@@ -70,6 +30,45 @@ case $CMD in
       -c "norm zz" \
       -c "set spell" \
       $NOTE_PATH
+  ;;
+
+  #
+  #
+  #
+  find)
+    NOTE=$(notes ls \
+    | rofi -dmenu \
+      -eh 4 \
+      -sep '|' \
+      -p "notes" \
+      -i \
+      -markup-rows \
+      -lines 4 \
+      -case-sensitive false)
+
+    if [ ! -z "$NOTE" ]
+    then
+      echo "$NOTE" \
+        | sanitize html \
+        | tail -n 1 \
+        | xargs st -e notes open
+    fi
+  ;;
+
+  #
+  # List all notes
+  #
+  ls)
+    ALL_NOTES=$(rg --files $NOTES_SRC | rg .md | sort -r)
+    META_COUNT=2
+    
+    for NOTE_PATH in $ALL_NOTES
+    do
+      TITLE=$(rg "^# " --max-count 1 $NOTE_PATH | sed -e "s/# //g")
+      META=$(head -n $META_COUNT $NOTE_PATH)
+
+      echo -e "${TITLE:-"--"}\n<small>$META\n$NOTE_PATH</small>|"
+    done
   ;;
 
   open)
