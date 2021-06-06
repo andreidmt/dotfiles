@@ -36,7 +36,7 @@ case $CMD in
     cp "$HOME/.gitconfig" "$DOTFILES_REPO/home"
     cp "$HOME/.profile" "$DOTFILES_REPO/home"
 
-    # Folders
+    # Other configs
     cp -r "$HOME/.config/zsh" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/i3" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/i3blocks" "$DOTFILES_REPO/.config"
@@ -46,6 +46,7 @@ case $CMD in
     cp -r "$HOME/.config/picom" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/sxiv" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/neofetch" "$DOTFILES_REPO/.config"
+    cp -r "$HOME/.config/gtk-3.0" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/mimeapps.list" "$DOTFILES_REPO/.config"
   ;;
 
