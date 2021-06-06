@@ -1,0 +1,2 @@
+*/30 * * * * /usr/bin/pacman -Syuw --noconfirm && pkill -RTMIN+10 i3blocks
+0 12 * * * /home/andreid/.local/bin/own/sys update-hosts
