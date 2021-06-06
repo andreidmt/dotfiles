@@ -54,11 +54,15 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- sys lock --nofork
 bindsym $mod+x exec --no-startup-id sys lock
 
 #####
-## Notes
+## Notes & Snippets
 #####
 
 bindsym $mod+n       exec --no-startup-id st -t andreid-notes -e notes create
 bindsym $mod+Shift+p exec --no-startup-id notes find
+
+bindsym $mod+s       exec --no-startup-id snippets create
+bindsym $mod+Shift+s exec --no-startup-id snippets find
+
 #####
 ## Fn keys
 #####
