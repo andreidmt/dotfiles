@@ -52,10 +52,10 @@ case $CMD in
 
   paste)
     NAME="$2"
-    PATH="${SNIPPETS_HOME}/${NAME}"
+    SNIP_PATH="${SNIPPETS_HOME}/${NAME}"
 
-    if [ -f $PATH ]; then
-      DATA=$([ -x "${PATH}" ] && bash "${PATH}" || head --bytes=-1 ${PATH})
+    if [ -f $SNIP_PATH ]; then
+      DATA=$([ -x "${SNIP_PATH}" ] && bash "${SNIP_PATH}" || head --bytes=-1 ${SNIP_PATH})
 
       # put data in both main and middle mouse buffer 
       printf "$DATA" | xsel -p -i 
