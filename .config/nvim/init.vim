@@ -337,6 +337,7 @@ let g:ale_linters_explicit = 1
 let g:ale_sign_column_always = 1
 let g:ale_echo_msg_format = '[%linter%][%code%] %severity%: %s'
 let g:ale_linters = {
+\  'sh': ['shellcheck'],
 \  'dart': ['dartanalyzer'],
 \  'scala': ['scalac'],
 \  'typescript': ['eslint', 'tsserver'],
