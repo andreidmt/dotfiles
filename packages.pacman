@@ -1,10 +1,9 @@
-neovim git nnn
+neovim git shellcheck tldr
+nnn entr
 pandoc texlive-core pdflatex
 firefox firefox-developer-edition
 blueman pulseaudio-bluetooth
-entr
 figlet
-tldr
 youtube-dl
-arandr
-xclip xsel
+arandr xclip xsel
+maim

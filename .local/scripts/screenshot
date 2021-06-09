@@ -1,19 +1,47 @@
-#!/usr/bin/sh
+#!/bin/sh
 
-SCRIPT_NAME="~/.local/bin/screenshot"
-CMD=$1
+SCRIPT_NAME="\~/.local/bin/screenshot"
+CMD=${1:-all}
 
 DIR="$HOME/Pictures/Screenshots"
 NOW=$(date +"%Y-%B-%d-%A-%R:%S")
-FILENAME=$([ "$CMD" = "focus" ] && echo "focus_$NOW.png" || echo "screen_$NOW.png")
 
-# Make sure folder exists
+# Make sure Screenshots folder exists
 mkdir -pv "$DIR"
 
-if [ "$CMD" = "focus" ]; then
-  scrot --focused "$FILENAME" -e "mv \$f $DIR"
-  notify "$SCRIPT_NAME" "<u>Capturing focused window</u> \n\n $DIR/$FILENAME"
-else
-  scrot "$FILENAME" -e "mv \$f $DIR"
-  notify "$SCRIPT_NAME" "<u>Capturing entire screen</u> \n\n $DIR/$FILENAME"
-fi
+case $CMD in
+  # Screenshot selected rectangle
+  area)
+    FILENAME="area_$NOW.png"
+
+    maim -s | xclip -selection clipboard -t image/png
+    xclip -o -selection clipboard > "$DIR/$FILENAME"
+
+    notify "$SCRIPT_NAME" "<u>Capured selected area to xclip</u> \n\n $DIR/$FILENAME"
+  ;;
+
+  # Screenshot selected window
+  window)
+    FILENAME="focus_$NOW.png"
+
+    maim -s | xclip -selection clipboard -t image/png
+    xclip -o -selection clipboard > "$FILENAME"
+
+    notify "$SCRIPT_NAME" "<u>Capturing focused window</u> \n\n $DIR/$FILENAME"
+  ;;
+
+  # Screenshot everything
+  all)
+    FILENAME="screen_$NOW.png"
+
+    maim "$DIR/$FILENAME"
+
+    notify "$SCRIPT_NAME" "<u>Capturing entire screen</u> \n\n $DIR/$FILENAME"
+  ;;
+
+  *)
+    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
+
+    exit 1
+  ;;
+esac

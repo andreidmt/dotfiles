@@ -37,7 +37,7 @@ for_window [window_role="messages"] floating enable
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
 
-for_window [title="andreid-notes"] floating enable
+for_window [title="such-important"] floating enable
 for_window [floating] resize set width 1000px, resize set height 900px, move position center
 
 #####
@@ -57,11 +57,11 @@ bindsym $mod+x exec --no-startup-id sys lock
 ## Notes & Snippets
 #####
 
-bindsym $mod+n       exec --no-startup-id st -t andreid-notes -e notes create
+bindsym $mod+n       exec --no-startup-id st -t such-important -e notes create
 bindsym $mod+Shift+p exec --no-startup-id notes find
 
-bindsym $mod+s       exec --no-startup-id snippets create
-bindsym $mod+Shift+s exec --no-startup-id snippets find
+bindsym $mod+s       exec --no-startup-id snippets find
+bindsym $mod+Shift+s exec --no-startup-id snippets use
 
 #####
 ## Fn keys
@@ -78,8 +78,9 @@ bindsym XF86MonBrightnessDown	exec --no-startup-id xbacklight -dec 5
 bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 5
 
 # Print screen
-bindsym Print exec --no-startup-id screenshot
-bindsym Shift+Print exec --no-startup-id screenshot focus
+bindsym Print exec --no-startup-id screenshot all
+bindsym Shift+Print exec --no-startup-id screenshot window
+bindsym $mod+Shift+Print exec --no-startup-id screenshot area
 
 #####
 ## Navigation
