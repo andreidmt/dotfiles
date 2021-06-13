@@ -1,0 +1,23 @@
+#!/bin/sh
+
+CMD=$1
+
+case $CMD in
+  nice)
+    DAY=$(date +%-e)
+
+    case $DAY in
+      1?) DAY=${DAY}th ;;
+      1)  DAY=${DAY}st ;;
+      2)  DAY=${DAY}nd ;;
+      3)  DAY=${DAY}rd ;;
+      *)  DAY=${DAY}th ;;
+    esac
+
+    date "+$DAY %B %Y, %T"
+  ;;
+
+  *)
+    date --rfc-3339=s
+  ;;
+esac

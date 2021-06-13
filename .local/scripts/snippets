@@ -9,37 +9,43 @@ case $CMD in
   #
   # Create a new snippet or open existing
   #
-  create)
+  find)
     NAME=$(snippets ls \
       | rofi -dmenu \
-          -p "create or edit existing snippet" \
+          -p "create or edit snippet" \
           -i \
           -case-sensitive false
     )
 
-    if [ ! -z "$NAME" ]
-    then
-      # Relevant context for vim's NerdTree
-      cd "$SNIPPETS_HOME"
-
-      st -e nvim "$SNIPPETS_HOME/$NAME"
+    if [ -n "$NAME" ]; then
+      st -t such-important -e snippets open "$NAME"
     fi
+  ;;
+
+  open)
+    [ -z "$2" ] && read -r NAME || NAME="$2"
+
+    # Relevant context for vim's NerdTree
+    cd "$SNIPPETS_HOME"
+
+    nvim -c "norm zz" \
+      -c "set spell" \
+      "$NAME"
   ;;
 
   #
   # Interactive snippet search and paste into current focus
   #
-  find)
+  use)
     NAME=$(snippets ls \
       | rofi -dmenu \
-          -p "snippets" \
+          -p "use snippet" \
           -i \
           -case-sensitive false
     )
 
-    if [ ! -z "$NAME" ]
-    then
-      snippets paste $NAME
+    if [ -n "$NAME" ]; then
+      snippets paste "$NAME"
     fi
   ;;
 
@@ -47,19 +53,27 @@ case $CMD in
   # List all available snippet names
   #
   ls)
-    cd $SNIPPETS_HOME && rg --files | sort -r
+    cd "$SNIPPETS_HOME" && rg --files | sort -r
   ;;
 
+  #
+  # Execute file or copy it's content to current active window
+  #
   paste)
-    NAME="$2"
-    SNIP_PATH="${SNIPPETS_HOME}/${NAME}"
+    read -ra SNIP_ARGS <<< "$2"
+    SNIP_PATH="${SNIPPETS_HOME}/${SNIP_ARGS[0]}"
 
-    if [ -f $SNIP_PATH ]; then
-      DATA=$([ -x "${SNIP_PATH}" ] && bash "${SNIP_PATH}" || head --bytes=-1 ${SNIP_PATH})
+    if [ -f "$SNIP_PATH" ]; then
+
+      if [ -x "${SNIP_PATH}" ]; then
+        DATA=$(${SNIP_PATH} "${SNIP_ARGS[1]}")
+      else
+        DATA=$(head --bytes=-1 "${SNIP_PATH}")
+      fi
 
       # put data in both main and middle mouse buffer 
-      printf "$DATA" | xsel -p -i 
-      printf "$DATA" | xsel -b -i 
+      printf "%s" "$DATA" | xsel -p -i 
+      printf "%s" "$DATA" | xsel -b -i 
 
       # simulate paste actions, should work in almost all situations
       xdotool key shift+Insert

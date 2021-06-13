@@ -1,7 +1,7 @@
 # configs
 alias cb="nvim ~/.bashrc"
 alias cx="nvim ~/.xinitrc"
-alias cs="nvim ~/.local/bin"
+alias cs="nvim ~/.local"
 alias cz="nvim ~/.config/zsh/.zshrc"
 alias ci="nvim ~/.config/i3/config"
 alias cv="nvim ~/.config/nvim/init.vim"

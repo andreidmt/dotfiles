@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCRIPT_NAME="~/.local/bin/script"
+SCRIPT_NAME=\~/.local/bin/script
 CMD=$1
 
 case $CMD in

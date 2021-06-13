@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-SCRIPT_NAME="~/.local/bin/notes"
+SCRIPT_NAME='\~/.local/scripts/notes'
 CMD=${1:-ls}
 
 NOTES_HOME="$HOME/Notes"
@@ -19,17 +19,18 @@ case $CMD in
   create)
     NOTE_PATH="$TODAY_PATH/$(date +%H:%M).md"
 
-    if [ ! -f $NOTE_PATH ]; then
-      echo -e "date: $(date +%Y-%m-%d)\ntime: $(date +%H:%M)\ntype: \ntopic: \ncontext: \n\n---\n\n" > $NOTE_PATH
+    if [ ! -f "$NOTE_PATH" ]; then
+      printf "topic:\ncontext:\ntype:\ndate: %s\ntime: %s\n\n---\n\n" \
+        "$(date +%Y-%m-%d)" \
+        "$(date +%H:%M)" \
+        > "$NOTE_PATH"
     fi
 
     # Relevant context for vim's NerdTree
-    cd "$NOTES_SRC"
-
-    nvim -c "norm G" \
+    cd "$NOTES_SRC" && nvim -c "norm G" \
       -c "norm zz" \
       -c "set spell" \
-      $NOTE_PATH
+      "$NOTE_PATH"
   ;;
 
   #
@@ -51,7 +52,7 @@ case $CMD in
       echo "$NOTE" \
         | sanitize html \
         | tail -n 1 \
-        | xargs st -e notes open
+        | xargs st -t such-important -e notes open
     fi
   ;;
 
@@ -67,19 +68,28 @@ case $CMD in
       TITLE=$(rg "^# " --max-count 1 $NOTE_PATH | sed -e "s/# //g")
       META=$(head -n $META_COUNT $NOTE_PATH)
 
-      echo -e "${TITLE:-"--"}\n<small>$META\n$NOTE_PATH</small>|"
+      printf "${TITLE:-'--'}\n<small>$META\n$NOTE_PATH</small>|"
     done
   ;;
 
+  #
+  # Open by absolute path in VIM
+  #
   open)
-    [ -z "$2" ] && read NOTE_PATH || NOTE_PATH="$2"
+    [ -z "$2" ] && read -r NOTE_PATH || NOTE_PATH="$2"
 
-    # Relevant context for vim's NerdTree
-    cd "$NOTES_SRC"
+    if [ -f $NOTE_PATH ]; then
+      # Relevant context for vim's NerdTree
+      cd "$NOTES_SRC"
 
-    nvim -c "norm zz" \
-      -c "set spell" \
-      "$NOTE_PATH"
+      nvim -c "norm zz" \
+        -c "set spell" \
+        "$NOTE_PATH"
+    else
+      notify-bad $SCRIPT_NAME "Cannot find note at \"$NOTE_PATH\""
+    fi
+
+
   ;;
 
   #
