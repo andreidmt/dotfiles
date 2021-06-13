@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-SCRIPT_NAME="~/.local/bin/sys"
+SCRIPT_NAME='~/.local/scripts/sys'
 CMD=$1
 
 case $CMD in
@@ -152,8 +152,10 @@ case $CMD in
     # increase until you cant read the title
     BLUR="10x5"
 
-    # PrintScreen + Blur
-    scrot $LOCK_WALLPAPER
+    # screenhot
+    shotgun $LOCK_WALLPAPER
+
+    # blur
     convert $LOCK_WALLPAPER -blur $BLUR $LOCK_WALLPAPER
 
     i3lock -i $LOCK_WALLPAPER

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCRIPT_NAME="\~/.local/bin/screenshot"
+SCRIPT_NAME=\~/.local/scripts/screenshot
 CMD=${1:-all}
 
 DIR="$HOME/Pictures/Screenshots"
@@ -10,33 +10,35 @@ NOW=$(date +"%Y-%B-%d-%A-%R:%S")
 mkdir -pv "$DIR"
 
 case $CMD in
-  # Screenshot selected rectangle
+  # Select rectangle
   area)
-    FILENAME="area_$NOW.png"
+    SELECTION=$(hacksaw -f "-i %i -g %g")
 
-    maim -s | xclip -selection clipboard -t image/png
-    xclip -o -selection clipboard > "$DIR/$FILENAME"
+    shotgun $SELECTION - | xclip -t 'image/png' -selection clipboard
 
-    notify "$SCRIPT_NAME" "<u>Capured selected area to xclip</u> \n\n $DIR/$FILENAME"
+    xclip -o -selection clipboard > "$DIR/area_$NOW.png"
   ;;
 
-  # Screenshot selected window
+  # Select window
   window)
-    FILENAME="focus_$NOW.png"
+    SELECTION=$(slop -f "-g %g")
 
-    maim -s | xclip -selection clipboard -t image/png
-    xclip -o -selection clipboard > "$FILENAME"
+    shotgun $SELECTION - | xclip -t 'image/png' -selection clipboard
 
-    notify "$SCRIPT_NAME" "<u>Capturing focused window</u> \n\n $DIR/$FILENAME"
+    xclip -o -selection clipboard > "$DIR/focus_$NOW.png"
   ;;
 
-  # Screenshot everything
+  # Everything
   all)
-    FILENAME="screen_$NOW.png"
+    if [ -n "$2" ]; then
+      FILENAME="screen_$NOW.png"
+    else
+      FILENAME=$2
+    fi
 
-    maim "$DIR/$FILENAME"
+    shotgun "$DIR/$FILENAME"
 
-    notify "$SCRIPT_NAME" "<u>Capturing entire screen</u> \n\n $DIR/$FILENAME"
+    notify "$SCRIPT_NAME" "<u>Capturing entire screen</u>\n\n$DIR/$FILENAME"
   ;;
 
   *)

@@ -60,8 +60,8 @@ bindsym $mod+x exec --no-startup-id sys lock
 bindsym $mod+n       exec --no-startup-id st -t such-important -e notes create
 bindsym $mod+Shift+p exec --no-startup-id notes find
 
-bindsym $mod+s       exec --no-startup-id snippets find
-bindsym $mod+Shift+s exec --no-startup-id snippets use
+bindsym $mod+s       exec --no-startup-id snippets use
+bindsym $mod+Shift+s exec --no-startup-id snippets find
 
 #####
 ## Fn keys
