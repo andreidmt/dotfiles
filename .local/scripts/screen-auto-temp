@@ -1,0 +1,15 @@
+#!/bin/sh
+
+##
+## Start `redshift` with latitude and longitude from Mozilla Location Service
+##
+## Check also `~/.config/redshift/redshift.conf` for additional settings
+##
+
+GEO_LOCATION=$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue"\
+  | jq '.location.lat, .location.lng' \
+  | tr '\n' ':' \
+  | sed 's/:$//'
+)
+
+redshift -P -l "$GEO_LOCATION"

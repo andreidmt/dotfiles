@@ -32,5 +32,8 @@ dunst &
 # Composite manager
 picom -b &
 
+# Redshift
+screen auto-temp &
+
 # Window manager
 exec i3
