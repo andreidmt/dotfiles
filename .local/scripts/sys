@@ -77,29 +77,29 @@ case $CMD in
     ZSH_POWER10K="git@github.com:romkatv/powerlevel10k.git"
     ZSH_NVM="git@github.com:lukechilds/zsh-nvm.git"
 
-    rm -rf $HOME/.local/bin/zsh-plugins
-    mkdir -p $HOME/.local/bin/zsh-plugins
+    rm -rf "$HOME/.local/bin/zsh-plugins"
+    mkdir -p "$HOME/.local/bin/zsh-plugins"
 
     echo "###"
     echo "### ZSH Syntax Highlighting"
     echo "###"
-    git clone $ZSH_SYNTAX $HOME/.local/bin/zsh-plugins/zsh-syntax-highlighting
+    git clone "$ZSH_SYNTAX" "$HOME/.local/bin/zsh-plugins/zsh-syntax-highlighting"
     
 
     echo "###"
     echo "### ZSH Autosuggestions"
     echo "###"
-    git clone $ZSH_SUGGESTIONS $HOME/.local/bin/zsh-plugins/zsh-autosuggestions
+    git clone "$ZSH_SUGGESTIONS" "$HOME/.local/bin/zsh-plugins/zsh-autosuggestions"
 
     echo "###"
     echo "### Powerlevel10k"
     echo "###"
-    git clone $ZSH_POWER10K $HOME/.local/bin/zsh-plugins/powerlevel10k
+    git clone "$ZSH_POWER10K" "$HOME/.local/bin/zsh-plugins/powerlevel10k"
 
     echo "###"
     echo "### nvm"
     echo "###"
-    git clone $ZSH_NVM $HOME/.local/bin/zsh-plugins/nvm
+    git clone "$ZSH_NVM" "$HOME/.local/bin/zsh-plugins/nvm"
   ;;
 
 
@@ -125,22 +125,26 @@ case $CMD in
   ;;
 
   #
-  # Remove orphan packages
+  # Remove orphan packages and clear pacman cache
   #
-  check)
+  clean)
     ORPHAN_PACKAGES=$(pacman -Qtdq | tr '\n' ' ')
 
-    if [ ! -z "$ORPHAN_PACKAGES" ]; then 
+    if [ -n "$ORPHAN_PACKAGES" ]; then 
       echo "###"
       echo "### Orphan packages: $ORPHAN_PACKAGES"
-      echo -e "###\n"
+      echo "###"
 
-      sudo pacman -Rns $ORPHAN_PACKAGES
+      sudo pacman -Rns "$ORPHAN_PACKAGES"
 
-      notify "$SCRIPT_NAME check" "Removed $(echo $ORPHAN_PACKAGES | wc) orphan packages"
+      notify "$SCRIPT_NAME clean" "Removed $(echo "$ORPHAN_PACKAGES" | wc) orphan packages"
     else
-      notify "$SCRIPT_NAME check" "No orphan packages found"
+      notify "$SCRIPT_NAME clean" "No orphan packages found"
     fi
+
+    sudo pacman -Sc
+
+    notify "$SCRIPT_NAME clean" "After cache cleaup with \`pacman -Sc\`\n\n$(du -h /var/cache/pacman/pkg)"
   ;;
 
   #
