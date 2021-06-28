@@ -14,7 +14,7 @@ case $CMD in
   area)
     SELECTION=$(hacksaw -f "-i %i -g %g")
 
-    shotgun $SELECTION - | xclip -t 'image/png' -selection clipboard
+    shotgun "$SELECTION" - | xclip -t "image/png" -selection clipboard
 
     xclip -o -selection clipboard > "$DIR/area_$NOW.png"
   ;;
@@ -23,7 +23,7 @@ case $CMD in
   window)
     SELECTION=$(slop -f "-g %g")
 
-    shotgun $SELECTION - | xclip -t 'image/png' -selection clipboard
+    shotgun "$SELECTION" - | xclip -t 'image/png' -selection clipboard
 
     xclip -o -selection clipboard > "$DIR/focus_$NOW.png"
   ;;

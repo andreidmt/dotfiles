@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-SCRIPT_NAME='~/.local/scripts/sys'
+SCRIPT_NAME=\~/.local/scripts/sys
 CMD=$1
 
 case $CMD in
@@ -47,6 +47,7 @@ case $CMD in
     cp -r "$HOME/.config/sxiv" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/neofetch" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/gtk-3.0" "$DOTFILES_REPO/.config"
+    cp -r "$HOME/.config/redshift" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.config/mimeapps.list" "$DOTFILES_REPO/.config"
   ;;
 

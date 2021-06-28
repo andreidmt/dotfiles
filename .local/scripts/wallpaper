@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-SCRIPT_NAME="~/.local/bin/wallpaper"
+SCRIPT_NAME=\~/.local/scripts/wallpaper
 CMD=$1
 
 RESOLUTION="2560x1440"
@@ -14,7 +14,7 @@ case $CMD in
     #RESOLUTION=$(xrandr | fgrep '*' | awk '{print $1}')
     IMAGE_PATH=$2
     
-    notify $SCRIPT_NAME "Converting image to $RESOLUTION" $IMAGE_PATH
+    notify "$SCRIPT_NAME" "Converting image to $RESOLUTION" "$IMAGE_PATH"
 
     # scale & crop
     convert "$IMAGE_PATH" -resize "$RESOLUTION^" -gravity center -crop "$RESOLUTION+0+0" ~/wall.png
@@ -22,7 +22,7 @@ case $CMD in
     # set wallpaper
     feh --no-fehbg --bg-center "$HOME/wall.png"
 
-    notify $SCRIPT_NAME "Wallpaper changed.\n\n$(basename $IMAGE_PATH)" "$HOME/wall.png"
+    notify "$SCRIPT_NAME" "Wallpaper changed.\n\n$(basename "$IMAGE_PATH")" "$HOME/wall.png"
   ;;
 
   *)
