@@ -11,6 +11,20 @@ command=~/.local/statusbar/memory
 interval=2
 label= 
 
+[disk-/]
+command=~/.local/statusbar/disk
+LABEL= / 
+DIR=/
+#ALERT_LOW=10
+interval=30
+
+[disk-home]
+command=~/.local/statusbar/disk
+LABEL= ~ 
+#DIR=$HOME
+#ALERT_LOW=10
+interval=30
+
 [cpu-speeds]
 command=~/.local/statusbar/cpu-speed
 interval=2
