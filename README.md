@@ -9,6 +9,7 @@
 - Terminal: [Luke's fork](https://github.com/LukeSmithxyz/st) of [st](https://st.suckless.org)
 - Shell: [zsh](https://www.zsh.org/)
 - Text editor: [nvim](https://wiki.archlinux.org/index.php/Neovim)
+  - Color scheme: [sainnhe/gruvbox-material](https://github.com/sainnhe/gruvbox-material)
 - Window manager: [i3-gaps](https://github.com/Airblader/i3), [i3blocks](https://github.com/vivien/i3blocks)
 - Compositor: [picom](https://wiki.archlinux.org/index.php/Picom)
 - File browser: [nnn](https://wiki.archlinux.org/index.php/Nnn)
@@ -20,3 +21,4 @@
 - Video: [ffmpeg](https://wiki.archlinux.org/index.php/FFmpeg), [mpv](https://wiki.archlinux.org/index.php/Mpv)
 - Theme: Gruvbox
 
+- Fonts: [nerd-fonts](https://github.com/ryanoasis/nerd-fonts) version of JetBrainsMono
