@@ -1,126 +1,13 @@
-set colorcolumn=80      " Highlight ruler column.
-set wrap                " Wrap visually, don't change text in buffer.
-set linebreak           " Only wrap at a character in the breakat 
-                        " (" ^I!@*-+;:,./?").
-set autoindent          " Copy indent from current line when starting new line.
-set tabstop=2           " Use the appropriate number of spaces to insert a tab. 
-set shiftwidth=2
-set expandtab 
-set backupcopy=yes      " Make a copy of the file and overwrite the original.
-set showmatch           " Show matching brackets.
-set splitbelow          " Horizontal split below current.
-set splitright          " Vertical split to right of current.
-set title               " Set window title.
-set nu                  " Print line numbers.
-set updatetime=100      " Write to swap file time.
-set gdefault            " Use 'g' flag by default with :s/foo/bar/.
-set rnu                 " Relative numbering from current line.
-set nostartofline       " Do not jump to first character with page commands.
-set noshowmode          " Already shown in lightline
+source $HOME/.config/nvim/general.vim
+source $HOME/.config/nvim/keys.vim
+source $HOME/.config/nvim/plugins.vim
 
-set nospell spelllang=en_us
-set wildignore+=*node_modules/**,*dist/**
-set virtualedit=block   " allow going beyond the end of line in V-BLOCK
-
-highlight Comment cterm=italic
-highlight clear SignColumn
-
-"
-" FOLDING
-"
-
-set foldmethod=syntax " syntax highlighting items specify folds  
-set foldcolumn=1      " defines 1 col at window left, to indicate folding  
-let javascript_fold=1 " activate folding by JS syntax  
-let typescript_fold=1 " activate folding by JS syntax  
-set foldlevelstart=99 " start file with all folds opened
-
-"
-" Load Plugins
-"
-
-call plug#begin(stdpath('data') . '/plugged')
-
-" Core
-Plug 'dense-analysis/ale'     	   " Linter manager
-Plug 'editorconfig/editorconfig-vim'
-Plug 'tpope/vim-commentary'   	   " Toggle comments
-Plug 'jremmen/vim-ripgrep'    	   " Search in files
-Plug 'matze/vim-move'              " Move multiple selected lines
-
-Plug 'scrooloose/nerdtree'         " File browser
-Plug 'Xuyuanp/nerdtree-git-plugin' " Git info 
-
-" Autocomplete
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' } " autocomplete
-Plug 'ternjs/tern_for_vim', { 'do': 'npm install && npm install -g tern' }
-Plug 'carlitux/deoplete-ternjs'
-" Plug 'zchee/deoplete-clang'
-
-" Status bar
-Plug 'itchyny/lightline.vim'
-Plug 'maximbaz/lightline-ale'
-
-" Templates & snippets
-Plug 'Shougo/neosnippet.vim'
-Plug 'Shougo/neosnippet-snippets'
-
-" Color schemes
-Plug 'lifepillar/vim-solarized8'
-Plug 'drewtempelmeyer/palenight.vim' 
-Plug 'morhetz/gruvbox'
-
-" Javascript
-Plug 'pangloss/vim-javascript'
-Plug 'heavenshell/vim-jsdoc', { 
-\  'for': ['javascript', 'javascript.jsx','typescript'], 
-\  'do': 'make install'
-\}
-Plug 'mxw/vim-jsx'                  " JSX syntax
-Plug 'metakirby5/codi.vim'          " Sketchpad
-Plug 'HerringtonDarkholme/yats.vim' " Typescript syntax
-
-" 
-Plug 'ludovicchabant/vim-gutentags'
-Plug 'preservim/tagbar'
-
-" Dart
-Plug 'dart-lang/dart-vim-plugin'
-
-" SML
-Plug 'jez/vim-better-sml'
-
-" Markdown
-Plug 'mzlogin/vim-markdown-toc'
-Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
-
-" Latex
-Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
-
-" Other
-Plug 'rstacruz/vim-closer'  " Auto close {,[,(
-Plug 'dag/vim-fish'         " Fish syntax
-Plug 'stevearc/vim-arduino' " Compile, uploade, and debugg arduino sketches
-Plug 'gyim/vim-boxdraw'     " Draw ASCII boxes
-
-" Expendable
-Plug 'tpope/vim-sensible'     " 
-Plug 'tpope/vim-unimpaired'   " 
-Plug 'tpope/vim-characterize' " 
-Plug 'tpope/vim-fugitive'     " git commands
-Plug 'airblade/vim-gitgutter' " git diff info in buffer gutter
-Plug 'ap/vim-css-color'       " color highlighting in css files
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " fuzzy file finder
-Plug 'wellle/targets.vim'     " 
-Plug 'godlygeek/tabular'      " 
-
-call plug#end()
+source $HOME/.config/nvim/plugin.gruvbox-material.vim
+source $HOME/.config/nvim/plugin.galaxyline.lua
 
 "
 " Key bindings
 "
-
-let mapleader="\<SPACE>"
 
 " run macro in q and w registers
 nnoremap <LEADER>q @q            " current line
@@ -176,16 +63,6 @@ map <C-p> :FZF<CR>
 nmap <C-k> <Plug>(ale_previous_wrap)
 nmap <C-j> <Plug>(ale_next_wrap)
 
-"
-" Filetype association 
-"
-
-au BufRead,BufNewFile *.js.flow set filetype=javascript
-au BufRead,BufNewFile *.flow set filetype=javascript
-au BufRead,BufNewFile *.ejs set filetype=html
-au BufRead,BufNewFile .*rc set filetype=json
-au BufRead,BufNewFile .zshrc set filetype=zsh
-au BufRead,BufNewFile .xinitrc set filetype=bash
 
 "
 " Trigger commands
@@ -233,13 +110,6 @@ let g:codi#aliases = {
 
 let g:livepreview_previewer = 'zathura'
 
-" Color scheme
-
-syntax enable
-" set background=dark
-colorscheme gruvbox " gruvbox,palenight,solarized8
-set termguicolors
-hi Normal guibg=NONE ctermbg=NONE
 
 " Vim move
 let g:move_map_keys = 0
@@ -373,7 +243,7 @@ call deoplete#custom#option({
 \ 'auto_preview': v:true,
 \ })
 
-call deoplete#custom#option('num_processes', 2)
+call deoplete#custom#option('num_processes', 4)
 
 let g:deoplete#enable_at_startup = 1
 
