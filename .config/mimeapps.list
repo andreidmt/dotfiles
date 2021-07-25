@@ -3,25 +3,107 @@ x-scheme-handler/http=firefox-developer-edition.desktop
 x-scheme-handler/https=firefox-developer-edition.desktop
 x-scheme-handler/ftp=firefox-developer-edition.desktop
 x-scheme-handler/chrome=firefox-developer-edition.desktop
-text/html=firefox-developer-edition.desktop
-application/x-extension-htm=firefox-developer-edition.desktop
-application/x-extension-html=firefox-developer-edition.desktop
-application/x-extension-shtml=firefox-developer-edition.desktop
-application/xhtml+xml=firefox-developer-edition.desktop
-application/x-extension-xhtml=firefox-developer-edition.desktop
-application/x-extension-xht=firefox-developer-edition.desktop
 x-scheme-handler/msteams=teams.desktop
 
-[Added Associations]
-x-scheme-handler/http=firefox-developer-edition.desktop;
-x-scheme-handler/https=firefox-developer-edition.desktop;
-x-scheme-handler/ftp=firefox-developer-edition.desktop;
-x-scheme-handler/chrome=firefox-developer-edition.desktop;
-text/html=firefox-developer-edition.desktop;
-application/x-extension-htm=firefox-developer-edition.desktop;
-application/x-extension-html=firefox-developer-edition.desktop;
-application/x-extension-shtml=firefox-developer-edition.desktop;
-application/xhtml+xml=firefox-developer-edition.desktop;
-application/x-extension-xhtml=firefox-developer-edition.desktop;
-application/x-extension-xht=firefox-developer-edition.desktop;
-application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;
+/*
+ * sxiv
+ */
+image/png=img.desktop
+image/jpeg=img.desktop
+image/x-portable-anymap=img.desktop
+image/x-portable-bitmap=img.desktop
+image/gif=img.desktop
+image/x-xpixmap=img.desktop
+image/x-tga=img.desktop
+image/tiff=img.desktop
+image/x-portable-graymap=img.desktop
+image/bmp=img.desktop
+image/svg+xml=img.desktop
+
+/*
+ * zathura
+ */
+application/postscript=pdf.desktop;
+application/oxps=pdf.desktop
+application/epub+zip=pdf.desktop
+application/x-fictionbook+xml=pdf.desktop
+application/pdf=pdf.desktop
+
+/*
+ * nnn
+ */
+inode/directory=file.desktop
+
+/*
+ * nvim
+ */
+text/plain=text.desktop
+text/html=text.desktop
+text/x-shellscript=text.desktop
+text/x-chdr=text.desktop
+text/x-makefile=text.desktop
+text/tcl=text.desktop
+text/x-java=text.desktop
+text/x-c++src=text.desktop
+text/x-csrc=text.desktop
+text/x-tex=text.desktop
+text/x-pascal=text.desktop
+text/x-moc=text.desktop
+text/x-c++hdr=text.desktop
+application/x-pem-file=text.desktop
+application/pkix-crl=text.desktop
+application/pkix-cert=text.desktop
+application/pkcs7-mime+pem=text.desktop
+application/x-spkac+base64=text.desktop
+application/pkcs10=text.desktop
+application/x-pkcs12=text.desktop
+application/pkix-crl+pem=text.desktop
+application/pkcs10+pem=text.desktop
+application/x-pem-key=text.desktop
+application/pkcs8+pem=text.desktop
+application/pkcs8=text.desktop
+application/pkix-cert+pem=text.desktop
+application/pkcs12=text.desktop
+application/pkcs7-mime=text.desktop
+application/x-spkac=text.desktop
+application/pkcs12+pem=text.desktop
+application/x-shellscript=text.desktop
+application/json=text.desktop
+application/xml=text.desktop
+
+/*
+ * mpv
+ */
+video/x-msvideo=video.desktop
+video/vnd.rn-realvideo=video.desktop
+video/dv=video.desktop
+video/mp4=video.desktop
+video/x-flv=video.desktop
+video/3gpp=video.desktop
+video/ogg=video.desktop
+video/quicktime=video.desktop
+video/mp2t=video.desktop
+video/webm=video.desktop
+video/x-matroska=video.desktop
+video/3gpp2=video.desktop
+video/mpeg=video.desktop
+video/vnd.mpegurl=video.desktop
+video/x-theora+ogg=video.desktop
+video/x-ogm+ogg=video.desktop
+video/x-ms-wmv=video.desktop
+video/x-flic=video.desktop
+application/sdp=video.desktop
+application/vnd.rn-realmedia=video.desktop
+application/vnd.apple.mpegurl=video.desktop
+application/smil+xml=video.desktop
+application/ogg=video.desktop
+application/x-matroska=video.desktop
+application/vnd.ms-asf=video.desktop
+application/x-cue=video.desktop
+application/mxf=video.desktop
+application/x-shorten=video.desktop
+
+/*
+ * gimp
+ */
+image/vnd.adobe.photoshop=gimp.desktop
