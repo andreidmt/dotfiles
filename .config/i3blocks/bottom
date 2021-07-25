@@ -9,7 +9,7 @@ OUTLABEL=
 [memmory]
 command=~/.local/statusbar/memory
 interval=2
-label= 
+label= 
 
 [disk-/]
 command=~/.local/statusbar/disk

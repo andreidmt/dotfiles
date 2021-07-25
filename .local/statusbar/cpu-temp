@@ -3,7 +3,7 @@
 TEMP=$(sensors | grep "Package" | awk '{ print $4 }')
 FAN_LEVEL=$(grep 'level:' /proc/acpi/ibm/fan | awk '{ print $2 }')      
 
-echo " $TEMP  $FAN_LEVEL"
+echo " $TEMP  $FAN_LEVEL"
 
 # i3blocks red background
 if [ $TEMP -gt 72 ]; then

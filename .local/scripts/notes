@@ -17,14 +17,13 @@ case $CMD in
   # Create a new markdown file, or open existing, for today's notes
   #
   create)
-    NOTE_PATH="$TODAY_PATH/$(date +%H:%M).md"
+    NOTE_PATH="$NOTES_SRC/draft/$(date +%y-%j).md"
 
     if [ ! -f "$NOTE_PATH" ]; then
-      printf "topic:\ncontext:\ntype:\ndate: %s\ntime: %s\n\n---\n\n" \
-        "$(date +%Y-%m-%d)" \
-        "$(date +%H:%M)" \
-        > "$NOTE_PATH"
+      printf "# %s\n" "$(date '+%A, %d %B %Y')" > "$NOTE_PATH"
     fi
+
+    printf "\n## %s\n" "$(date '+%H:%M')" >> "$NOTE_PATH"
 
     # Relevant context for vim's NerdTree
     cd "$NOTES_SRC" && nvim -c "norm G" \

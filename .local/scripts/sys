@@ -7,7 +7,7 @@ case $CMD in
   #
   #
   #
-  backup-config)
+  dotfiles-sync)
     DOTFILES_REPO="$HOME/Work/dotfiles"
 
     rm -rf "$DOTFILES_REPO/.config"
@@ -24,10 +24,12 @@ case $CMD in
 
     # Share
     cp -r "$HOME/.local/share/applications" "$DOTFILES_REPO/.local/share"
+    cp "$HOME/.config/mimeapps.list" "$DOTFILES_REPO/.config"
     cp -r "$HOME/.local/share/fonts" "$DOTFILES_REPO/.local/share"
 
     # Vim
-    cp "$HOME/.config/nvim/init.vim" "$DOTFILES_REPO/.config/nvim"
+    cp $HOME/.config/nvim/*.vim "$DOTFILES_REPO/.config/nvim"
+    cp $HOME/.config/nvim/*.lua "$DOTFILES_REPO/.config/nvim"
     cp -r "$HOME/.config/nvim/snippets" "$DOTFILES_REPO/.config/nvim"
 
     # Files
