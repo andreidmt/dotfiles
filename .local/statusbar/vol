@@ -29,7 +29,7 @@ IS_MUTED=$(echo "$SINK" | \
 
 case "$IS_MUTED" in
   "yes")
-    echo " $VOLUME"
+    echo "婢 $VOLUME"
     exit 33
     ;;
   "no")
