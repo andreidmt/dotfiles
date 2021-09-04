@@ -1,0 +1,29 @@
+#!/bin/sh
+
+##
+## Open template for editing
+##
+
+# 
+# VARS
+#
+
+home="$HOME/.local/snippets"
+  
+# argument or piped value
+if [ -z "$1" ]; then
+  read -r name
+else
+  name=$1
+fi
+
+#
+# BODY
+#
+
+# Relevant context for vim's NerdTree
+cd "$home" || exit 1
+
+nvim -c "norm zz" \
+  -c "set spell" \
+  "$name"

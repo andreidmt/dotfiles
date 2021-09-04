@@ -46,8 +46,7 @@ case $CMD in
       -lines 4 \
       -case-sensitive false)
 
-    if [ ! -z "$NOTE" ]
-    then
+    if [ -n "$NOTE" ]; then
       echo "$NOTE" \
         | sanitize html \
         | tail -n 1 \

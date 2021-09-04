@@ -1,0 +1,25 @@
+#!/usr/bin/sh
+
+# Exit script if any statement returns a non-true return value
+set -e
+
+# Exit script if trying to use an uninitialised variable
+set -u
+
+dictionaryAPIKey="59bda566-3a88-4530-ac69-b82efd5f22e9"
+thesaurusAPIKey="fff7005d-df8f-4e93-bb11-29405db09a69"
+
+if [ "$ROFI_RETV" = 1 ]; then
+  curl --request GET "https://www.dictionaryapi.com/api/v3/references/collegiate/json/$1?key=$dictionaryAPIKey" \
+    | jq --raw-output '.[] | .fl + " - " + .shortdef[0]' 
+fi
+
+if [ "$ROFI_RETV" = 2 ]; then
+  data=$(curl --request GET "https://www.dictionaryapi.com/api/v3/references/thesaurus/json/$1?key=$thesaurusAPIKey")
+
+  type=$(echo "$data" | jq --raw-output 'type')
+
+  if [ "$type" = "array" ]; then
+    echo "$data" | jq --raw-output ''
+  fi
+fi

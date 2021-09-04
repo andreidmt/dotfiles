@@ -28,8 +28,8 @@ case $CMD in
     cp -r "$HOME/.local/share/fonts" "$DOTFILES_REPO/.local/share"
 
     # Vim
-    cp $HOME/.config/nvim/*.vim "$DOTFILES_REPO/.config/nvim"
-    cp $HOME/.config/nvim/*.lua "$DOTFILES_REPO/.config/nvim"
+    cp "$HOME"/.config/nvim/*.vim "$DOTFILES_REPO/.config/nvim"
+    cp "$HOME"/.config/nvim/*.lua "$DOTFILES_REPO/.config/nvim"
     cp -r "$HOME/.config/nvim/snippets" "$DOTFILES_REPO/.config/nvim"
 
     # Files
