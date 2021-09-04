@@ -1,0 +1,75 @@
+#!/usr/bin/sh
+
+optionShutdown="襤 shutdown"
+optionReboot="勒 reboot"
+optionLock=" lock"
+optionSuspend="鈴 suspend"
+optionLogout=" logout"
+
+confirm_exit() {
+	echo -e "yes\nno" | rofi -hide-scrollbar -dmenu\
+		-i\
+		-no-fixed-num-lines\
+		-p "Are You Sure?"
+}
+
+chosen="$(echo -e "$optionShutdown\n$optionReboot\n$optionLock\n$optionSuspend\n$optionLogout" \
+  | rofi -dmenu \
+    -p " " \
+    -selected-row 2 \
+		-no-fixed-num-lines \
+)"
+
+case $chosen in
+    "$optionShutdown")
+      confirmation=$(confirm_exit &)
+
+      if [[ $confirmation == "yes" ]]; then
+        systemctl poweroff
+      else
+        exit 0
+      fi
+    ;;
+
+    "$optionReboot")
+		ans=$(confirm_exit &)
+		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
+			systemctl reboot
+		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
+			exit 0
+        else
+			msg
+        fi
+        ;;
+    "$optionLock")
+      sys lock
+        ;;
+    "$optionSuspend")
+		ans=$(confirm_exit &)
+		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
+			mpc -q pause
+			amixer set Master mute
+			systemctl suspend
+		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
+			exit 0
+        else
+			msg
+        fi
+        ;;
+    "$optionLogout")
+		ans=$(confirm_exit &)
+		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
+			if [[ "$DESKTOP_SESSION" == "Openbox" ]]; then
+				openbox --exit
+			elif [[ "$DESKTOP_SESSION" == "bspwm" ]]; then
+				bspc quit
+			elif [[ "$DESKTOP_SESSION" == "i3" ]]; then
+				i3-msg exit
+			fi
+		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
+			exit 0
+        else
+			msg
+        fi
+        ;;
+esac

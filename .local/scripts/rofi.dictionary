@@ -1,0 +1,22 @@
+#!/usr/bin/sh
+
+# Exit script if any statement returns a non-true return value
+set -e
+
+# Exit script if trying to use an uninitialised variable
+set -u
+
+# dictionary.ls \
+#   | rofi -dmenu \
+#     -eh 2 \
+#     -sep '|' \
+#     -p "﬜ " \
+#     -i \
+#     -markup-rows \
+#     -case-sensitive false
+
+rofi \
+	-no-fixed-num-lines \
+  -i \
+  -show ﬜ \
+  -modi "﬜:dictionary.async"

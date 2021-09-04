@@ -54,14 +54,16 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- sys lock --nofork
 bindsym $mod+x exec --no-startup-id sys lock
 
 #####
-## Notes & Snippets
+## Rofi
 #####
 
-bindsym $mod+n       exec --no-startup-id st -t such-important -e notes create
-bindsym $mod+Shift+p exec --no-startup-id notes find
+bindsym $mod+grave    exec --no-startup-id rofi.index
 
-bindsym $mod+s       exec --no-startup-id snippets use
-bindsym $mod+Shift+s exec --no-startup-id snippets find
+bindsym $mod+n        exec --no-startup-id st -t such-important -e notes create
+bindsym $mod+Shift+p  exec --no-startup-id rofi.notes
+
+bindsym $mod+s        exec --no-startup-id snippets use
+bindsym $mod+Shift+s  exec --no-startup-id snippets find
 
 #####
 ## Fn keys

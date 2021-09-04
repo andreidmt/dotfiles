@@ -1,0 +1,18 @@
+#!/usr/bin/sh
+
+# Exit script if any statement returns a non-true return value
+set -e
+
+# Exit script if trying to use an uninitialised variable
+set -u
+
+NAME=$(templates.ls \
+  | rofi -dmenu \
+      -p " " \
+      -i \
+      -case-sensitive false
+)
+
+if [ -n "$NAME" ]; then
+  templates.paste "$NAME"
+fi
