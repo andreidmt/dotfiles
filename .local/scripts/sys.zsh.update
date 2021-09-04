@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Exit script if any statement returns a non-true return value
+set -e
+
+# Exit script if trying to use an uninitialised variable
+set -u
+
+# Clean install
+rm -rf "$HOME/.local/bin/zsh-plugins"
+mkdir -p "$HOME/.local/bin/zsh-plugins"
+
+plugins=(
+  # ZSH_SYNTAX
+  "git@github.com:zsh-users/zsh-syntax-highlighting.git"
+
+  # ZSH_SUGGESTIONS
+  "git@github.com:zsh-users/zsh-autosuggestions.git"
+  
+  # ZSH_POWER10K
+  "git@github.com:romkatv/powerlevel10k.git"
+  
+  # nvm is an awesome tool but it can be kind of a pain to install and keep 
+  # up to date. This zsh plugin allows you to quickly setup nvm once, save it 
+  # in your dotfiles, then never worry about it again.
+  "git@github.com:lukechilds/zsh-nvm.git"
+   
+
+  # This is a clean-room implementation of the Fish shell's history search 
+  # feature, where you can type in any part of any command from history and 
+  # then press chosen keys, such as the UP and DOWN arrows, to cycle through
+  # matches.
+  "git@github.com:zsh-users/zsh-history-substring-search.git"
+)
+
+for pluginGitURL in "${plugins[@]}"
+do
+  printf "\n###\n### %s\n###\n\n" "Downloading $pluginGitURL"
+
+  cd "$HOME/.local/bin/zsh-plugins" && git clone "$pluginGitURL"
+done
+
