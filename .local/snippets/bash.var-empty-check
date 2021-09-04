@@ -1,0 +1,5 @@
+if [[ -z "$variable" ]]; then
+  echo "Empty $variable"
+else
+  echo "Do whatever you want as \$variable is not empty"
+fi
