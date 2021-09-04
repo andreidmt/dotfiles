@@ -1,116 +1,13 @@
-local colors = {
-  white = "#c7b89d",
-  darker_black = "#1e2122",
-  black = "#222526", --  nvim bg
-  black2 = "#26292a",
-  one_bg = "#2b2e2f",
-  one_bg2 = "#2f3233",
-  one_bg3 = "#313435",
-  grey = "#46494a",
-  grey_fg = "#5d6061",
-  grey_fg2 = "#5b5e5f",
-  light_grey = "#585b5c",
-  red = "#ec6b64",
-  baby_pink = "#ce8196",
-  pink = "#ff75a0",
-  line = "#2c2f30", -- for lines like vertsplit
-  green = "#89b482",
-  vibrant_green = "#a9b665",
-  nord_blue = "#6f8faf",
-  blue = "#6d8dad",
-  yellow = "#d6b676",
-  sun = "#d1b171",
-  purple = "#b4bbc8",
-  dark_purple = "#cc7f94",
-  teal = "#749689",
-  orange = "#e78a4e",
-  cyan = "#82b3a8",
-  statusline_bg = "#252829",
-  lightbg = "#2d3139",
-  lightbg2 = "#262a32"
-}
 local gl = require("galaxyline")
-local gls = gl.section
 local condition = require("galaxyline.condition")
+local lspclient = require("galaxyline.provider_lsp")
+
+local colors = require("colors")
 
 gl.short_line_list = {" "}
 
-
-gls.left[0] = {
-  viMode_icon = {
-    provider = function()
-      return "   "
-    end,
-    highlight = {colors.black, colors.nord_blue},
-  }
-}
-
-gls.left[1] = {
-  ViMode = {
-    provider = function()
-      local alias = {
-        n = "Normal",
-        i = "Insert",
-        c = "Command",
-        V = "Visual",
-        [""] = "Visual",
-        v = "Visual",
-        R = "Replace"
-      }
-      local current_Mode = alias[vim.fn.mode()]
-
-      if current_Mode == nil then
-        return "  Terminal "
-      else
-        return "  " .. current_Mode .. " "
-      end
-    end,
-    highlight = {colors.black, colors.nord_blue},
-    separator = "  ",
-    separator_highlight = {colors.nord_blue, colors.lightbg}
-  }
-}
-
-
-gls.left[2] = {
-  FileIcon = {
-    provider = "FileIcon",
-    condition = condition.buffer_not_empty,
-    highlight = {colors.white, colors.lightbg}
-  }
-}
-
-gls.left[3] = {
-  FileName = {
-    provider = "FileName",
-    condition = condition.buffer_not_empty,
-    highlight = {colors.white, colors.lightbg},
-    separator = " ",
-    separator_highlight = {colors.lightbg, colors.lightbg2}
-  }
-}
-
-gls.left[4]= {
-  BufferType = {
-    provider = 'FileTypeName',
-    separator = " ",
-    separator_highlight = {colors.lightbg2, colors.statusline_bg},
-    highlight = {colors.grey_fg2, colors.lightbg2}
-  }
-}
-
-gls.left[4]= {
-  BufferType = {
-    provider = 'FileTypeName',
-    separator = " ",
-    separator_highlight = {colors.lightbg2, colors.statusline_bg},
-    highlight = {colors.grey_fg2, colors.lightbg2}
-  }
-}
-
 local checkIsScreenWide = function()
   local squeeze_width = vim.fn.winwidth(0) / 2
-  
   if squeeze_width > 30 then
     return true
   end
@@ -118,109 +15,160 @@ local checkIsScreenWide = function()
   return false
 end
 
-gls.left[5] = {
-    DiffAdd = {
-        provider = "DiffAdd",
-        condition = checkIsScreenWide,
-        icon = "  ",
-        highlight = {colors.white, colors.statusline_bg}
+gl.section.left = {
+  {
+    ViModeIcon = {
+      provider = function()
+        return "   "
+      end,
+      highlight = {colors.black, colors.nord_blue},
     }
-}
+  },
+  {
+    ViMode = {
+      provider = function()
+        local alias = {
+          n = "Normal",
+          i = "Insert",
+          c = "Command",
+          V = "Visual",
+          [""] = "Visual",
+          v = "Visual",
+          R = "Replace"
+        }
+        local current_Mode = alias[vim.fn.mode()]
 
-gls.left[7] = {
-    DiffModified = {
-        provider = "DiffModified",
-        condition = checkIsScreenWide,
-        icon = "   ",
-        highlight = {colors.grey_fg2, colors.statusline_bg}
+        if current_Mode == nil then
+          return "  Terminal "
+        else
+          return "  " .. current_Mode .. " "
+        end
+      end,
+      highlight = {colors.black, colors.nord_blue},
+      separator = "  ",
+      separator_highlight = {colors.nord_blue, colors.lightbg}
     }
-}
-
-gls.left[8] = {
-    DiffRemove = {
-        provider = "DiffRemove",
-        condition = checkIsScreenWide,
-        icon = "  ",
-        highlight = {colors.grey_fg2, colors.statusline_bg}
+  },
+  {
+    FileIcon = {
+      provider = "FileIcon",
+      condition = condition.buffer_not_empty,
+      highlight = {colors.white, colors.lightbg}
     }
-}
-
-gls.left[9] = {
+  },
+  {
+    FileName = {
+      provider = "FileName",
+      condition = condition.buffer_not_empty,
+      highlight = {colors.white, colors.lightbg},
+      separator = " ",
+      separator_highlight = {colors.lightbg, colors.lightbg2}
+    }
+  },
+  {
+    FileType = {
+      provider = 'FileTypeName',
+      separator = " ",
+      separator_highlight = {colors.lightbg2, colors.statusline_bg},
+      highlight = {colors.grey_fg2, colors.lightbg2}
+    }
+  }, 
+  {
+    LspStatus = {
+      provider = function()
+        return string.format("%s", lspclient.get_lsp_client())
+      end,
+      icon = "  ",
+      highlight = {colors.grey_fg2, colors.statusline_bg}
+    }
+  },
+  {
     DiagnosticError = {
-        provider = "DiagnosticError",
-        icon = "  ",
-        highlight = {colors.red, colors.statusline_bg}
+      provider = "DiagnosticError",
+      icon = "  ",
+      highlight = {colors.red, colors.statusline_bg}
     }
-}
-
-gls.left[10] = {
+  },
+  {
     DiagnosticWarn = {
-        provider = "DiagnosticWarn",
-        icon = "  ",
-        highlight = {colors.yellow, colors.statusline_bg}
+      provider = "DiagnosticWarn",
+      icon = "  ",
+      highlight = {colors.yellow, colors.statusline_bg}
     }
+  }
 }
 
-
-gls.right[2] = {
-    lsp_status = {
-        provider = function()
-            local clients = vim.lsp.get_active_clients()
-            if next(clients) ~= nil then
-                return " " .. "  " .. " LSP "
-            else
-                return ""
-            end
-        end,
-        highlight = {colors.grey_fg2, colors.statusline_bg}
-    }
-}
-
-gls.right[3] = {
+gl.section.right = {
+  {
     GitIcon = {
-        provider = function()
-            return " "
-        end,
-        condition = require("galaxyline.condition").check_git_workspace,
-        highlight = {colors.grey_fg2, colors.statusline_bg},
-        separator = " ",
-        separator_highlight = {colors.statusline_bg, colors.statusline_bg}
+      provider = function()
+        return " "
+      end,
+      condition = require("galaxyline.condition").check_git_workspace,
+      highlight = {colors.grey_fg2, colors.statusline_bg},
+      separator = " ",
+      separator_highlight = {colors.statusline_bg, colors.statusline_bg}
     }
-}
-
-gls.right[4] = {
+  },
+  {
     GitBranch = {
-        provider = "GitBranch",
-        condition = require("galaxyline.condition").check_git_workspace,
-        highlight = {colors.grey_fg2, colors.statusline_bg}
+      provider = "GitBranch",
+      condition = require("galaxyline.condition").check_git_workspace,
+      highlight = {colors.grey_fg2, colors.statusline_bg}
     }
-}
-
-gls.right[7] = {
-    some_icon = {
-        provider = function()
-            return " "
-        end,
-        separator = " ",
-        separator_highlight = {colors.green, colors.lightbg},
-        highlight = {colors.lightbg, colors.green}
+  },
+  {
+    DiffAdd = {
+      provider = "DiffAdd",
+      condition = checkIsScreenWide,
+      icon = "  ",
+      separator = " ",
+      highlight = {colors.white, colors.statusline_bg}
     }
-}
-
-gls.right[8] = {
-    line_percentage = {
-        provider = function()
-            local current_line = vim.fn.line(".")
-            local total_line = vim.fn.line("$")
-
-            if current_line == 1 then
-                return "  Top "
-            elseif current_line == vim.fn.line("$") then
-                return "  Bot "
-            end
-            local result, _ = math.modf((current_line / total_line) * 100)
-            return "  " .. result .. "% "
-        end,
-        highlight = {colors.green, colors.lightbg}
+  },
+  {
+    DiffModified = {
+      provider = "DiffModified",
+      condition = checkIsScreenWide,
+      icon = "  ",
+      highlight = {colors.grey_fg2, colors.statusline_bg}
     }
+  }, 
+  {
+    DiffRemove = {
+      provider = "DiffRemove",
+      condition = checkIsScreenWide,
+      icon = "  ",
+      highlight = {colors.grey_fg2, colors.statusline_bg}
+    }
+  },
+  {
+    LinePercentageIcon = {
+      provider = function()
+        return " "
+      end,
+      separator = " ",
+      separator_highlight = {colors.green, colors.lightbg},
+      highlight = {colors.lightbg, colors.green}
+    }
+  },
+  {
+    LinePercentage = {
+      provider = function()
+        local current_line = vim.fn.line(".")
+        local total_line = vim.fn.line("$")
+
+        if current_line == 1 then
+          return "  Top "
+        elseif current_line == vim.fn.line("$") then
+          return "  Bot "
+        end
+
+        local result, _ = math.modf((current_line / total_line) * 100)
+
+        return "  " .. result .. "% "
+      end,
+      highlight = {colors.green, colors.lightbg}
+    }
+  }
 }

@@ -1,9 +1,34 @@
 source $HOME/.config/nvim/general.vim
 source $HOME/.config/nvim/keys.vim
-source $HOME/.config/nvim/plugins.vim
+source $HOME/.config/nvim/lsp.lua
 
+source $HOME/.config/nvim/plugins.vim
 source $HOME/.config/nvim/plugin.gruvbox-material.vim
 source $HOME/.config/nvim/plugin.galaxyline.lua
+source $HOME/.config/nvim/plugin.treesitting.lua
+source $HOME/.config/nvim/plugin.lspinstall.lua
+source $HOME/.config/nvim/plugin.compe.lua
+
+
+" Auto source when writing to init.vm alternatively you can run :source $MYVIMRC
+au! BufWritePost $MYVIMRC source %      
+
+"
+" Note system
+"
+
+au BufWritePost *note-*.md silent !notes build %:p
+
+" 
+" Filetype association 
+"
+
+au BufRead,BufNewFile *.js.flow set filetype=javascript
+au BufRead,BufNewFile *.flow set filetype=javascript
+au BufRead,BufNewFile *.ejs set filetype=html
+au BufRead,BufNewFile .*rc set filetype=json
+au BufRead,BufNewFile .zshrc set filetype=zsh
+au BufRead,BufNewFile .xinitrc set filetype=bash
 
 "
 " Key bindings
@@ -68,7 +93,6 @@ nmap <C-j> <Plug>(ale_next_wrap)
 " Trigger commands
 "
 
-au BufWritePost *note-*.md silent !notes build %:p
 
 "
 " Config Plugins
@@ -236,30 +260,30 @@ let g:ale_typescript_eslint_use_global = 1
 let g:ale_typescript_eslint_executable = 'eslint_d'
 
 " Deoplete autocomplete
-call deoplete#custom#option({
-\ 'auto_refresh_delay': 10,
-\ 'camel_case': v:true,
-\ 'skip_multibyte': v:true,
-\ 'auto_preview': v:true,
-\ })
+"call deoplete#custom#option({
+"\ 'auto_refresh_delay': 10,
+"\ 'camel_case': v:true,
+"\ 'skip_multibyte': v:true,
+"\ 'auto_preview': v:true,
+"\ })
 
-call deoplete#custom#option('num_processes', 4)
+"call deoplete#custom#option('num_processes', 4)
 
-let g:deoplete#enable_at_startup = 1
+"let g:deoplete#enable_at_startup = 1
 
-" Whether to include the types of the completions in the result data.
-" Default: 0
-let g:deoplete#sources#ternjs#types = 1
+"" Whether to include the types of the completions in the result data.
+"" Default: 0
+"let g:deoplete#sources#ternjs#types = 1
 
-" Whether to include documentation strings (if found) in the result data.
-" Default: 0
-let g:deoplete#sources#ternjs#docs = 1
+"" Whether to include documentation strings (if found) in the result data.
+"" Default: 0
+"let g:deoplete#sources#ternjs#docs = 1
 
-"Add extra filetypes
-let g:deoplete#sources#ternjs#filetypes = [
-\ 'jsx',
-\ 'javascript.jsx',
-\ ]
+""Add extra filetypes
+"let g:deoplete#sources#ternjs#filetypes = [
+"\ 'jsx',
+"\ 'javascript.jsx',
+"\ ]
 
 " Use tern_for_vim.
 let g:tern#command = ["tern"]

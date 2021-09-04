@@ -1,10 +1,9 @@
 syntax enable           " Syntax highlighting
 set showmatch           " Show matching brackets.
+set completeopt=menuone,noselect
 
 set title               " Set window title.
 set noshowmode          " Mode already shown in status bar
-
-set pumheight=10        " Makes popup menu smaller
 
 
 set iskeyword+=-        " Treat dash separated words as a word text object"
@@ -23,6 +22,10 @@ set virtualedit=block   " Allow going beyond the end of line in V-BLOCK
 highlight Comment cterm=italic
 highlight clear SignColumn
 
+" Component sizing
+set cmdheight=2         " More space for displaying messages
+set pumheight=10        " Makes popup menu smaller
+
 " Wraping
 set colorcolumn=80      " Highlight ruler column
 set wrap                " Wrap visually, don't change text in buffer.
@@ -33,7 +36,7 @@ set linebreak           " Only wrap at a character in the breakat
 set number              " Line numbers
 set ruler		            " Show the cursor position all the time
 set cursorline          " Highlight the screen line of the cursor
-set so=5                " Scroll lines above/below cursor
+set so=8                " Scroll lines above/below cursor
 
 " File
 set encoding=utf-8      " The encoding displayed
@@ -57,11 +60,3 @@ set foldcolumn=1      " defines 1 col at window left, to indicate folding
 let javascript_fold=1 " activate folding by JS syntax  
 let typescript_fold=1 " activate folding by JS syntax  
 set foldlevelstart=99 " start file with all folds opened
-
-" Filetype association 
-au BufRead,BufNewFile *.js.flow set filetype=javascript
-au BufRead,BufNewFile *.flow set filetype=javascript
-au BufRead,BufNewFile *.ejs set filetype=html
-au BufRead,BufNewFile .*rc set filetype=json
-au BufRead,BufNewFile .zshrc set filetype=zsh
-au BufRead,BufNewFile .xinitrc set filetype=bash
