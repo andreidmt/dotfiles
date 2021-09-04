@@ -10,3 +10,5 @@
 	submoduleSummary = true
 [push]
 	recurseSubmodules = check
+[merge "ours"]
+	driver = true

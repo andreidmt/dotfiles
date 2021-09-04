@@ -21,7 +21,7 @@ mpd &
 nm-applet --indicator &
 
 # Bluetooth applet
-blueman-applet &
+#blueman-applet &
 
 # USB watcher
 #udiskie &
