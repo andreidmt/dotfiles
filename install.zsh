@@ -8,6 +8,6 @@ set -u
 
 scriptFolder=$(dirname `realpath $0`)
 
-cp -r "$scriptFolder/.config/zsh" "$HOME/.config/zsh"
+cp -r "$scriptFolder/.config/zsh" "$HOME/.config"
 
 ln -s "$HOME/.config/zsh/.zshrc" "$HOME/.zshrc"
