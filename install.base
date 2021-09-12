@@ -31,7 +31,7 @@ cp -r "$dirpath/home/.gitconfig" "$HOME/"
 cp -r "$dirpath/home/.profile" "$HOME/"
 cp -r "$dirpath/doomguy.png" "$HOME/"
 cp -r "$dirpath/doomguy-blood.png" "$HOME/"
-cp -r "$dirpath/wallpapers/*" "$HOME/Pictures/Wallpapers"
+cp -r $dirpath/wallpapers/* "$HOME/Pictures/Wallpapers"
 
 #
 # Install Luke Smith's 'st' fork
