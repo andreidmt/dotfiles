@@ -9,7 +9,7 @@ set -u
 # absolute path of the folder containing this script file
 dirpath=$(dirname `realpath $0`)
 
-mkdir - "$HOME/.config"
+mkdir -p "$HOME/.config"
 cp -r "$dirpath/.config/zsh" "$HOME/.config"
 
 mv "$HOME/.zshrc" "$HOME/.zshrc_backup"
