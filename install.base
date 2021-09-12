@@ -33,6 +33,7 @@ cp -r "$dirpath/home/.profile" "$HOME/"
 # Install Luke Smith's `st` fork
 #
 
+rm -rf ~/Work/lukesmith.st
 git clone https://github.com/LukeSmithxyz/st ~/Work/lukesmith.st
 cd ~/Work/lukesmith.st && sudo make install
 
