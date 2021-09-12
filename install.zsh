@@ -30,4 +30,4 @@ mkdir -p "$HOME/.local"
 cp -r "$dirpath/.local/scripts" "$HOME/.local"
 cp -r "$dirpath/.local/statusbar" "$HOME/.local"
 
-.~/.local/scripts/sys.zsh.update
+cd ~/.local/scripts && ./sys.zsh.update
