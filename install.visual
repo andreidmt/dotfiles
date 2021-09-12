@@ -21,3 +21,14 @@ cp -r "$dirpath/.config/i3blocks" "$HOME/.config"
 cp -r "$dirpath/.config/dunst" "$HOME/.config"
 cp -r "$dirpath/.config/picom" "$HOME/.config"
 cp -r "$dirpath/.config/rofi" "$HOME/.config"
+
+#
+# Install graphics related packages
+#
+
+echo "#"
+echo "# Install graphics related packages"
+echo "#"
+
+sudo pacman -S xorg-server xorg-xinit picom i3-gaps i3blocks rofi dunst arandr
+
