@@ -14,7 +14,8 @@ dirpath=$(dirname "$(realpath "$0")")
 #
 
 mkdir -p "$HOME/Downloads"
-mkdir -p "$HOME/Pictures"
+mkdir -p "$HOME/Pictures/Wallpapers"
+mkdir -p "$HOME/Pictures/Screenshots"
 mkdir -p "$HOME/Work"
 mkdir -p "$HOME/Media"
 
@@ -28,6 +29,9 @@ cp -r "$dirpath/.config/sxiv" "$HOME/.config"
 cp -r "$dirpath/.config/mimeapps.list" "$HOME/.config"
 cp -r "$dirpath/home/.gitconfig" "$HOME/"
 cp -r "$dirpath/home/.profile" "$HOME/"
+cp -r "$dirpath/doomguy.png" "$HOME/"
+cp -r "$dirpath/doomguy-blood.png" "$HOME/"
+cp -r "$dirpath/wallpapers/*" "$HOME/Pictures/Wallpapers"
 
 #
 # Install Luke Smith's 'st' fork
@@ -79,4 +83,4 @@ echo "#"
 echo "# Install other base packages"
 echo "#"
 
-sudo pacman -S nnn xclip fontconfig noto-fonts sxiv zathura
+sudo pacman -S nnn xclip fontconfig noto-fonts sxiv zathura firefox-developer-edition
