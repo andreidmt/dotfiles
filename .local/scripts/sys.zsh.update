@@ -7,8 +7,7 @@ set -e
 set -u
 
 # Clean install
-rm -rf "$HOME/.local/bin/zsh-plugins"
-mkdir -p "$HOME/.local/bin/zsh-plugins"
+rm -rf "$HOME/.local/bin/zsh-plugins/*"
 
 plugins=(
   # ZSH_SYNTAX
@@ -32,6 +31,8 @@ plugins=(
   # matches.
   "git@github.com:zsh-users/zsh-history-substring-search.git"
 )
+
+mkdir -p "$HOME/.local/bin/zsh-plugins"
 
 for pluginGitURL in "${plugins[@]}"
 do
