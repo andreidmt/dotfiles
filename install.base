@@ -10,10 +10,22 @@ set -u
 dirpath=$(dirname "$(realpath "$0")")
 
 #
+# Main folders
+#
+
+mkdir -p "$HOME/Downloads"
+mkdir -p "$HOME/Pictures"
+mkdir -p "$HOME/Work"
+mkdir -p "$HOME/Media"
+
+#
 # Restore configs
 #
 
 mkdir -p "$HOME/.config"
+cp -r "$dirpath/.config/fontconfig" "$HOME/.config"
+cp -r "$dirpath/.config/sxiv" "$HOME/.config"
+cp -r "$dirpath/.config/mimeapps.list" "$HOME/.config"
 cp -r "$dirpath/home/.gitconfig" "$HOME/"
 cp -r "$dirpath/home/.profile" "$HOME/"
 
@@ -23,3 +35,9 @@ cp -r "$dirpath/home/.profile" "$HOME/"
 
 git clone https://github.com/LukeSmithxyz/st ~/Work/lukesmith.st
 cd ~/Work/lukesmith.st && sudo make install
+
+#
+# Other packages
+#
+
+sudo pacman -S nnn xclip fontconfig noto-fonts sxiv zathura
