@@ -12,5 +12,8 @@ dirpath=$(dirname `realpath $0`)
 mkdir -p "$HOME/.config"
 cp -r "$dirpath/.config/zsh" "$HOME/.config"
 
-mv "$HOME/.zshrc" "$HOME/.zshrc_backup"
+if [ -f "$HOME/.zshrc" ]; then
+  mv "$HOME/.zshrc" "$HOME/.zshrc_backup"
+fi
+
 ln -s "$HOME/.config/zsh/.zshrc" "$HOME/.zshrc"
