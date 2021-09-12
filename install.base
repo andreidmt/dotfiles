@@ -55,14 +55,14 @@ sudo pacman -Syy
 # allow arch repos
 sudo pacman -S artix-archlinux-support
 
-if grep -q "[extra]" /etc/pacman.conf; then
+if grep -q "^\[extra\]$" /etc/pacman.conf; then
   echo "[extra] already enabled"
 else
   echo "[extra]" >> /etc/pacman.conf
   echo "Include = /etc/pacman.d/mirrorlist-arch" >> /etc/pacman.conf
 fi
 
-if grep -q "[community]" /etc/pacman.conf; then
+if grep -q "^\[community\]$" /etc/pacman.conf; then
   echo "[community] already enabled"
 else
   echo "[community]" >> /etc/pacman.conf
