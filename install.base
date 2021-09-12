@@ -49,20 +49,24 @@ echo "#"
 echo "# Enable 'extra' and 'community' Arch repos"
 echo "#"
 
-pacman -S artix-archlinux-support
+# have package database up to date
+sudo pacman -Syy
+
+# allow arch repos
+sudo pacman -S artix-archlinux-support
 
 if grep -q "[extra]" /etc/pacman.conf; then
   echo "[extra] already enabled"
 else
-  echo "[extra]"
-  echo "Include = /etc/pacman.d/mirrorlist-arch"
+  echo "[extra]" >> /etc/pacman.conf
+  echo "Include = /etc/pacman.d/mirrorlist-arch" >> /etc/pacman.conf
 fi
 
 if grep -q "[community]" /etc/pacman.conf; then
   echo "[community] already enabled"
 else
-  echo "[community]"
-  echo "Include = /etc/pacman.d/mirrorlist-arch"
+  echo "[community]" >> /etc/pacman.conf
+  echo "Include = /etc/pacman.d/mirrorlist-arch" >> /etc/pacman.conf
 fi
 
 sudo pacman-key --populate archlinux
