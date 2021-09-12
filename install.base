@@ -30,15 +30,49 @@ cp -r "$dirpath/home/.gitconfig" "$HOME/"
 cp -r "$dirpath/home/.profile" "$HOME/"
 
 #
-# Install Luke Smith's `st` fork
+# Install Luke Smith's 'st' fork
 #
+
+echo "#"
+echo "# Install Luke Smith's 'st' fork"
+echo "#"
 
 rm -rf ~/Work/lukesmith.st
 git clone https://github.com/LukeSmithxyz/st ~/Work/lukesmith.st
 cd ~/Work/lukesmith.st && sudo make install
 
 #
+# Enable 'extra' and 'community' Arch repos
+#
+
+echo "#"
+echo "# Enable 'extra' and 'community' Arch repos"
+echo "#"
+
+pacman -S artix-archlinux-support
+
+if grep -q "[extra]" /etc/pacman.conf; then
+  echo "[extra] already enabled"
+else
+  echo "[extra]"
+  echo "Include = /etc/pacman.d/mirrorlist-arch"
+fi
+
+if grep -q "[community]" /etc/pacman.conf; then
+  echo "[community] already enabled"
+else
+  echo "[community]"
+  echo "Include = /etc/pacman.d/mirrorlist-arch"
+fi
+
+sudo pacman-key --populate archlinux
+
+#
 # Other packages
 #
+
+echo "#"
+echo "# Install other base packages"
+echo "#"
 
 sudo pacman -S nnn xclip fontconfig noto-fonts sxiv zathura
