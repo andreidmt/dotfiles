@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Exit script if any statement returns a non-true return value
+set -e
+
+# Exit script if trying to use an uninitialised variable
+set -u
+
+# absolute path of the folder containing this script file
+dirpath=$(dirname "$(realpath "$0")")
+
+#
+# Restore configs
+#
+
+echo "#"
+echo "# - Restore 'fontconfig' into '~/.config'"
+echo "# - Copy font into '.local/share/fonts'"
+echo "#"
+
+mkdir -p "$HOME/.config"
+cp -r "$dirpath/.config/fontconfig" "$HOME/.config"
+
+mkdir -p "$HOME/.local/share/fonts"
+cp -r "$dirpath/.local/share/fonts" "$HOME/.local/share"
+
+#
+# Packages
+#
+
+echo "#"
+echo "# - Install font packages"
+echo "#"
+
+sudo pacman -S fontconfig noto-fonts

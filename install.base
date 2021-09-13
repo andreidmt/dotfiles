@@ -19,12 +19,19 @@ mkdir -p "$HOME/Pictures/Screenshots"
 mkdir -p "$HOME/Work"
 mkdir -p "$HOME/Media"
 
+# UI file browser left column bookmarks
+cp -r "$dirpath/.config/gtk-3.0" "$HOME/.config"
+
 #
 # Restore configs
 #
 
+echo "#"
+echo "# - Restore 'fontconfig' into '~/.config'"
+echo "# - Copy font into '.local/share/fonts'"
+echo "#"
+
 mkdir -p "$HOME/.config"
-cp -r "$dirpath/.config/fontconfig" "$HOME/.config"
 cp -r "$dirpath/.config/sxiv" "$HOME/.config"
 cp -r "$dirpath/.config/mimeapps.list" "$HOME/.config"
 cp -r "$dirpath/home/.gitconfig" "$HOME/"
@@ -83,4 +90,4 @@ echo "#"
 echo "# Install other base packages"
 echo "#"
 
-sudo pacman -S nnn xclip fontconfig noto-fonts sxiv zathura firefox-developer-edition
+sudo pacman -S neofetch nnn xclip zathura firefox-developer-edition

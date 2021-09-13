@@ -30,5 +30,5 @@ echo "#"
 echo "# Install graphics related packages"
 echo "#"
 
-sudo pacman -S xorg-server xorg-xinit picom i3-gaps i3blocks rofi dunst arandr
-
+sudo pacman --noconfirm -S libnotify imagemagick exiv2
+sudo pacman --noconfirm -S xorg-server xorg-xinit picom i3-gaps i3blocks rofi feh dunst arandr
