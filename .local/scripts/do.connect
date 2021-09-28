@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Exit script if any statement returns a non-true return value
+set -e
+
+# Exit script if trying to use an uninitialised variable
+set -u
+
+scriptName="~/.local/scripts/do.connect"
+name=$1
+user="${2:-"root"}"
+
+jqSelector="map(select(.name==\"$name\"))[0].ip_public"
+ip=$(do.ls | jq -r "$jqSelector")
+tunnel="${3:-""}"
+
+if [ -z "$tunnel" ]; then
+  notify "$scriptName" "# connecting to \"$name\" droplet \n\n\$ ssh $user@$ip"
+  ssh "$user@$ip"
+else
+  notify "$scriptName" "# connecting to \"$name\" droplet \n\n\$ ssh -L $tunnel $user@$ip"
+  ssh -L "$tunnel" "$user@$ip"
+fi
+
