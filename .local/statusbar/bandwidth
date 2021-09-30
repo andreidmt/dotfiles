@@ -17,11 +17,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-NAME=$(nmcli -p -f general device show wlp3s0 | grep 'CONNECTION' | awk '{ print $2 }')
-STATE=$(nmcli -p -f general device show wlp3s0 | grep 'STATE' | awk '{ print $2 }')
+case $(uname -n) in
+  skulltop)
+    interface="eth0"
+  ;;
+  t440p)
+    interface="wlp3s0"
+  ;;
+  *)
+    interface=$(ip route | awk '/^default/ { print $5 ; exit }')
+  ;;
+esac
+
+# Exit if there is no default route
+[[ -z "$interface" ]] && exit
+
+NAME=$(nmcli -p -f general device show $interface | grep 'CONNECTION' | awk '{ print $2 }')
+STATE=$(nmcli -p -f general device show "$interface" | grep 'STATE' | awk '{ print $2 }')
 
 if [[ $STATE == "30" ]]; then
-  echo "disconnected $INTERFACE"
+  echo "disconnected $interface"
   exit 
 else
   echo -n "$NAME :: "
@@ -44,22 +59,12 @@ done
 [[ -z "$INLABEL" ]] && INLABEL="IN "
 [[ -z "$OUTLABEL" ]] && OUTLABEL="OUT "
 
-# Use the provided interface, otherwise the device used for the default route.
-if [[ -z $INTERFACE ]] && [[ -n $BLOCK_INSTANCE ]]; then
-  INTERFACE=$BLOCK_INSTANCE
-elif [[ -z $INTERFACE ]]; then
-  INTERFACE=$(ip route | awk '/^default/ { print $5 ; exit }')
-fi
-
-# Exit if there is no default route
-[[ -z "$INTERFACE" ]] && exit
-
 # path to store the old results in
-path="/dev/shm/$(basename $0)-${INTERFACE}"
+path="/dev/shm/$(basename $0)-$interface"
 
 # grabbing data for each adapter.
-read rx < "/sys/class/net/${INTERFACE}/statistics/rx_bytes"
-read tx < "/sys/class/net/${INTERFACE}/statistics/tx_bytes"
+read rx < "/sys/class/net/$interface/statistics/rx_bytes"
+read tx < "/sys/class/net/$interface/statistics/tx_bytes"
 
 # get time
 time=$(date +%s)
@@ -70,7 +75,6 @@ if ! [[ -f "${path}" ]]; then
   echo "${time} ${rx} ${tx}" > "${path}"
   chmod 0666 "${path}"
 fi
-
 
 # read previous state and update data storage
 read old < "${path}"
