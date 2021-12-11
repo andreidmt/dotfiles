@@ -4,14 +4,11 @@ call plug#begin(stdpath('data') . '/plugged')
 Plug 'dense-analysis/ale'     	   " Linter manager
 Plug 'editorconfig/editorconfig-vim'
 Plug 'tpope/vim-commentary'   	   " Toggle comments
-Plug 'jremmen/vim-ripgrep'    	   " Search in files
 Plug 'matze/vim-move'              " Move multiple selected lines
 Plug 'scrooloose/nerdtree'         " File browser
 Plug 'Xuyuanp/nerdtree-git-plugin' " Git info 
-Plug 'junegunn/fzf', {             
-\  'do': { -> fzf#install() }
-\ }                                " Fuzzy file finder
-
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " Fuzzy file finder
+Plug 'junegunn/fzf.vim'
 
 " Cool
 Plug 'gyim/vim-boxdraw'            " Draw ASCII boxes
@@ -40,8 +37,8 @@ Plug 'Shougo/neosnippet.vim'
 Plug 'Shougo/neosnippet-snippets'
 
 " 
-Plug 'ludovicchabant/vim-gutentags'
-Plug 'preservim/tagbar'
+" Plug 'ludovicchabant/vim-gutentags'
+" Plug 'preservim/tagbar'
 
 " Dart
 " Plug 'dart-lang/dart-vim-plugin'

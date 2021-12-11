@@ -1,0 +1,12 @@
+#!/usr/bin/sh
+
+name=$(projects.ls \
+  | rofi -dmenu \
+      -p " " \
+      -i \
+      -case-sensitive false
+)
+
+if [ -n "$name" ]; then
+  alacritty -e projects.open "$name"
+fi

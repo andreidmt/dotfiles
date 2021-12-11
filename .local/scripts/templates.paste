@@ -4,24 +4,13 @@
 ## Execute file or copy it's content to current active window
 ##
 
-# 
-# VARS
-#
+snippetsPath="$HOME/.local/snippets"
 
-home="$HOME/.local/snippets"
+# Piped value or first param
+[ -z "$1" ] && read -p "name: " -r name || name="$1"
 
-# argument or piped value
-if [ -z "$1" ]; then
-  read -r name
-else
-  name=$1
-fi
+path="$snippetsPath/$name"
 
-path="$home/$name"
-
-#
-# BODY
-#
 
 if [ -f "$path" ]; then
   if [ -x "$path" ]; then
@@ -31,9 +20,5 @@ if [ -f "$path" ]; then
   fi
 
   # put data in both main and middle mouse buffer 
-  printf "%s" "$dataToPaste" | xsel -p -i 
-  printf "%s" "$dataToPaste" | xsel -b -i 
-
-  # simulate paste actions, should work in almost all situations
-  xdotool key shift+Insert
+  printf "%s" "$dataToPaste" | wl-copy 
 fi

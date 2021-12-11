@@ -3,7 +3,7 @@
 	username = andreidmt
 	email = 5057797+andreidmt@users.noreply.github.com
 [core]
-	editor = nvim -c 'startinsert'
+	editor = nvim -c "startinsert"
 [pull]
 	rebase = true
 [status]
@@ -12,3 +12,5 @@
 	recurseSubmodules = check
 [merge "ours"]
 	driver = true
+[init]
+	defaultBranch = main

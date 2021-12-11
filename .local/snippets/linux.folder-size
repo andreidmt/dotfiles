@@ -1,1 +1,0 @@
-du -h -m --max-depth=0 FOLDER

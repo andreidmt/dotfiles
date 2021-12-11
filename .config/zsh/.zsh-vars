@@ -1,24 +1,44 @@
-# General
+#
 export MAILTO="andrei.dumitrescu@pm.me"
 export EDITOR="nvim"
-export TERMINAL="st"
+export TERMINAL="alacritty"
 export BROWSER="firefox-developer-edition"
+export READER="zathura"
+export FILE="nnn"
+export MACHINE="skulltop"
+
+#
+export SSH_ASKPASS="sys.ask-pass"
+export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
+
+# Standards
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
+# export XDG_SESSION_TYPE=wayland
+# export XDG_CURRENT_DESKTOP=sway
+
+# Node.JS version manager
+export NVM_COMPLETION=true
 
 # User scripts
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:~/.local/scripts
 
-# Scala Build Tool
-export PATH=$PATH:~/Tools/sbt/bin
+# Wayland compatibility
+# export DISPLAY=$WAYLAND_DISPLAY
+export QT_QPA_PLATFORM=wayland
+export QT_QPA_PLATFORMTHEME=qt5ct
+export MOZ_ENABLE_WAYLAND=1
+export MOZ_WEBRENDER=1
 
-# Java and Android
-export JAVA_HOME="/usr/lib/jvm/default-runtime"
-export ANDROID_SDK_ROOT="/opt/android-sdk"
-export ANDROID_HOME="/opt/android-sdk"
-export PATH=$PATH:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/tools/bin
+# Sway v1.6 shows garbage or blank screen when using nouveau
+# 
+# If sway displays a corrupted image, or a blank screen on one or 
+# more displays connected to an Nvidia GPU using nouveau, but 
+# starts properly otherwise, try setting WLR_DRM_NO_MODIFIERS=1 
+# before starting sway. 
+export WLR_DRM_NO_MODIFIERS=1
 
-#
-export NVM_COMPLETION=true
+# Use both cards
+# export WLR_DRM_DEVICES="/dev/dri/card1:/dev/dri/card0"

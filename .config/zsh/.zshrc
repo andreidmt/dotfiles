@@ -11,16 +11,18 @@ source $HOME/.config/zsh/.zsh-alias
 
 source $HOME/.config/zsh/.zsh-config
 
-# Start ssh-agent and load keys
+# 
+# Start ssh-agent if none running or export env vars 
+# for current running process
+#
 SSH_AGENT_STATUS=$(ps -C ssh-agent >/dev/null && echo "running" || echo "not-running")
 
 if [ "$SSH_AGENT_STATUS" = "not-running" ]; then
-  notify ".bashrc" "No running ssh-agent, starting one."
-  eval "$(ssh-agent)"
-
-  ssh-add ~/.ssh/t440p
-  ssh-add ~/.ssh/asd14__andreid
-  ssh-add ~/.ssh/asd14__ci
+  ssh-agent > "$HOME/.cache/.ssh-agent.env"
+  source "$HOME/.cache/.ssh-agent.env" >/dev/null
+  
+  echo "// \`ssh-agent\` started"
+  ssh-add "$HOME/.ssh/id_skulltop-github"
 fi
 
 source $HOME/.config/zsh/.zsh-plugins

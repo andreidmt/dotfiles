@@ -2,6 +2,7 @@ configuration {
   matching: "glob";
   show-icons: false;
   case-sensitive: false;
+  font: "mono 14";
 }
 
 @theme "gruvbox"

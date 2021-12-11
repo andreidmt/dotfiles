@@ -83,16 +83,11 @@ nnoremap <LEADER>S mm]s1z=`m<CR>
 
 map <F1> :NERDTreeFind<CR>
 map <F2> :TagbarOpen<CR>
-map <C-p> :FZF<CR>
+map <C-f> :Rg<CR>
+map <C-p> :Files<CR>
 
 nmap <C-k> <Plug>(ale_previous_wrap)
 nmap <C-j> <Plug>(ale_next_wrap)
-
-
-"
-" Trigger commands
-"
-
 
 "
 " Config Plugins

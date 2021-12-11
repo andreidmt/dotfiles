@@ -1,0 +1,7 @@
+#!/bin/sh
+
+rofi -dmenu\
+    -password\
+    -case-insensitive\
+    -no-fixed-num-lines\
+    -p "Password:"\

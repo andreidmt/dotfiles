@@ -6,8 +6,8 @@
   distancer-small: 0.5em;
 
   /* Gruvbox dark colors */
-  gruvbox-dark-bg0-soft:     #32302faa;
-  gruvbox-dark-bg1:          #3c3836aa;
+  gruvbox-dark-bg0-soft:     #32302fee;
+  gruvbox-dark-bg1:          #3c3836ee;
   gruvbox-dark-bg3:          #665c54;
   gruvbox-dark-fg0:          #fbf1c7;
   gruvbox-dark-fg1:          #ebdbb2;
@@ -27,13 +27,13 @@
   foreground:                  @gruvbox-dark-fg0;
   separatorcolor:              @border-color;
 
-  list-background:            @gruvbox-dark-bg0-soft;
+  list-background:             @gruvbox-dark-bg0-soft;
   normal-background:           transparent;
   normal-foreground:           @foreground;
   alternate-normal-background: transparent;
   alternate-normal-foreground: @foreground;
-  selected-normal-background:  @gruvbox-dark-bg1;
-  selected-normal-foreground:  @gruvbox-dark-fg0;
+  selected-normal-background:  @foreground;
+  selected-normal-foreground:  @background;
 
   active-background:           @gruvbox-dark-yellow-dark;
   active-foreground:           @background;
@@ -60,7 +60,7 @@ mainbox {
 }
 
 message {
-  border: 2px solid;
+  border: 3px solid;
   border-color: @gruvbox-dark-yellow-light;
   background-color: @background;
   padding: @distancer;
@@ -144,6 +144,7 @@ mode-switcher {
 }
 
 inputbar {
+  border: 3px;
   background-color: @background;
   spacing: 0;
   text-color: @normal-foreground;

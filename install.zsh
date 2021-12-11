@@ -9,6 +9,9 @@ set -u
 # absolute path of the folder containing this script file
 dirpath=$(dirname `realpath $0`)
 
+# History folder
+mkdir -p "$HOME/.cache/zsh"
+
 #
 # Restore zsh configs
 #
@@ -31,3 +34,18 @@ cp -r "$dirpath/.local/scripts" "$HOME/.local"
 cp -r "$dirpath/.local/statusbar" "$HOME/.local"
 
 cd ~/.local/scripts && ./sys.zsh.update
+
+#
+# Install Node.js
+#
+
+nodeLTSVersion=$(nvm ls-remote \
+  | grep "Latest LTS" \
+  | tail -n 1 \
+  | awk '{print $2}' \
+  | tr '.' '\n' \
+  | head -n 1
+)
+
+nvm install "$nodeLTSVersion" --reinstall-packages-from=current --latest-npm
+nvm alias default "$nodeLTSVersion"

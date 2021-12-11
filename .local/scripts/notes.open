@@ -1,0 +1,20 @@
+#!/usr/bin/sh
+
+SCRIPT_NAME='\~/.local/scripts/notes'
+
+notesPath="$HOME/Notes"
+srcPath="$notesPath/src"
+
+[ -z "$1" ] && read -r notePath || notePath="$1"
+
+if [ -f $notePath ]; then
+  # Relevant context for vim's NerdTree
+  cd "$srcPath"
+
+  nvim -c "norm zz" \
+    -c "set spell" \
+    "$notePath"
+else
+  notify-bad $SCRIPT_NAME "Cannot find note at \"$notePath\""
+fi
+

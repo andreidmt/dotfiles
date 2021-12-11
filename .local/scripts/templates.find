@@ -1,0 +1,16 @@
+#!/usr/bin/sh
+
+##
+## 
+##
+
+selectedTemplateName=$(templates.ls \
+  | rofi -dmenu \
+      -p " use snippet" \
+      -i \
+      -case-sensitive false
+)
+
+if [ -n "$selectedTemplateName" ]; then
+  templates.paste "$selectedTemplateName"
+fi

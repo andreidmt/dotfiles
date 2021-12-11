@@ -1,0 +1,19 @@
+#!/bin/sh
+
+SCRIPT_NAME=\~/.local/scripts/screenshot.window
+
+DIR="$HOME/Pictures/Screenshots"
+NOW=$(date +"%Y-%B-%d-%A-%R:%S")
+FILEPATH="$DIR/all_$NOW.png"
+
+# Make sure Screenshots folder exists
+mkdir -pv "$DIR"
+
+# Take screenshot of everything 
+grim -t png "$FILEPATH"
+
+# Copy to clipboard for convenient paste
+cat "$FILEPATH" | wl-copy
+
+notify "$SCRIPT_NAME" "<u>Capturing everything</u>\n\n$FILEPATH"
+

@@ -1,11 +1,6 @@
 #!/usr/bin/sh
 
-# Exit script if any statement returns a non-true return value
-set -e
+scriptName='\~/.local/scripts/project.ls'
+workPath="$HOME/Work"
 
-# Exit script if trying to use an uninitialised variable
-set -u
-
-home="$HOME/Work"
-
-cd "$home" && ls -l | grep '^d' | awk '{ print $9 }'
+cd "$workPath" && ls -l | grep '^d' | awk '{ print $9 }'

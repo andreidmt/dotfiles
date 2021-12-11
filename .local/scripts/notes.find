@@ -13,5 +13,5 @@ if [ -n "$note" ]; then
   echo "$note" \
     | sanitize html \
     | tail -n 1 \
-    | xargs st -t such-important -e notes open
+    | xargs alacritty -t such-important -e notes.open
 fi

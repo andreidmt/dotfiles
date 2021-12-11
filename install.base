@@ -1,11 +1,5 @@
 #!/bin/sh
 
-# Exit script if any statement returns a non-true return value
-set -e
-
-# Exit script if trying to use an uninitialised variable
-set -u
-
 # absolute path of the folder containing this script file
 dirpath=$(dirname "$(realpath "$0")")
 
@@ -19,7 +13,7 @@ mkdir -p "$HOME/Pictures/Screenshots"
 mkdir -p "$HOME/Work"
 mkdir -p "$HOME/Media"
 
-# UI file browser left column bookmarks
+# UI file browser bookmarks
 cp -r "$dirpath/.config/gtk-3.0" "$HOME/.config"
 
 #
@@ -32,25 +26,13 @@ echo "# - Copy font into '.local/share/fonts'"
 echo "#"
 
 mkdir -p "$HOME/.config"
-cp -r "$dirpath/.config/sxiv" "$HOME/.config"
 cp -r "$dirpath/.config/mimeapps.list" "$HOME/.config"
+cp -r "$dirpath/.config/alacritty" "$HOME/.config"
 cp -r "$dirpath/home/.gitconfig" "$HOME/"
 cp -r "$dirpath/home/.profile" "$HOME/"
 cp -r "$dirpath/doomguy.png" "$HOME/"
 cp -r "$dirpath/doomguy-blood.png" "$HOME/"
 cp -r $dirpath/wallpapers/* "$HOME/Pictures/Wallpapers"
-
-#
-# Install Luke Smith's 'st' fork
-#
-
-echo "#"
-echo "# Install Luke Smith's 'st' fork"
-echo "#"
-
-rm -rf ~/Work/lukesmith.st
-git clone https://github.com/LukeSmithxyz/st ~/Work/lukesmith.st
-cd ~/Work/lukesmith.st && sudo make install
 
 #
 # Enable 'extra' and 'community' Arch repos
@@ -83,11 +65,14 @@ fi
 sudo pacman-key --populate archlinux
 
 #
-# Other packages
+# Install packages
 #
 
-echo "#"
-echo "# Install other base packages"
-echo "#"
+sudo pacman -S cronie cronie-runit
+sudo pacman -S openssh keychain libsecret rsync
+sudo pacman -S fzf the_silver_searcher bat ripgrep nnn htop neofetch nnn unzip
+sudo pacman -S xdg-desktop-portal-wlr alacritty
 
-sudo pacman -S neofetch nnn xclip zathura firefox-developer-edition
+sudo pacman -S bluez bluez-utils bluez-runit pulseaudio-bluetooth
+sudo ln -s /etc/runit/sv/bluetoothd /run/runit/service
+sudo sv start bluetoothd

@@ -127,29 +127,6 @@ case $CMD in
   ;;
 
   #
-  # Remove orphan packages and clear pacman cache
-  #
-  clean)
-    ORPHAN_PACKAGES=$(pacman -Qtdq | tr '\n' ' ')
-
-    if [ -n "$ORPHAN_PACKAGES" ]; then 
-      echo "###"
-      echo "### Orphan packages: $ORPHAN_PACKAGES"
-      echo "###"
-
-      sudo pacman -Rns "$ORPHAN_PACKAGES"
-
-      notify "$SCRIPT_NAME clean" "Removed $(echo "$ORPHAN_PACKAGES" | wc) orphan packages"
-    else
-      notify "$SCRIPT_NAME clean" "No orphan packages found"
-    fi
-
-    sudo pacman -Sc
-
-    notify "$SCRIPT_NAME clean" "After cache cleaup with \`pacman -Sc\`\n\n$(du -h /var/cache/pacman/pkg)"
-  ;;
-
-  #
   #
   #
   lock)

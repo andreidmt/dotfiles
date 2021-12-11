@@ -17,22 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-case $(uname -n) in
-  skulltop)
-    interface="eth0"
-  ;;
-  t440p)
-    interface="wlp3s0"
-  ;;
-  *)
-    interface=$(ip route | awk '/^default/ { print $5 ; exit }')
-  ;;
-esac
+
+# Current interface in use
+interface=$(ip route | awk '/^default/ { print $5 ; exit }')
 
 # Exit if there is no default route
 [[ -z "$interface" ]] && exit
 
-NAME=$(nmcli -p -f general device show $interface | grep 'CONNECTION' | awk '{ print $2 }')
+NAME=$(nmcli -p -f general device show $interface | grep 'CONNECTION' | awk '{ $1=""; print $0 }')
 STATE=$(nmcli -p -f general device show "$interface" | grep 'STATE' | awk '{ print $2 }')
 
 if [[ $STATE == "30" ]]; then

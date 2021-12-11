@@ -1,0 +1,22 @@
+#!/bin/sh
+
+SCRIPT_NAME=\~/.local/scripts/screenshot.window
+
+DIR="$HOME/Pictures/Screenshots"
+NOW=$(date +"%Y-%B-%d-%A-%R:%S")
+FILEPATH="$DIR/window_$NOW.png"
+
+# Make sure Screenshots folder exists
+mkdir -pv "$DIR"
+
+# Take screenshot of current focused window
+grim \
+  -g "$(swaymsg -t get_tree | jq -j '.. | select(.type?) | select(.focused).rect | "\(.x),\(.y) \(.width)x\(.height)"')" \
+  -t png \
+  "$FILEPATH"
+
+# Copy to clipboard for convenient paste
+cat "$FILEPATH" | wl-copy
+
+notify "$SCRIPT_NAME" "<u>Capturing focused window</u>\n\n$FILEPATH"
+

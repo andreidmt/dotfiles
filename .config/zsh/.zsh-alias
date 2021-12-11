@@ -13,6 +13,15 @@ alias npb="npm run build"
 alias npl="npm run lint"
 alias npt="npm run test"
 
+# nvm
+
+alias nvlts="nvm ls-remote \
+  | grep "Latest LTS" \
+  | tail -n 1 \
+  | awk '{print $2}' \
+  | tr '.' '\n' \
+  | head -n 1"
+
 #
 alias jcurl='curl --verbose --header "Content-Type: application/json"'
 alias lsa='ls -Alhtr --color=auto --group-directories-first'

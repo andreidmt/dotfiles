@@ -21,9 +21,9 @@ chosen="$(echo -e "$optionNotes\n$optionProjects\n$optionTemplates\n$optionDicti
 )"
 
 case $chosen in
-  "$optionNotes") rofi.notes ;;
-  "$optionProjects") rofi.projects ;;
-  "$optionTemplates") rofi.templates ;;
+  "$optionNotes") notes.find ;;
+  "$optionProjects") projects.find ;;
+  "$optionTemplates") templates.find ;;
   "$optionDictionary") rofi.dictionary ;;
   "$optionDisplays") rofi.displays ;;
   "$optionPower") rofi.power ;;
