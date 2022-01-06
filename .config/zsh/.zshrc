@@ -18,11 +18,19 @@ source $HOME/.config/zsh/.zsh-config
 SSH_AGENT_STATUS=$(ps -C ssh-agent >/dev/null && echo "running" || echo "not-running")
 
 if [ "$SSH_AGENT_STATUS" = "not-running" ]; then
-  ssh-agent > "$HOME/.cache/.ssh-agent.env"
-  source "$HOME/.cache/.ssh-agent.env" >/dev/null
-  
   echo "// \`ssh-agent\` started"
-  ssh-add "$HOME/.ssh/id_skulltop-github"
+  eval "$(ssh-agent)"
+
+  if [ "$MACHINE" = "skulltop" ]; then
+    ssh-add "$HOME/.ssh/id_skulltop-github"
+  fi
+
+  if [ "$MACHINE" = "t440p" ]; then
+    ssh-add "$HOME/.ssh/t440p"
+    ssh-add "$HOME/.ssh/do.t440p"
+    ssh-add "$HOME/.ssh/asd14__andreid"
+    ssh-add "$HOME/.ssh/asd14__ci"
+  fi
 fi
 
 source $HOME/.config/zsh/.zsh-plugins

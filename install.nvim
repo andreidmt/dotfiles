@@ -21,3 +21,13 @@ cp -r "$dirpath/.config/nvim" "$HOME/.config"
 #
 
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+#
+# nvim LSPs dependencies
+#
+
+npm i -g typescript typescript-language-server
+npm i -g vscode-langservers-extracted
+npm i -g graphql-language-service-cli
+npm i -g remark-language-server
+npm i -g bash-language-server

@@ -5,6 +5,8 @@ export TERMINAL="alacritty"
 export BROWSER="firefox-developer-edition"
 export READER="zathura"
 export FILE="nnn"
+
+# export MACHINE="t440p"
 export MACHINE="skulltop"
 
 #

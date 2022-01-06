@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/sh
 
 # The typematic delay indicates the amount of time (typically in miliseconds) 
 # a key needs to be pressed and held in order for the repeating process to 
