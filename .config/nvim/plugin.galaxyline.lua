@@ -76,7 +76,7 @@ gl.section.left = {
   {
     LspStatus = {
       provider = function()
-        return string.format("%s", lspclient.get_lsp_client())
+        return string.format("%s ", lspclient.get_lsp_client())
       end,
       icon = "  ",
       highlight = {colors.grey_fg2, colors.statusline_bg}
@@ -85,14 +85,16 @@ gl.section.left = {
   {
     DiagnosticError = {
       provider = "DiagnosticError",
-      icon = "  ",
+      -- icon = "  ",
+      icon = " ● ",
       highlight = {colors.red, colors.statusline_bg}
     }
   },
   {
     DiagnosticWarn = {
       provider = "DiagnosticWarn",
-      icon = "  ",
+      -- icon = "  ",
+      icon = " ● ",
       highlight = {colors.yellow, colors.statusline_bg}
     }
   }

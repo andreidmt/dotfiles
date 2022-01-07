@@ -5,11 +5,9 @@ set completeopt=menuone,noselect
 set title               " Set window title.
 set noshowmode          " Mode already shown in status bar
 
-
 set iskeyword+=-        " Treat dash separated words as a word text object"
 set splitbelow          " Horizontal split below current.
 set splitright          " Vertical split to right of current.
-
 
 set gdefault            " Use 'g' flag by default with :s/foo/bar/.
 
@@ -60,3 +58,10 @@ set foldcolumn=1      " defines 1 col at window left, to indicate folding
 let javascript_fold=1 " activate folding by JS syntax  
 let typescript_fold=1 " activate folding by JS syntax  
 set foldlevelstart=99 " start file with all folds opened
+
+" Default file browser
+let g:netrw_liststyle = 3
+let g:netrw_banner = 0
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
