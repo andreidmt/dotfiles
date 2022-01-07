@@ -6,7 +6,7 @@ set -e
 # Exit script if trying to use an uninitialised variable
 set -u
 
-backupPath="$HOME/Work/andiredmt.dotfiles"
+backupPath="$HOME/Work/andreidmt.dotfiles"
 
 rm -rf "$backupPath/.config"
 rm -rf "$backupPath/.local"
