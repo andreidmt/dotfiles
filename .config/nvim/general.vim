@@ -21,8 +21,8 @@ highlight Comment cterm=italic
 highlight clear SignColumn
 
 " Component sizing
-set cmdheight=2         " More space for displaying messages
-set pumheight=10        " Makes popup menu smaller
+set cmdheight=1         " Command line height
+set pumheight=15        " Popup menu height
 
 " Wraping
 set colorcolumn=80      " Highlight ruler column
