@@ -29,5 +29,7 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 npm i -g typescript typescript-language-server
 npm i -g vscode-langservers-extracted
 npm i -g graphql-language-service-cli
-npm i -g remark-language-server
+npm i -g remark-language-server remark
 npm i -g bash-language-server
+npm i -g dockerfile-language-server-nodejs
+npm i -g yaml-language-server
