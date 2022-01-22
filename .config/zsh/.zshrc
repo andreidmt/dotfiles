@@ -11,14 +11,12 @@ source $HOME/.config/zsh/.zsh-alias
 
 source $HOME/.config/zsh/.zsh-config
 
-# 
-# Start ssh-agent if none running or export env vars 
-# for current running process
-#
+# Start ssh-agent if none running 
+
 SSH_AGENT_STATUS=$(ps -C ssh-agent >/dev/null && echo "running" || echo "not-running")
 
 if [ "$SSH_AGENT_STATUS" = "not-running" ]; then
-  echo "// \`ssh-agent\` started"
+  echo "// starting \`ssh-agent\`"
   eval "$(ssh-agent)"
 
   if [ "$MACHINE" = "skulltop" ]; then
