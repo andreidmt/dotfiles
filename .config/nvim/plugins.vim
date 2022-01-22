@@ -44,6 +44,9 @@ Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'onsails/lspkind-nvim'
 
+Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
+
 " Cool
 Plug 'gyim/vim-boxdraw'            " Draw ASCII boxes
 Plug 'metakirby5/codi.vim'         " Sketchpad

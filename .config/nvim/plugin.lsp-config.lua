@@ -41,29 +41,29 @@ end
 --
 
 local on_attach = function(client, bufnr)
-  utils.lua_command("LSPDefinition", "vim.lsp.buf.definition()")
-  utils.lua_command("LSPTypeDefinition", "vim.lsp.buf.type_definition()")
-  utils.lua_command("LSPRename", "vim.lsp.buf.rename()")
-  utils.lua_command("LSPCodeAction", "vim.lsp.buf.code_action()")
-  utils.lua_command("LSPPrev", "vim.diagnostic.goto_prev()")
-  utils.lua_command("LSPNext", "vim.diagnostic.goto_next()")
-  utils.lua_command("LSPLine", "vim.diagnostic.open_float()")
-  utils.lua_command("LSPHover", "vim.lsp.buf.hover()")
-  utils.lua_command("LSPRefs", "vim.lsp.buf.references()")
+  utils.lua_command("GoToDefinition", "vim.lsp.buf.definition()")
+  utils.lua_command("GoToTypeDefinition", "vim.lsp.buf.type_definition()")
+  utils.lua_command("Rename", "vim.lsp.buf.rename()")
+  utils.lua_command("CodeActions", "vim.lsp.buf.code_action()")
+  utils.lua_command("PrevError", "vim.diagnostic.goto_prev()")
+  utils.lua_command("NextError", "vim.diagnostic.goto_next()")
+  utils.lua_command("LineErrors", "vim.diagnostic.open_float()")
+  utils.lua_command("HoverInfo", "vim.lsp.buf.hover()")
   utils.lua_command("LSPImplementation", "vim.lsp.buf.implementation()")
   utils.lua_command("LSPSignatureHelp", "vim.lsp.buf.signature_help()")
 
-  utils.buf_map(bufnr, 'n', '<M-cr>', ':LSPDefinition<CR>')
-  utils.buf_map(bufnr, 'n', 'gt', ':LSPTypeDefinition<CR>')
+  -- Using Telescope instead
+  -- utils.lua_command("References", "vim.lsp.buf.references()")
+
+  utils.buf_map(bufnr, 'n', '<M-cr>', ':GoToDefinition<CR>')
+  utils.buf_map(bufnr, 'n', 'gt', ':GoToTypeDefinition<CR>')
   utils.buf_map(bufnr, 'n', 'gi', ':LSPImplementation<CR>')
-  utils.buf_map(bufnr, 'n', 'gr', ':LSPRefs<CR>')
-  utils.buf_map(bufnr, 'n', '<Leader>rn', ':LSPRename<CR>')
-  utils.buf_map(bufnr, 'n', '<Leader>ca', ':LSPCodeAction<CR>')
-  utils.buf_map(bufnr, 'n', '<C-j>', ':LSPNext<CR>')
-  utils.buf_map(bufnr, 'n', '<C-k>', ':LSPPrev<CR>')
-  utils.buf_map(bufnr, 'n', '<Leader>i', ':LSPLine<CR>')
-  utils.buf_map(bufnr, 'n', '<Leader>K', ':LSPHover<CR>')
-  utils.buf_map(bufnr, 'n', '<Leader>k', ':LSPSignatureHelp<CR>')
+  utils.buf_map(bufnr, 'n', '<Leader>rn', ':Rename<CR>')
+  utils.buf_map(bufnr, 'n', '<C-j>', ':NextError<CR>')
+  utils.buf_map(bufnr, 'n', '<C-k>', ':PrevError<CR>')
+  utils.buf_map(bufnr, 'n', '<Leader>i', ':LineErrors<CR>')
+  utils.buf_map(bufnr, 'n', '<Leader>k', ':HoverInfo<CR>')
+  -- utils.buf_map(bufnr, 'n', '<Leader>k', ':LSPSignatureHelp<CR>')
 
   if client.supports_method("textDocument/formatting") then
     vim.cmd("autocmd BufWritePre <buffer> lua formatBuffer()")
@@ -80,9 +80,11 @@ for _, server in ipairs({
   'eslint',
   'bashls',
   'jsonls',
+  'yamlls',
   'graphql',
   'html',
-  'remark_ls'
+  'remark_ls',
+  'dockerls',
 }) do
     require("lsp-" .. server).setup(on_attach)
 end
@@ -97,12 +99,11 @@ vim.diagnostic.config({
     spacing = 2,
   },
   float = {
-    source = "always" 
+    source = "always",
   },
   signs = true,
   underline = true,
   update_in_insert = true,
-  severity_sort = true,
 })
 
 -- 

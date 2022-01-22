@@ -23,7 +23,7 @@ local ts_utils_settings = {
   filter_out_diagnostics_by_code = { 80001 },
 
   -- inlay hints
-  auto_inlay_hints = true,
+  auto_inlay_hints = false,
   inlay_hints_highlight = "Comment",
 
   -- update imports on file move
@@ -49,6 +49,7 @@ return {
         utils.buf_map(bufnr, "n", "<Leader>R", ":TSLspRenameFile<CR>")
         utils.buf_map(bufnr, "n", "<Leader>I", ":TSLspImportAll<CR>")
       end,
+
       flags = {
         debounce_text_changes = 150,
       },
