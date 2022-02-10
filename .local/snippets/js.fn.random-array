@@ -1,0 +1,10 @@
+const generateRandomNumberArray = () => {
+  const output = []
+  const length = Math.round(Math.random() * 100)
+
+  for (let index = 0; index < length; index++) {
+    output.push(Math.round(Math.random() * 100))
+  }
+
+  return output
+}

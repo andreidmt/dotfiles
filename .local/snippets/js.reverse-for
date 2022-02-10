@@ -1,0 +1,3 @@
+for (let index = input.length - 1; index >= 0; index--) {
+  const item = input[index]
+}

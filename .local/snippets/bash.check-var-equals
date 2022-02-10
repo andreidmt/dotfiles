@@ -1,0 +1,5 @@
+if [ "$var" -eq "lorem" ]; then
+   echo "variable equals lorem";
+else
+   echo "variable does not equal lorem";
+fi

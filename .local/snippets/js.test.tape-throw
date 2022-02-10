@@ -1,0 +1,10 @@
+t.throws(
+  () => {
+    sum(1, "3")
+  },
+  {
+    message: `[sum] one of the provided parameters is not a number (index: 1 value: "3")`,
+  },
+  "given [a parameter is not a number] should [trow]"
+)
+})

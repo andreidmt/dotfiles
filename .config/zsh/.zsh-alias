@@ -14,7 +14,6 @@ alias npl="npm run lint"
 alias npt="npm run test"
 
 # nvm
-
 alias nvlts="nvm ls-remote \
   | grep "Latest LTS" \
   | tail -n 1 \
@@ -24,7 +23,7 @@ alias nvlts="nvm ls-remote \
 
 #
 alias jcurl='curl --verbose --header "Content-Type: application/json"'
-alias lsa='ls -Alhtr --color=auto --group-directories-first'
+alias lsa='ls -Ahlu --color=auto --group-directories-first'
 alias vi='nvim'
 alias vim='nvim'
 alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit'
