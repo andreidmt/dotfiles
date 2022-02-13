@@ -83,6 +83,7 @@ for _, server in ipairs({
   'yamlls',
   'graphql',
   'html',
+  'stylelint_lsp',
   'remark_ls',
   'dockerls',
 }) do
