@@ -68,8 +68,10 @@ Plug 'stevearc/vim-arduino' " Compile, upload, and debugg arduino sketches
 Plug 'tpope/vim-sensible'     " 
 Plug 'tpope/vim-unimpaired'   " 
 Plug 'tpope/vim-characterize' " 
-Plug 'ap/vim-css-color'       " color highlighting in css files
+" Plug 'ap/vim-css-color'       " color highlighting in css files
 Plug 'wellle/targets.vim'     " 
 Plug 'godlygeek/tabular'      " 
+
+Plug 'norcalli/nvim-colorizer.lua'
 
 call plug#end()

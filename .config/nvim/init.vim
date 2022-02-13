@@ -1,6 +1,5 @@
 source $HOME/.config/nvim/general.vim
 source $HOME/.config/nvim/plugins.vim
-
 source $HOME/.config/nvim/plugin.filetype.lua
 source $HOME/.config/nvim/plugin.gruvbox-material.vim
 source $HOME/.config/nvim/plugin.markdown-toc.vim
@@ -10,7 +9,9 @@ source $HOME/.config/nvim/plugin.lsp-config.lua
 source $HOME/.config/nvim/plugin.cmp.lua
 source $HOME/.config/nvim/plugin.codi.vim
 source $HOME/.config/nvim/plugin.telescope.lua
+
 source $HOME/.config/nvim/plugin.gitsigns.lua
+source $HOME/.config/nvim/plugin.colorizer.lua
 
 source $HOME/.config/nvim/keys.vim
 source $HOME/.config/nvim/autocmd.vim

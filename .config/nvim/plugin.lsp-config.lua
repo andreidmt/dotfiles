@@ -66,7 +66,7 @@ local on_attach = function(client, bufnr)
   -- utils.buf_map(bufnr, 'n', '<Leader>k', ':LSPSignatureHelp<CR>')
 
   if client.supports_method("textDocument/formatting") then
-    vim.cmd("autocmd BufWritePre <buffer> lua formatBuffer()")
+    vim.cmd("autocmd! BufWritePre <buffer> lua formatBuffer()")
   end
 end
 
