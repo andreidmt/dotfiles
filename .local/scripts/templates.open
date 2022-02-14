@@ -1,15 +1,29 @@
 #!/bin/sh
 
 ##
-## 
+## Open template for editing
 ##
 
-snippetsPath="$HOME/.local/snippets"
+# 
+# VARS
+#
+
+home="$HOME/.local/snippets"
   
-# Piped value or first param
-[ -z "$1" ] && read -p "name: " -r name || name="$1"
+# argument or piped value
+if [ -z "$1" ]; then
+  read -r name
+else
+  name=$1
+fi
+
+#
+# BODY
+#
 
 # Relevant context for vim's NerdTree
-cd "$snippetsPath" || exit 1
+cd "$home" || exit 1
 
-nvim -c "norm zz" -c "set spell" "$name"
+nvim -c "norm zz" \
+  -c "set spell" \
+  "$name"

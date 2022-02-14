@@ -6,6 +6,13 @@ set -e
 # Exit script if trying to use an uninitialised variable
 set -u
 
-home="$HOME/Work"
+NAME=$(templates.ls \
+  | rofi -dmenu \
+      -p " " \
+      -i \
+      -case-sensitive false
+)
 
-cd "$home" && ls -l | grep '^d' | awk '{ print $9 }'
+if [ -n "$NAME" ]; then
+  templates.paste "$NAME"
+fi

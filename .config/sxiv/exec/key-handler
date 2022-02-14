@@ -10,7 +10,9 @@ do
 
   # Rotate 90deg
   "r")
-    convert -rotate 90 "$file" "$file" ;;
+    echo $file
+    convert -rotate 90 "$file" "$file" 
+  ;;
 
   #
   "y")

@@ -10,7 +10,7 @@ curl -sO "$packageURL"
 tar -xvf "$packageFileName"
 
 # Build
-cd "$packageName" && makepkg --noconfirm -si && cd ..
+cd "$packageName" && makepkg --noconfirm -si
 
 # Cleanup
 rm "$packageFileName"

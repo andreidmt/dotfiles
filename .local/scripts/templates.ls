@@ -1,7 +1,9 @@
 #!/bin/sh
 
-snippetsPath="$HOME/.local/snippets"
+##
+## List all Template names
+##
 
-cd "$snippetsPath" || exit 1
+home="$HOME/.local/snippets"
 
-rg --files | sort -r
+cd "$home" && rg --files | sort -r

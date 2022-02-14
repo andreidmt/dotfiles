@@ -6,7 +6,7 @@ case $(uname -n) in
   ;;
 esac
 
-for battery in $batteries
+for battery in /sys/class/power_supply/BAT?
 do
   STATUS=$(cat "$battery/status")
   CHARGE=$(cat "$battery/capacity")

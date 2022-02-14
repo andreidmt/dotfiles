@@ -6,6 +6,7 @@ export BROWSER="firefox-developer-edition"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
+export MACHINE="$(uname -n)"
 
 # User scripts
 export PATH=$PATH:~/.local/bin

@@ -110,6 +110,8 @@ case $CMD in
   #
   update-hosts)
     curl https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-social/hosts > /etc/hosts.steven
+
+    notify "$SCRIPT_NAME" "Fakenews, gambling, social media and tracking hosts file updated"
   ;;
 
   # 
@@ -124,6 +126,29 @@ case $CMD in
 
     # update i3blocks widgets with signal 10
     pkill -SIGRTMIN+10 i3blocks
+  ;;
+
+  #
+  # Remove orphan packages and clear pacman cache
+  #
+  clean)
+    ORPHAN_PACKAGES=$(pacman -Qtdq | tr '\n' ' ')
+
+    if [ -n "$ORPHAN_PACKAGES" ]; then 
+      echo "###"
+      echo "### Orphan packages: $ORPHAN_PACKAGES"
+      echo "###"
+
+      sudo pacman -Rns "$ORPHAN_PACKAGES"
+
+      notify "$SCRIPT_NAME clean" "Removed $(echo "$ORPHAN_PACKAGES" | wc) orphan packages"
+    else
+      notify "$SCRIPT_NAME clean" "No orphan packages found"
+    fi
+
+    sudo pacman -Sc
+
+    notify "$SCRIPT_NAME clean" "After cache cleaup with \`pacman -Sc\`\n\n$(du -h /var/cache/pacman/pkg)"
   ;;
 
   #

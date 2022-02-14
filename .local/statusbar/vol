@@ -8,7 +8,7 @@ case "$BLOCK_BUTTON" in
   2) ;;
 
   # Right click
-	3) $TERMINAL pacmixer ;;
+	3) st pacmixer ;;
 
   # Scroll up, increase volume
   4) pactl set-sink-volume @DEFAULT_SINK@ +5% ;;

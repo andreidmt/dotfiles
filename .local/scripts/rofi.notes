@@ -1,0 +1,17 @@
+#!/usr/bin/sh
+
+note=$(notes.ls \
+| rofi -dmenu \
+  -eh 2 \
+  -sep '|' \
+  -p " " \
+  -i \
+  -markup-rows \
+  -case-sensitive false)
+
+if [ -n "$note" ]; then
+  echo "$note" \
+    | sanitize html \
+    | tail -n 1 \
+    | xargs st -t such-important -e notes open
+fi

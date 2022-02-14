@@ -6,7 +6,7 @@ set -e
 # Exit script if trying to use an uninitialised variable
 set -u
 
-backupPath="$HOME/Work/andreidmt.dotfiles"
+backupPath="$HOME/Work/dotfiles"
 
 rm -rf "$backupPath/.config"
 rm -rf "$backupPath/.local"
@@ -15,84 +15,38 @@ mkdir -p "$backupPath/.local/share"
 mkdir -p "$backupPath/.config/nvim"
 mkdir -p "$backupPath/home"
 
-from=(
-  # Custom scripts
-  "$HOME/.local/scripts"
-  "$HOME/.local/statusbar"
-  "$HOME/.local/snippets"
+# Custom scripts
+cp -r "$HOME/.local/scripts" "$backupPath/.local"
+cp -r "$HOME/.local/statusbar" "$backupPath/.local"
+cp -r "$HOME/.local/snippets" "$backupPath/.local"
 
-  # Share
-  "$HOME/.local/share/applications"
-  "$HOME/.local/share/fonts"
+# Share
+cp -r "$HOME/.local/share/applications" "$backupPath/.local/share"
+cp "$HOME/.config/mimeapps.list" "$backupPath/.config"
+cp -r "$HOME/.local/share/fonts" "$backupPath/.local/share"
 
-  # .config
-  "$HOME/.config/alacritty"
-  "$HOME/.config/dunst"
-  "$HOME/.config/fontconfig"
-  "$HOME/.config/i3blocks"
-  "$HOME/.config/neofetch"
-  "$HOME/.config/nvim"
-  "$HOME/.config/rofi"
-  "$HOME/.config/sway"
-  "$HOME/.config/zsh"
-  "$HOME/.config/gtk-3.0"
-  "$HOME/.config/mimeapps.list"
+# Vim
+cp "$HOME"/.config/nvim/*.vim "$backupPath/.config/nvim"
+cp "$HOME"/.config/nvim/*.lua "$backupPath/.config/nvim"
+cp -r "$HOME/.config/nvim/lua" "$backupPath/.config/nvim"
+cp -r "$HOME/.config/nvim/snippets" "$backupPath/.config/nvim"
 
-  # Other
-  "$HOME/.gitconfig"
-  "$HOME/.profile"
-  "$HOME/doomguy-blood.png"
-  "$HOME/doomguy.png"
-)
+# Files
+cp "$HOME/.Xresources" "$backupPath/home"
+cp "$HOME/.xinitrc" "$backupPath/home"
+cp "$HOME/.gitconfig" "$backupPath/home"
+cp "$HOME/.profile" "$backupPath/home"
 
-to=(
-  # Custom scripts
-  "$backupPath/.local"
-  "$backupPath/.local"
-  "$backupPath/.local"
-
-  # Share
-  "$backupPath/.local/share"
-  "$backupPath/.local/share"
-
-  # .config
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-  "$backupPath/.config"
-
-  # Other
-  "$backupPath/home"
-  "$backupPath/home"
-  "$backupPath/home"
-  "$backupPath/home"
-)
-
-  echo "${!from[@]}"
-
-# ${!array[@]} is the list of all the indexes set in the array
-for i in ${!from[@]}; do
-  echo "Copying ${from[$i]} --> ${to[$i]}"
-
-  cp -r ${from[$i]} ${to[$i]}
-done
-
-# # Other configs
-# cp -r "$HOME/.config/alacritty" "$backupPath/.config"
-# cp -r "$HOME/.config/zsh" "$backupPath/.config"
-# cp -r "$HOME/.config/sway" "$backupPath/.config"
-# cp -r "$HOME/.config/i3blocks" "$backupPath/.config"
-# cp -r "$HOME/.config/dunst" "$backupPath/.config"
-# cp -r "$HOME/.config/rofi" "$backupPath/.config"
-# cp -r "$HOME/.config/fontconfig" "$backupPath/.config"
-# cp -r "$HOME/.config/neofetch" "$backupPath/.config"
-# cp -r "$HOME/.config/gtk-3.0" "$backupPath/.config"
-# cp -r "$HOME/.config/redshift" "$backupPath/.config"
-# cp -r "$HOME/.config/mimeapps.list" "$backupPath/.config"
+# Other configs
+cp -r "$HOME/.config/zsh" "$backupPath/.config"
+cp -r "$HOME/.config/i3" "$backupPath/.config"
+cp -r "$HOME/.config/i3blocks" "$backupPath/.config"
+cp -r "$HOME/.config/dunst" "$backupPath/.config"
+cp -r "$HOME/.config/rofi" "$backupPath/.config"
+cp -r "$HOME/.config/fontconfig" "$backupPath/.config"
+cp -r "$HOME/.config/picom" "$backupPath/.config"
+cp -r "$HOME/.config/sxiv" "$backupPath/.config"
+cp -r "$HOME/.config/neofetch" "$backupPath/.config"
+cp -r "$HOME/.config/gtk-3.0" "$backupPath/.config"
+cp -r "$HOME/.config/redshift" "$backupPath/.config"
+cp -r "$HOME/.config/mimeapps.list" "$backupPath/.config"

@@ -7,12 +7,9 @@ set -e
 set -u
 
 # Clean install
-rm -rf $HOME/.local/bin/zsh-plugins/*
+rm -rf "$HOME/.local/bin/zsh-plugins/**"
 
 plugins=(
-  #
-  "Aloxaf/fzf-tab.git"
-
   # ZSH_SYNTAX
   "zsh-users/zsh-syntax-highlighting.git"
 
