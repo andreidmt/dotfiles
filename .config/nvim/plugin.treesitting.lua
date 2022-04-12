@@ -14,9 +14,10 @@ ts_config.setup {
     "tsx",
     "graphql",
     "lua",
-    "python"
-    -- "rust",
-    -- "go"
+    "python",
+    "hcl", -- Terraform
+    "rust",
+    "go"
   },
   highlight = {
     enable = true,
