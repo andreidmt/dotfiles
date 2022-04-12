@@ -1,25 +1,26 @@
-# General
+## General
 export MAILTO="andrei.dumitrescu@pm.me"
 export EDITOR="nvim"
-export TERMINAL="st"
 export BROWSER="firefox-developer-edition"
+export READER="zathura"
+export FILE="nnn"
+export MACHINE="$(uname -n)"
+
+##
+export SSH_ASKPASS="sys_ask-pass"
+export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
+
+## Standards
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
-export MACHINE="$(uname -n)"
 
-# User scripts
+## Node.JS version manager
+export NVM_COMPLETION=true
+
+## User scripts
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:~/.local/scripts
 
-# Scala Build Tool
-export PATH=$PATH:~/Tools/sbt/bin
-
-# Java and Android
-export JAVA_HOME="/usr/lib/jvm/default-runtime"
-export ANDROID_SDK_ROOT="/opt/android-sdk"
-export ANDROID_HOME="/opt/android-sdk"
-export PATH=$PATH:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/tools/bin
-
-#
-export NVM_COMPLETION=true
+## Machine specific
+source $HOME/.config/zsh/.zsh-local

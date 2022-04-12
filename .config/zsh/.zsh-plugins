@@ -1,4 +1,10 @@
 ##
+##
+##
+
+# source $HOME/.local/bin/zsh-plugins/fzf-tab/fzf-tab.plugin.zsh
+
+##
 ## Syntax highlighting
 ##
 

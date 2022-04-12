@@ -12,6 +12,7 @@ alias nps="npm run setup"
 alias npb="npm run build"
 alias npl="npm run lint"
 alias npt="npm run test"
+alias npc="npm run lint && npm run test && npm run typecheck"
 
 # nvm
 alias nvlts="nvm ls-remote \
@@ -23,7 +24,7 @@ alias nvlts="nvm ls-remote \
 
 #
 alias jcurl='curl --verbose --header "Content-Type: application/json"'
-alias lsa='ls -Ahlu --color=auto --group-directories-first'
+alias lsa='ls -Alh --color=auto --group-directories-first'
 alias vi='nvim'
 alias vim='nvim'
 alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit'
