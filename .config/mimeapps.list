@@ -117,3 +117,4 @@ application/x-shorten=video.desktop
  * gimp
  */
 image/vnd.adobe.photoshop=gimp.desktop
+x-scheme-handler/postman=Postman.desktop
