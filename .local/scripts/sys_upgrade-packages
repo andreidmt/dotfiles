@@ -1,0 +1,10 @@
+#!/usr/bin/sh
+
+SCRIPT_NAME=\~/.local/scripts/sys-upgrade_packages
+
+sudo pacman -Syyuv --noconfirm
+
+notify "$SCRIPT_NAME" "Packages updated."
+
+# update i3blocks widgets with signal 10
+pkill -SIGRTMIN+10 i3blocks

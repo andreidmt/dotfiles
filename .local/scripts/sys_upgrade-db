@@ -1,0 +1,17 @@
+#!/usr/bin/sh
+
+SCRIPT_NAME=\~/.local/scripts/sys-update
+
+# Update keyring
+sudo pacman -Sy archlinux-keyring
+
+# Update package database
+sudo pacman -Syy --noconfirm
+
+#
+packageCount=$(pacman -Qu | wc | awk '{print $1}')
+
+notify "$SCRIPT_NAME" "Pacman database updated, ${packageCount} available."
+
+# update i3blocks widgets with signal 10
+pkill -SIGRTMIN+10 i3blocks

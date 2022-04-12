@@ -1,0 +1,8 @@
+#!/usr/bin/sh
+
+SCRIPT_NAME=\~/.local/scripts/sys-upgrade_hosts
+
+
+curl https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-social/hosts > /etc/hosts.steven
+
+notify "$SCRIPT_NAME" "Fakenews, gambling, social media and tracking hosts file updated"

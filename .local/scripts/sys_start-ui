@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "$MACHINE" -eq "t440p" ]; then
+  startx
+fi
+
+if [ "$MACHINE" -eq "skulltop" ]; then
+  dbus-run-session sway
+fi

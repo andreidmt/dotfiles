@@ -6,8 +6,9 @@ set -e
 # Exit script if trying to use an uninitialised variable
 set -u
 
-# Clean install
-rm -rf "$HOME/.local/bin/zsh-plugins/**"
+# Cleanup 
+rm -rf "$HOME/.local/bin/zsh-plugins"
+mkdir -p "$HOME/.local/bin/zsh-plugins"
 
 plugins=(
   # ZSH_SYNTAX
@@ -31,8 +32,6 @@ plugins=(
   # matches.
   "zsh-users/zsh-history-substring-search.git"
 )
-
-mkdir -p "$HOME/.local/bin/zsh-plugins"
 
 for pluginGitURL in "${plugins[@]}"
 do

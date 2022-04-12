@@ -1,0 +1,8 @@
+#!/usr/bin/sh
+
+SCRIPT_NAME=\~/.local/scripts/sys-upgrade
+
+sys-upgrade_db
+sys-upgrade_hosts
+sys-upgrade_zsh
+sys-upgrade_packages
