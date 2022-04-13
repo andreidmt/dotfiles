@@ -51,7 +51,7 @@ exec --no-startup-id wallpaper reload
 # screen before suspend. Use loginctl lock-session to lock your screen.
 exec --no-startup-id xss-lock --transfer-sleep-lock -- sys lock --nofork
 
-bindsym $mod+x exec --no-startup-id sys lock
+bindsym $mod+x exec --no-startup-id sys_lock
 
 #####
 ## Rofi

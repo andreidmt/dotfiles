@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-if [ "$MACHINE" -eq "t440p" ]; then
+if [ "$MACHINE" == "t440p" ]; then
   # Test out with email client open, increase until you cant read titles
   blur="10x5"
   wallpaper=/tmp/i3lock-wall.png
@@ -18,7 +18,7 @@ if [ "$MACHINE" -eq "t440p" ]; then
   rm $wallpaper
 fi
 
-if [ "$MACHINE" -eq "skulltop" ]; then
+if [ "$MACHINE" == "skulltop" ]; then
   # Turn screen off put it to background
   swayidle \
       timeout 10 'swaymsg "output * dpms off"' \

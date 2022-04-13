@@ -1,9 +1,9 @@
 #!/bin/sh
 
-if [ "$MACHINE" -eq "t440p" ]; then
+if [ "$MACHINE" == "t440p" ]; then
   startx
 fi
 
-if [ "$MACHINE" -eq "skulltop" ]; then
+if [ "$MACHINE" == "skulltop" ]; then
   dbus-run-session sway
 fi
