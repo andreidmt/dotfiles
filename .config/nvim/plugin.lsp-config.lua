@@ -23,6 +23,7 @@ formatBuffer = function()
 
   local params = vim.lsp.util.make_formatting_params()
   local result, err = selected_client.request_sync("textDocument/formatting", params, 5000, bufnr)
+  local encoding = selected_client and selected_client.offset_encoding or "utf-16"
 
   if err then
     local err_msg = type(err) == "string" and err or err.message
@@ -31,7 +32,7 @@ formatBuffer = function()
   end
 
   if result and result.result then
-    vim.lsp.util.apply_text_edits(result.result, bufnr)
+    vim.lsp.util.apply_text_edits(result.result, bufnr, encoding)
   end
 end
 
