@@ -49,7 +49,7 @@ exec --no-startup-id wallpaper reload
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- sys lock --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- sys_lock --nofork
 
 bindsym $mod+x exec --no-startup-id sys_lock
 
