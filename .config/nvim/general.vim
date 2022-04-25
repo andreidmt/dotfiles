@@ -1,6 +1,6 @@
 syntax enable           " Syntax highlighting
 set showmatch           " Show matching brackets.
-set completeopt=menuone,noselect
+set completeopt=menu,menuone,noselect
 
 set title               " Set window title.
 set noshowmode          " Mode already shown in status bar
