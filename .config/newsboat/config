@@ -1,0 +1,3 @@
+auto-reload yes
+notify-program "~/.local/script/notify"
+browser $BROWSER

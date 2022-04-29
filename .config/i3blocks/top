@@ -21,7 +21,7 @@ interval=3
 [rss]
 label= 
 command=~/.local/statusbar/rss
-interval=3600
+interval=1800
 
 [date]
 command=~/.local/statusbar/now
