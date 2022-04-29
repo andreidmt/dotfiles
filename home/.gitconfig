@@ -1,16 +1,26 @@
+[core]
+	editor = nvim -c "startinsert"
+  pager = delta
+[init]
+	defaultBranch = main
 [user]
 	name = Andrei Dumitrescu
 	username = andreidmt
 	email = 5057797+andreidmt@users.noreply.github.com
-[core]
-	editor = nvim -c "startinsert"
 [pull]
 	rebase = true
 [status]
 	submoduleSummary = true
 [push]
 	recurseSubmodules = check
+[merge]
+  conflictstyle = diff3
 [merge "ours"]
 	driver = true
-[init]
-	defaultBranch = main
+[interactive]
+  diffFilter = delta --color-only
+[delta]
+  navigate = true  # use n and N to move between diff sections
+  side-by-side = true
+[diff]
+  colorMoved = default
