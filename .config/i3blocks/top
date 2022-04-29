@@ -18,6 +18,11 @@ signal=10
 command=~/.local/statusbar/battery
 interval=3
 
-[data]
+[rss]
+label= 
+command=~/.local/statusbar/rss
+interval=3600
+
+[date]
 command=~/.local/statusbar/now
 interval=1
