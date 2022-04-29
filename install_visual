@@ -23,8 +23,22 @@ cp -r "$dirpath/.config/rofi" "$HOME/.config"
 # Install graphics related packages
 #
 
-sudo pacman --noconfirm -S imagemagick dunst imv rofi ffmpeg
-sudo pacman --noconfirm -S xorg-xlsclients xorg-xwayland
-sudo pacman --noconfirm -S wayland qt5-wayland glfw-wayland 
-sudo pacman --noconfirm -S wl-clipboard mesa sway swaylock swayidle waybar 
-sudo pacman --noconfirm -S grim slurp
+sudo pacman --noconfirm -S \
+  imagemagick \
+  dunst \
+  imv \
+  rofi \
+  ffmpeg \
+  xorg-xlsclients \
+  xorg-xwayland \
+  wayland \
+  qt5-wayland \
+  glfw-wayland \
+  wl-clipboard \
+  mesa \
+  sway \
+  swaylock \
+  swayidle \
+  waybar \
+  grim \
+  slurp

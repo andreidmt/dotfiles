@@ -25,5 +25,10 @@ cp -r "$dirpath/.local/share/fonts" "$HOME/.local/share"
 
 echo "// Install font packages - fontconfig noto-fonts zathura zathura-pdf-mupdf"
 
-sudo pacman -S fontconfig zathura zathura-pdf-mupdf
-sudo pacman -S ttf-liberation noto-fonts gnu-free-fonts
+sudo pacman --noconfirm -S \
+  fontconfig \
+  zathura \
+  zathura-pdf-mupdf \
+  ttf-liberation \
+  noto-fonts \
+  gnu-free-fonts

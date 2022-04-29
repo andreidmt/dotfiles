@@ -9,4 +9,9 @@ set -u
 # absolute path of the folder containing this script file
 dirpath=$(dirname "$(realpath "$0")")
 
-sudo pacman -S pulseaudio-alsa pulsemixer pamixer
+sudo pacman --noconfirm -S \
+  signal-desktop \
+  firefox-developer-edition
+
+aur rofi-lbonn-wayland-git
+aur pacmixer

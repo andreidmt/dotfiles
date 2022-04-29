@@ -13,9 +13,6 @@ mkdir -p "$HOME/Pictures/Screenshots"
 mkdir -p "$HOME/Work"
 mkdir -p "$HOME/Media"
 
-# UI file browser bookmarks
-cp -r "$dirpath/.config/gtk-3.0" "$HOME/.config"
-
 #
 # Restore configs
 #
@@ -25,7 +22,6 @@ echo "# - Restore 'fontconfig' into '~/.config'"
 echo "# - Copy font into '.local/share/fonts'"
 echo "#"
 
-mkdir -p "$HOME/.config"
 cp -r "$dirpath/.config/mimeapps.list" "$HOME/.config"
 cp -r "$dirpath/.config/alacritty" "$HOME/.config"
 cp -r "$dirpath/home/.gitconfig" "$HOME/"
@@ -42,10 +38,10 @@ echo "#"
 echo "# Enable 'extra' and 'community' Arch repos"
 echo "#"
 
-# have package database up to date
+# Update package database
 sudo pacman -Syy
 
-# allow arch repos
+# Allow arch repos
 sudo pacman -S artix-archlinux-support
 
 if grep -q "^\[extra\]$" /etc/pacman.conf; then
@@ -68,11 +64,29 @@ sudo pacman-key --populate archlinux
 # Install packages
 #
 
-sudo pacman -S cronie cronie-runit
-sudo pacman -S openssh keychain libsecret rsync
-sudo pacman -S fzf the_silver_searcher bat ripgrep nnn htop neofetch nnn unzip
-sudo pacman -S xdg-desktop-portal-wlr alacritty
+sudo pacman --noconfirm -S \
+  cronie \
+  cronie-runit \
+  openssh \
+  keychain \
+  libsecret \
+  rsync \
+  git-delta \
+  fzf \
+  the_silver_searcher \
+  bat \
+  ripgrep \
+  nnn \
+  htop \
+  neofetch \
+  nnn \
+  unzip \
+  xdg-desktop-portal-wlr \
+  alacritty \
+  bluez \
+  bluez-utils \
+  bluez-runit \
+  pulseaudio-bluetooth
 
-sudo pacman -S bluez bluez-utils bluez-runit pulseaudio-bluetooth
 sudo ln -s /etc/runit/sv/bluetoothd /run/runit/service
 sudo sv start bluetoothd
