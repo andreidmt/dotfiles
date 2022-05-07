@@ -1,0 +1,30 @@
+#!/usr/bin/sh
+
+SCRIPT_NAME='\~/.local/scripts/bookmarks'
+CMD=${1:-read}
+
+case $CMD in
+  create) 
+    url="$2"
+    title="$3"
+    description="$4"
+    now=$(date_iso)
+
+    echo -e "\"${url}\",\"${title}\",\"${description}\",\"${now}\"" >> ~/bookmarks.csv
+  ;;
+
+  read)
+    while IFS=, read url title description 
+    do
+      echo "URL: $url"
+      echo "Title: $title"
+      echo "Description: $description"
+      echo
+    done < ~/bookmarks.csv
+  ;;
+
+  *)
+    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
+    exit 1
+  ;;
+esac

@@ -17,6 +17,8 @@ case "$BLOCK_BUTTON" in
   5) ;;
 esac
 
+newsboat -x reload
+
 unreadCount=$(newsboat -x print-unread | awk '{print $1}')
 
 # When undefined, a raw format is assumed. Each line of the output corresponds
