@@ -11,6 +11,9 @@ rm -rf "$HOME/.local/bin/zsh-plugins"
 mkdir -p "$HOME/.local/bin/zsh-plugins"
 
 plugins=(
+  #
+  "Aloxaf/fzf-tab.git"
+
   # ZSH_SYNTAX
   "zsh-users/zsh-syntax-highlighting.git"
 

@@ -1,21 +1,30 @@
 #!/usr/bin/sh
 
-INPUT=${1:-$(</dev/stdin)}
+input=${1:-$(</dev/stdin)}
 
 # Need at least one parameter
-if [ -z "$INPUT" ]; then 
+if [ -z "$input" ]; then 
   echo "No message provided"
   exit 1
 fi
 
 # Props
-TITLE=$INPUT
-MESSAGE=$2
-ICON=$3
+title=$input
+message=$2
+icon=$3
 
 # default icon if none set
 if [ -z "$3" ]; then 
-  ICON=~/doomguy.png
+  icon=~/doomguy.png
 fi
 
-dunstify -i "$ICON" -t 5000 "$TITLE" "$MESSAGE"
+dunstStatus=$(ps -C dunst >/dev/null && echo "running" || echo "not-running")
+
+if [ "$dunstStatus" = "running" ]; then
+  dunstify -i "$icon" -t 5000 "$title" "$message"
+else
+  echo ""
+  echo "# $title"
+  echo "# $message"
+  echo ""
+fi
