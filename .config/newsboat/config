@@ -1,3 +1,5 @@
 auto-reload yes
-notify-program "~/.local/script/notify"
-browser $BROWSER
+browser     $BROWSER
+
+bookmark-cmd   "~/.local/scripts/bookmark create"
+notify-program "~/.local/scripts/notify"
