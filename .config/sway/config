@@ -45,20 +45,24 @@ for_window [floating] move position center
 output DP-5 resolution 3840x2160 position 0,0 scale 1
 output HDMI-A-1 resolution 2560x1080 position 3840,0 transform 90 scale 1
 
-output DP-5 bg $HOME/Pictures/Wallpapers/small-memory.jpg fill
-output HDMI-A-1 bg $HOME/Pictures/Wallpapers/moon-mountains-reflection.jpg fill
+output DP-5 bg $HOME/Pictures/Wallpapers/the-last-night.jpg fill
+output HDMI-A-1 bg $HOME/Pictures/Wallpapers/pc_gruvbox.png fill
 
 ###
 ### Idle configuration
 ###
 
-# This will lock your screen after 300 seconds of inactivity, then turn off
-# your displays after another 300 seconds, and turn your screens back on when
-# resumed. It will also lock your screen before your computer goes to sleep.
+# Turn screen off in 9min30sec
+# Lock screen in 10min (so 30sec after screen off)
+# Lock screen when going to sleep
+
+set $lock swaylock -c 550000
+
 exec swayidle -w \
-  timeout 300 'swaylock -f -c 000000' \
-  timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
-  before-sleep 'swaylock -f -c 000000'
+    timeout 600 $lock \
+    timeout 570 'swaymsg "output * dpms off"' \
+    resume 'swaymsg "output * dpms on"' \
+    before-sleep $lock
 
 ###
 ### Input configuration
