@@ -1,5 +1,8 @@
 let mapleader="\<SPACE>"
 
+nnoremap u     :undo<CR> " undo
+nnoremap <C-r> :redo<CR> " redo
+
 " run macro in q and w registers
 nnoremap <LEADER>q @q            " current line
 nnoremap <LEADER>w @w            " current line
