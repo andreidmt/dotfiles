@@ -2,13 +2,10 @@
 
 SCRIPT_NAME='\~/.local/scripts/notes.create'
 
-notesPath="$HOME/Notes"
-distPath="$notesPath/dist"
-srcPath="$notesPath/src"
-draftPath="$srcPath/draft"
+notesPath="$HOME/Work/andreidmt.dotfiles-private/Notes"
+draftPath="$notesPath/draft"
 
 mkdir -p "$draftPath"
-mkdir -p "$distPath"
 
 #
 # Create a new markdown file, or open existing, for today's notes
@@ -22,7 +19,7 @@ fi
 printf "\n## %s\n" "$(date '+%H:%M')" >> "$newNotePath"
 
 # Relevant context for vim's NerdTree
-cd "$srcPath"
+cd "$notesPath"
 
 nvim -c "norm G" \
   -c "norm zz" \
