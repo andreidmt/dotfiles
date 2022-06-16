@@ -65,11 +65,11 @@ end
 
 -- lsp
 utils.command("References", "Telescope lsp_references")
-utils.command("Definistions", "Telescope lsp_definitions")
-utils.command("CodeActions", "Telescope lsp_code_actions")
+utils.command("Definitions", "Telescope lsp_definitions")
 utils.command("LspSym", "Telescope lsp_workspace_symbols")
 utils.command("LspRangeAct", "Telescope lsp_range_code_actions")
 
 utils.nmap("<C-p>", "<cmd>Telescope find_files<CR>")
 utils.nmap("<C-f>", "<cmd>Telescope live_grep<CR>")
 utils.nmap("<C-c>", "<cmd>Telescope git_commits<CR>")
+utils.nmap("<C-r>", "<cmd>Telescope lsp_references<CR>")
