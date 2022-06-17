@@ -62,7 +62,7 @@ local on_attach = function(client, bufnr)
   utils.buf_map(bufnr, 'n', '<Leader>i', ':ShowLineErrors<CR>')
   utils.buf_map(bufnr, 'n', '<Leader>f', ':CodeActions<CR>')
   utils.buf_map(bufnr, 'n', '<Leader>k', ':HoverInfo<CR>')
-  utils.buf_map(bufnr, 'n', '<Leader>s', ':ShowSignature<CR>')
+  -- utils.buf_map(bufnr, 'n', '<Leader>s', ':ShowSignature<CR>')
 
   if client.supports_method("textDocument/formatting") then
     vim.cmd("autocmd! BufWritePre <buffer> lua formatBuffer()")
