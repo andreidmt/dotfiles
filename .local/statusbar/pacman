@@ -2,7 +2,7 @@
 
 case "$BLOCK_BUTTON" in
   # Left click
-  1) st -e sys upgrade ;;
+  1) $TERMINAL -e sys_upgrade ;;
 
   # Middle click
   2) ;;
