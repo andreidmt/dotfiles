@@ -1,0 +1,5 @@
+#!/usr/bin/sh
+
+if [ -f /tmp/recordingicon ]; then
+  cat /tmp/recordingicon
+fi
