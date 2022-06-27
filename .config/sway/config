@@ -87,7 +87,7 @@ bindsym $mod+Shift+Return splitv; exec $term
 bindsym $mod+Shift+q kill
 
 # Reload the configuration file
-bindsym $mod+Shift+c reload
+bindsym $mod+Shift+R reload
 
 # Exit sway (logs you out of your Wayland session)
 bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'
@@ -186,10 +186,10 @@ bindsym $mod+minus scratchpad show
 ###
 
 bindsym $mod+p        exec rofi -show run
-bindsym $mod+grave    exec rofi.index
+bindsym $mod+grave    exec rofi_index
 
-bindsym $mod+n        exec $term -t such-important -e notes.create
-bindsym $mod+Shift+p  exec notes.find
+bindsym $mod+n        exec $term -t such-important -e notes create
+bindsym $mod+Shift+p  exec notes ask
 
 bindsym $mod+s        exec snippets use
 bindsym $mod+Shift+s  exec snippets find
