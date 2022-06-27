@@ -1,128 +1,88 @@
-#!/usr/bin/sh
+#!/usr/bin/sh -e
 
-SCRIPT_NAME='\~/.local/scripts/notes'
-CMD=${1:-ls}
+scriptName='~/.local/scripts/notes'
+notesHome="$HOME/Work/andreidmt.dotfiles-private/Notes"
+draftsPath="$notesHome/draft"
 
-NOTES_HOME="$HOME/Notes"
-NOTES_SRC="$NOTES_HOME/src"
-NOTES_DIST="$NOTES_HOME/dist"
+create() {
+  mkdir -p "$draftsPath"
+  newNotePath="$draftsPath/$(date +%y-%j).md"
 
-TODAY_PATH="$NOTES_SRC/$(date +%Y)/$(date +%m.%B)/$(date +%d.%A)"
+  if [ ! -f "$newNotePath" ]; then
+    printf "# %s\n" "$(date '+%A, %d %B %Y')" > "$newNotePath"
+  fi
 
-mkdir -p "$TODAY_PATH"
-mkdir -p "$NOTES_DIST"
+  printf "\n## %s\n" "$(date '+%H:%M')" >> "$newNotePath"
 
-case $CMD in
-  #
-  # Create a new markdown file, or open existing, for today's notes
-  #
-  create)
-    NOTE_PATH="$NOTES_SRC/draft/$(date +%y-%j).md"
+  # Relevant context for vim's NerdTree
+  cd "$notesHome"
 
-    if [ ! -f "$NOTE_PATH" ]; then
-      printf "# %s\n" "$(date '+%A, %d %B %Y')" > "$NOTE_PATH"
-    fi
+  nvim -c "norm G" -c "norm zz" -c "set spell" "$newNotePath"
+}
 
-    printf "\n## %s\n" "$(date '+%H:%M')" >> "$NOTE_PATH"
+open() {
+  [ -z "$1" ] && read -r notePath || notePath="$1"
 
+  if [ -f $notePath ]; then
     # Relevant context for vim's NerdTree
-    cd "$NOTES_SRC" && nvim -c "norm G" \
-      -c "norm zz" \
-      -c "set spell" \
-      "$NOTE_PATH"
-  ;;
+    cd "$notesHome"
 
-  #
-  #
-  #
-  find)
-    NOTE=$(notes ls \
+    nvim -c "norm zz" -c "set spell" "$notePath"
+  else
+    notify-bad $scriptName "Cannot find note at \"$notePath\""
+    exit 1
+  fi
+}
+
+list() {
+  notes=$(rg --files "$notesHome" \
+    | rg .md \
+    | sort -r \
+  )
+
+  for path in $notes
+  do
+    title=$(rg "^# " --max-count 1 "$path" | sed -e "s/# //g")
+    type=$(cat "$path" \
+      | sed -n '/^```toml/,/^```/ p' \
+      | grep TYPE \
+      | awk -F'[ ="]+' '{ print tolower($2) }'
+    )
+
+    if [ -z "$type" ]; then
+      printf "%s\n<small>%s</small>|" "${title:-'--'}" "$path"
+    else
+      printf "[%s] %s\n<small>%s</small>|" "$type" "${title:-'--'}" "$path"
+    fi
+  done
+}
+
+ask() {
+  note=$(notes list \
     | rofi -dmenu \
-      -eh 4 \
+      -eh 2 \
       -sep '|' \
-      -p "notes" \
+      -p " :" \
       -i \
       -markup-rows \
-      -lines 4 \
-      -case-sensitive false)
+      -case-sensitive false \
+  )
 
-    if [ -n "$NOTE" ]; then
-      echo "$NOTE" \
-        | sanitize html \
-        | tail -n 1 \
-        | xargs st -t such-important -e notes open
-    fi
-  ;;
+  if [ -n "$note" ]; then
+    echo "$note" \
+      | sanitize html \
+      | tail -n 1 \
+      | xargs $TERMINAL -t such-important -e notes open
+  fi
+}
 
-  #
-  # List all notes
-  #
-  ls)
-    ALL_NOTES=$(rg --files $NOTES_SRC | rg .md | sort -r)
-    META_COUNT=2
-    
-    for NOTE_PATH in $ALL_NOTES
-    do
-      TITLE=$(rg "^# " --max-count 1 $NOTE_PATH | sed -e "s/# //g")
-      META=$(head -n $META_COUNT $NOTE_PATH)
-
-      printf "${TITLE:-'--'}\n<small>$META\n$NOTE_PATH</small>|"
-    done
-  ;;
-
-  #
-  # Open by absolute path in VIM
-  #
-  open)
-    [ -z "$2" ] && read -r NOTE_PATH || NOTE_PATH="$2"
-
-    if [ -f $NOTE_PATH ]; then
-      # Relevant context for vim's NerdTree
-      cd "$NOTES_SRC"
-
-      nvim -c "norm zz" \
-        -c "set spell" \
-        "$NOTE_PATH"
-    else
-      notify-bad $SCRIPT_NAME "Cannot find note at \"$NOTE_PATH\""
-    fi
-
-
-  ;;
-
-  #
-  # Make a PDF out from a markdown note file
-  #
-  build)
-    NOTE_PATH=$2
-    PDF_NAME="$(basename "$NOTE_PATH" .md).pdf"
-
-    TITLE="$(cat $NOTE_PATH | grep '# Notes for' | sed 's/# //')"
-    CONTENT=""
-
-    pandoc \
-      --from gfm \
-      --pdf-engine=xelatex \
-      --toc \
-      --metadata=title:"$TITLE" \
-      -V geometry:a4paper \
-      -V geometry:margin=3.5cm \
-      -V linkcolor:blue \
-      -o "$NOTES_DIST/$PDF_NAME" "$NOTE_PATH" &
-  ;;
-
-  #
-  # Open zathura with the PDF of the most recent notes file
-  #
-  read-last)
-    PDF_PATH="$NOTES_DIST/$(ls -r "$NOTES_DIST" | head -n 1)"
-
-    zathura $PDF_PATH
-  ;;
-
+case "${1-ask}" in
+  ask) ask ;;
+  create) create ;;
+	list) list ;;
+	open) open $2;;
   *)
-    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
-
+    notify-bad "$scriptName" "Command \"$1\" not defined"
     exit 1
   ;;
 esac

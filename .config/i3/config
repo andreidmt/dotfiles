@@ -57,10 +57,10 @@ bindsym $mod+x exec --no-startup-id sys_lock
 ## Rofi
 #####
 
-bindsym $mod+grave    exec --no-startup-id rofi.index
+bindsym $mod+grave    exec --no-startup-id rofi_index
 
 bindsym $mod+n        exec --no-startup-id st -t such-important -e notes create
-bindsym $mod+Shift+p  exec --no-startup-id rofi.notes
+bindsym $mod+Shiftalsa+P  exec --no-startup-id rofi_notes
 
 bindsym $mod+s        exec --no-startup-id snippets use
 bindsym $mod+Shift+s  exec --no-startup-id snippets find
