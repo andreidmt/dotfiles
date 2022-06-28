@@ -10,6 +10,9 @@ Plug 'tpope/vim-commentary'   	     " Toggle comments
 Plug 'matze/vim-move'                " Move multiple selected lines
 Plug 'rstacruz/vim-closer'           " Auto close {,[,(
 
+" AI ???
+Plug 'github/copilot.vim'
+
 " Color scheme
 Plug 'sainnhe/gruvbox-material'
 
