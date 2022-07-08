@@ -33,9 +33,9 @@ unzip,                  utils, -, pacman,
 neofetch,               utils, -, pacman,
 ripgrep,                utils, -, pacman, Grep in Rust
 zathura,                utils, -, pacman, Document viewer with vi-styled keybindings
-zathura-pdf-mupdf,      utils, -, pacman, EPUB, PDF and XPS support for zathura (mupdf)
+zathura-pdf-mupdf,      utils, -, "pacman, EPUB, PDF and XPS support for zathura (mupdf)"
 zathura-pdf-ps,         utils, -, pacman, PostScript support for zathura
-rofi,                   utils, -, pacman, A window switcher, application launcher and dmenu replacement
+rofi,                   utils, -, pacman, "A window switcher, application launcher and dmenu replacement"
 rofi-lbonn-wayland-git, utils, wayland, aur, Rofi wayland patch
 firefox,                   apps, -, pacman, Web Browser
 firefox-developer-edition, apps, -, pacman, Web Browser
@@ -46,13 +46,13 @@ sc-im,                     apps, -, aur, An ncurses spreadsheet program for term
 pandoc,                    apps, -, pacman, Convert documents between various formats
 texlive-core,              apps, -, pacman, LaTeX distribution
 pdflatex,                  apps, -, pacman,
-ffmpeg,                    apps, -, pacman, Process multimedia content such as audio, video, subtitles and related metadata
+ffmpeg,                    apps, -, pacman, "Process multimedia content such as audio, video, subtitles and related metadata"
 figlet,                    apps, -, pacman, ASCII Art
 youtube-dl,                apps, -, pacman, Youtube Downloader
 surf,                      apps, x, aur, Lightweight Web Browser
 neovim,                            dev, -, pacman, File editor
 git,                               dev, -, pacman, The stupid content tracker
-git-delta,                         dev, -, pacman, A syntax-highlighting pager for git, diff, and grep output 
+git-delta,                         dev, -, pacman, "A syntax-highlighting pager for git, diff, and grep output"
 bat,                               dev, -, pacman, A cat(1) clone with syntax highlighting and Git integration
 shellcheck,                        dev, -, pacman, BASH linter
 entr,                              dev, -, pacman, Run arbitrary commands when files change
