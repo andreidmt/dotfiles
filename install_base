@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -eu
 
 # absolute path of the folder containing this script file
 dirpath=$(dirname "$(realpath "$0")")
@@ -65,28 +65,14 @@ sudo pacman-key --populate archlinux
 #
 
 sudo pacman --noconfirm -S \
-  cronie \
-  cronie-runit \
-  openssh \
   keychain \
   libsecret \
-  rsync \
-  git-delta \
   fzf \
   the_silver_searcher \
-  bat \
-  ripgrep \
-  nnn \
-  htop \
-  neofetch \
-  nnn \
-  unzip \
   xdg-desktop-portal-wlr \
-  alacritty \
   bluez \
   bluez-utils \
-  bluez-runit \
-  pulseaudio-bluetooth
+  bluez-runit 
 
 sudo ln -s /etc/runit/sv/bluetoothd /run/runit/service
 sudo sv start bluetoothd

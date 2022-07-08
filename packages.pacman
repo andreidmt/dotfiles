@@ -1,9 +1,0 @@
-neovim git shellcheck tldr
-nnn entr
-pandoc texlive-core pdflatex
-firefox firefox-developer-edition
-blueman pulseaudio-bluetooth
-figlet
-youtube-dl
-arandr xclip xsel
-shotgun hacksaw slop

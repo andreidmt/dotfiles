@@ -1,10 +1,4 @@
-#!/bin/sh
-
-# Exit script if any statement returns a non-true return value
-set -e
-
-# Exit script if trying to use an uninitialised variable
-set -u
+#!/bin/sh -eu
 
 # absolute path of the folder containing this script file
 dirpath=$(dirname "$(realpath "$0")")
@@ -25,20 +19,9 @@ cp -r "$dirpath/.config/rofi" "$HOME/.config"
 
 sudo pacman --noconfirm -S \
   imagemagick \
-  dunst \
   imv \
-  rofi \
-  ffmpeg \
   xorg-xlsclients \
   xorg-xwayland \
-  wayland \
-  qt5-wayland \
-  glfw-wayland \
-  wl-clipboard \
   mesa \
-  sway \
-  swaylock \
-  swayidle \
-  waybar \
   grim \
   slurp

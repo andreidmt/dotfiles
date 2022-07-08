@@ -1,10 +1,4 @@
-#!/bin/sh
-
-# Exit script if any statement returns a non-true return value
-set -e
-
-# Exit script if trying to use an uninitialised variable
-set -u
+#!/bin/sh -eu
 
 # absolute path of the folder containing this script file
 dirpath=$(dirname "$(realpath "$0")")
@@ -21,16 +15,3 @@ cp -r "$dirpath/.config/nvim" "$HOME/.config"
 #
 
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-
-#
-# nvim LSPs dependencies
-#
-
-npm install -g typescript typescript-language-server \
-  vscode-langservers-extracted \
-  graphql-language-service-cli \
-  remark-language-server remark \
-  bash-language-server \
-  dockerfile-language-server-nodejs \
-  yaml-language-server \
-  stylelint-lsp
