@@ -33,7 +33,7 @@ unzip,                  utils, -, pacman,
 neofetch,               utils, -, pacman,
 ripgrep,                utils, -, pacman, Grep in Rust
 zathura,                utils, -, pacman, Document viewer with vi-styled keybindings
-zathura-pdf-mupdf,      utils, -, "pacman, EPUB, PDF and XPS support for zathura (mupdf)"
+zathura-pdf-mupdf,      utils, -, pacman, "EPUB, PDF and XPS support for zathura (mupdf)"
 zathura-pdf-ps,         utils, -, pacman, PostScript support for zathura
 rofi,                   utils, -, pacman, "A window switcher, application launcher and dmenu replacement"
 rofi-lbonn-wayland-git, utils, wayland, aur, Rofi wayland patch
