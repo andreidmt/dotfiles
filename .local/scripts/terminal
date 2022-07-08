@@ -1,0 +1,35 @@
+#!/usr/bin/sh -eu
+
+scriptName=\~/.local/bin/script
+
+while getopts "hb:" option; do
+  case $option in
+    h)
+       outputHelp
+       exit
+    ;;
+    b)
+      bucketName=$OPTARG
+    ;;
+    ?)
+      echo
+      outputHelp
+      exit 2
+    ;;
+  esac
+done
+
+
+if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
+  alacritty --
+fi
+
+case "${1-command}" in
+  command)
+  ;;
+
+  *)
+    notify --is-error "$scriptName" "Command \"$1\" not recognized"
+    exit 1
+  ;;
+esac

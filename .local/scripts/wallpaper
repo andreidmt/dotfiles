@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/bin/sh
 
-SCRIPT_NAME=\~/.local/scripts/wallpaper
+. "$LIBRARY_HOME/die.sh"
 CMD=$1
 
 RESOLUTION="2560x1440"
@@ -26,6 +26,6 @@ case $CMD in
   ;;
 
   *)
-    notify-bad "$SCRIPT_NAME" "ERROR: Command not recognized.\n\n\"wallpaper $CMD\""
+    die "Command not recognized.\n\n\"wallpaper $CMD\""
   ;;
 esac

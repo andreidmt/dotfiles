@@ -1,9 +1,8 @@
 #!/usr/bin/sh
 
-SCRIPT_NAME='\~/.local/scripts/bookmarks'
-CMD=${1:-read}
+. "$LIBRARY_HOME/die.sh"
 
-case $CMD in
+case ${1:-read} in
   create) 
     url="$2"
     title="$3"
@@ -24,7 +23,6 @@ case $CMD in
   ;;
 
   *)
-    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
-    exit 1
+    die "Command \"$1\" not recognized"
   ;;
 esac

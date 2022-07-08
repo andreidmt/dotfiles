@@ -1,20 +1,19 @@
-#!/usr/bin/sh
+#!/usr/bin/sh -eu
 
-SCRIPT_NAME="~/.local/bin/random"
-CMD=${1:-readable}
+. "$LIBRARY_HOME/die.sh"
 
-case $CMD in
+length=${2:-6}
+
+case ${1:-readable} in
   readable)
-    FIRST=$(cat /dev/urandom | tr -dc 'a-z' | fold -w 3 | head -n 1)
-    SECOND=$(cat /dev/urandom | tr -dc '0-9' | fold -w 3 | head -n 1)
+    first=$(tr -dc 'a-z' < /dev/urandom | fold -w "$(("$length"/2))" | head -n 1)
+    second=$(tr -dc '0-9' < /dev/urandom | fold -w 3 | head -n 1)
 
-    echo "$FIRST-$SECOND"
+    echo "$first-$second"
   ;;
 
   whatever)
-    LENGTH=${2:-6}
-
-    cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $LENGTH | head -n 1
+    tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w "$length" | head -n 1
   ;;
 
   uuid)
@@ -22,8 +21,6 @@ case $CMD in
   ;;
 
   *)
-    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
-
-    exit 1
+    die "Command \"$1\" not recognized"
   ;;
 esac

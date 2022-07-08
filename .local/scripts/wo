@@ -1,14 +1,12 @@
-#!/bin/sh
+#!/usr/bin/sh
 
-SCRIPT_NAME="~/.local/bin/wo"
+. "$LIBRARY_HOME/die.sh"
 
 PROJECT_FOLDER=$1
 PROJECT_PATH="$HOME/Work/$PROJECT_FOLDER" 
 
 if [ ! -d "$PROJECT_PATH" ]; then
-  notify-bad "$SCRIPT_NAME" "Project folder \"$PROJECT_FOLDER\" does not exist"
-
-  exit 1
+  die "Project folder \"$PROJECT_FOLDER\" does not exist"
 fi
 
 cd "$PROJECT_PATH"
