@@ -31,8 +31,8 @@ tldr,                   utils, -, pacman, Succint command documentation with exa
 nnn,                    utils, -, pacman, The unorthodox terminal file manager
 cronie,                 utils, -, pacman, Cron job manager
 cronie-runit,           utils, -, pacman, Runit layer
-unzip,                  utils, -, pacman, 
-neofetch,               utils, -, pacman,  
+unzip,                  utils, -, pacman,
+neofetch,               utils, -, pacman,
 ripgrep,                utils, -, pacman, Grep in Rust
 zathura,                utils, -, pacman, Document viewer with vi-styled keybindings
 zathura-pdf-mupdf,      utils, -, pacman, EPUB, PDF and XPS support for zathura (mupdf)
@@ -48,7 +48,7 @@ stremio,                   apps, -, aur, Video torrent streamer
 sc-im,                     apps, -, aur, An ncurses spreadsheet program for terminal
 pandoc,                    apps, -, pacman, Convert documents between various formats
 texlive-core,              apps, -, pacman, LaTeX distribution
-pdflatex,                  apps, -, pacman, 
+pdflatex,                  apps, -, pacman,
 ffmpeg,                    apps, -, pacman, Process multimedia content such as audio, video, subtitles and related metadata
 figlet,                    apps, -, pacman, ASCII Art
 youtube-dl,                apps, -, pacman, Youtube Downloader
@@ -66,9 +66,9 @@ typescript-language-server,        dev, -, npm, TypeScript LSP server
 vscode-langservers-extracted,      dev, -, npm, HTML/CSS/JSON language servers extracted from vscode
 graphql-language-service-cli,      dev, -, npm, Interface for building IDE GraphQL language services
 remark-language-server,            dev, -, npm, Markdown LSP server
-remark,                            dev, -, npm, 
-remark-stringify,                  dev, -, npm, 
-remark-parse,                      dev, -, npm, 
+remark,                            dev, -, npm,
+remark-stringify,                  dev, -, npm,
+remark-parse,                      dev, -, npm,
 bash-language-server,              dev, -, npm, BASH LSP server
 dockerfile-language-server-nodejs, dev, -, npm, Dockerfile LSP server
 yaml-language-server,              dev, -, npm, YAML LSP server
