@@ -19,11 +19,9 @@ alacritty,        core, wayland, pacman, Terminal
 shotgun,          core, wayland, pacman,
 hacksaw,          core, wayland, pacman,
 slop,             core, wayland, pacman,
-
 blueman,              audio, -, pacman, Bluetooth Manager
 pulseaudio-bluetooth, audio, -, pacman,
 pacmixer,             audio, -, aur, Audio mixer
-
 rsync,                  utils, -, pacman,
 htop,                   utils, -, pacman, Process viewer
 dunst,                  utils, -, pacman, Lightweight and customizable notification daemon 
@@ -39,7 +37,6 @@ zathura-pdf-mupdf,      utils, -, pacman, EPUB, PDF and XPS support for zathura 
 zathura-pdf-ps,         utils, -, pacman, PostScript support for zathura
 rofi,                   utils, -, pacman, A window switcher, application launcher and dmenu replacement
 rofi-lbonn-wayland-git, utils, wayland, aur, Rofi wayland patch
-
 firefox,                   apps, -, pacman, Web Browser
 firefox-developer-edition, apps, -, pacman, Web Browser
 signal-desktop,            apps, -, pacman, Signal client
@@ -53,7 +50,6 @@ ffmpeg,                    apps, -, pacman, Process multimedia content such as a
 figlet,                    apps, -, pacman, ASCII Art
 youtube-dl,                apps, -, pacman, Youtube Downloader
 surf,                      apps, x, aur, Lightweight Web Browser
-
 neovim,                            dev, -, pacman, File editor
 git,                               dev, -, pacman, The stupid content tracker
 git-delta,                         dev, -, pacman, A syntax-highlighting pager for git, diff, and grep output 
@@ -74,4 +70,3 @@ dockerfile-language-server-nodejs, dev, -, npm, Dockerfile LSP server
 yaml-language-server,              dev, -, npm, YAML LSP server
 stylelint-lsp,                     dev, -, npm, CSS Stylelint LSP server
 npm-check-updates,                 dev, -, npm, Interactive dependency upgrader
-
