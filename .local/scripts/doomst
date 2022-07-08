@@ -1,0 +1,91 @@
+#!/bin/bash -e
+
+. "$LIBRARY_HOME/die.sh"
+
+printHelp() {
+  echo "NAME"
+  echo "  $scriptName"
+  echo ""
+  echo "SYNOPSIS"
+  echo "  $scriptName [OPTION]... [TITLE] [MESSAGE]"
+  echo ""
+  echo "DESCRIPTION"
+  echo "  Doomguy themed dunst notification" 
+  echo ""
+  echo "OPTIONS"
+  echo "  -h, --help             Print this help and exit"
+  echo "  -t, --title TITLE      Title of the notification"
+  echo "  -m, --message MESSAGE  Message of the notification"
+  echo "  -p, --type TYPE        Type of the notification (default: info)"
+  echo "                         Values: info, error, success"
+}
+
+while :; do
+  case $1 in
+    -h|-\?|--help)
+      printHelp
+      exit
+    ;;
+    -p|--type)
+      if [ "$2" ]; then
+        type="$2"; shift
+      else
+        die '"--type" requires a non-empty option argument.'
+      fi
+    ;;
+    -t|--title)
+      if [ "$2" ]; then
+        title="$2"; shift
+      else
+        die '"--title" requires a non-empty option argument.'
+      fi
+    ;;
+    -m|--message)
+      if [ "$2" ]; then
+        message="$2"; shift
+      else
+        die '"--message" requires a non-empty option argument.'
+      fi
+    ;;
+    -?*)
+      echo "WARN: Unknown option (ignored): $1" >&2
+    ;;
+    *) 
+      break
+  esac
+  shift
+done
+
+# Piped content has precedence over arguments and flags
+test -t 0 || read -r title
+
+if [ "$1" ] && [ -z "$title" ]; then title=$1; fi
+if [ "$2" ] && [ -z "$message" ]; then message=$2; fi
+
+case ${type:info} in
+  success) 
+    icon="$HOME/doomguy-smile.png"
+    urgency="normal"
+    message="SUCCESS: $message"
+  ;;
+  error) 
+    icon="$HOME/doomguy-blood.png" 
+    urgency="critical"
+    message="ERROR: $message"
+  ;;
+  *) 
+    icon="$HOME/doomguy.png" 
+    urgency="normal"
+  ;;
+esac
+
+dunstStatus=$(ps -C dunst >/dev/null && echo "running" || echo "not-running")
+
+if [ "$dunstStatus" = "running" ]; then
+  dunstify \
+    --icon "$icon" \
+    --urgency $urgency \
+    "$title" "$message"
+else
+  die "dunst is not running"
+fi
