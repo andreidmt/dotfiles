@@ -1,88 +1,73 @@
-#!/bin/sh
+#!/usr/bin/bash -e
 
-SCRIPT_NAME="~/.local/bin/snippets"
-CMD=${1:-ls}
+. "$LIBRARY_HOME/die.sh"
+. "$LIBRARY_HOME/read-stdin-or.sh"
 
-SNIPPETS_HOME="${HOME}/.local/snippets"
+# run(name, ...args)
+# Runs a snippet file if it has +x permissions, otherwise output it's contents.
+run() {
+  read -r -a signature <<< "$(readStdinOr "$1")"
 
-case $CMD in
-  #
-  # Create a new snippet or open existing
-  #
-  find)
-    NAME=$(snippets ls \
-      | rofi -dmenu \
-          -p "create or edit snippet" \
-          -i \
-          -case-sensitive false
-    )
+  path="$SNIPPETS_HOME/${signature[0]}"
 
-    if [ -n "$NAME" ]; then
-      st -t such-important -e snippets open "$NAME"
-    fi
+  if [ ! -f "$path" ]; then
+    die "Snippet '$path' does not exist"
+  fi
+
+  if [ -x "$path" ]; then
+    $path "${signature[@]:1}"
+  else
+    head --bytes=-1 "$path" \
+      | sed '/```toml/,/```/d'
+  fi
+}
+
+# paste(name, ...args)
+# Run a snippet and put it's content in the clipboard.
+paste() {
+  result=$(run "$1")
+
+  if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
+    wl-copy "$result"
+  fi
+
+  if [ "$XDG_CURRENT_DESKTOP" = "x" ]; then
+    printf "%s" "$result" | xsel -p -i 
+    printf "%s" "$result" | xsel -b -i 
+
+    # simulate paste actions, should work in almost all situations
+    xdotool key shift+Insert
+  fi
+}
+
+open() {
+  name=$(readStdinOr "$1")
+
+  # Relevant context for vim's NerdTree
+  cd "$SNIPPETS_HOME"
+
+  nvim -c "norm zz" -c "set spell" "$name"
+}
+
+ask() {
+  rg --files --sortr modified "$SNIPPETS_HOME" \
+    | sed 's/^.*\///' \
+    | rofi -dmenu \
+        -p "$1" \
+        -i \
+        -case-sensitive false
+}
+
+case ${1-ask-use} in
+  ask-create)
+    name=$(ask " create or edit snippet")
+    [ -n "$name" ] && st -t such-important -e snippets open "$name"
   ;;
-
-  open)
-    [ -z "$2" ] && read -r NAME || NAME="$2"
-
-    # Relevant context for vim's NerdTree
-    cd "$SNIPPETS_HOME"
-
-    nvim -c "norm zz" \
-      -c "set spell" \
-      "$NAME"
+  ask-use)
+    name=$(ask " use snippet")
+    [ -n "$name" ] && paste "$name"
   ;;
-
-  #
-  # Interactive snippet search and paste into current focus
-  #
-  use)
-    NAME=$(snippets ls \
-      | rofi -dmenu \
-          -p "use snippet" \
-          -i \
-          -case-sensitive false
-    )
-
-    if [ -n "$NAME" ]; then
-      snippets paste "$NAME"
-    fi
-  ;;
-
-  #
-  # List all available snippet names
-  #
-  ls)
-    cd "$SNIPPETS_HOME" && rg --files | sort -r
-  ;;
-
-  #
-  # Execute file or copy it's content to current active window
-  #
-  paste)
-    read -ra SNIP_ARGS <<< "$2"
-    SNIP_PATH="${SNIPPETS_HOME}/${SNIP_ARGS[0]}"
-
-    if [ -f "$SNIP_PATH" ]; then
-
-      if [ -x "${SNIP_PATH}" ]; then
-        DATA=$(${SNIP_PATH} "${SNIP_ARGS[1]}")
-      else
-        DATA=$(head --bytes=-1 "${SNIP_PATH}")
-      fi
-
-      # put data in both main and middle mouse buffer 
-      printf "%s" "$DATA" | xsel -p -i 
-      printf "%s" "$DATA" | xsel -b -i 
-
-      # simulate paste actions, should work in almost all situations
-      xdotool key shift+Insert
-    fi
-  ;;
-
-  *)
-    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
-
-    exit 1
-  ;;
+  run) run "$2" ;;
+  open) open "$2" ;;
+  *) die "Command \"$1\" not defined" ;;
 esac

@@ -6,6 +6,11 @@ export READER="zathura"
 export FILE="nnn"
 export MACHINE="$(uname -n)"
 
+## Content
+export NOTES_HOME="$HOME/Work/andreidmt.dotfiles-private/Notes"
+export SNIPPETS_HOME="$HOME/Work/andreidmt.dotfiles/.local/snippets"
+export LIBRARY_HOME="$HOME/Work/andreidmt.dotfiles/.local/libs"
+
 ##
 export SSH_ASKPASS="sys_ask-pass"
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'

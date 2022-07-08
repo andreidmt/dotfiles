@@ -1,0 +1,19 @@
+```toml
+id=80c8ae0a-061c-42df-aba9-c38b138e9638
+```
+
+case $1 in
+  -f|--flag)
+    if [ "$2" ]; then
+      type="$2"; shift
+    else
+      echo 'ERROR: "--flag" requires a non-empty option argument.' >&2
+    fi
+  ;;
+  value)
+    echo "$1 equals value"
+  ;;
+  *)
+    echo "nothing matched"
+  ;;
+esac

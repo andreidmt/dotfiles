@@ -1,0 +1,9 @@
+```toml
+id=072a716a-b3a4-4377-afdf-6358b49177be
+```
+
+if [ "$var" = "lorem" ]; then
+  echo "variable equals lorem";
+else
+  echo "variable does not equal lorem";
+fi

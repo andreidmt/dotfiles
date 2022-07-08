@@ -191,8 +191,8 @@ bindsym $mod+grave    exec rofi_index
 bindsym $mod+n        exec $term -t such-important -e notes create
 bindsym $mod+Shift+p  exec notes ask
 
-bindsym $mod+s        exec snippets use
-bindsym $mod+Shift+s  exec snippets find
+bindsym $mod+s        exec snippets ask-use
+bindsym $mod+Shift+s  exec snippets ask-create
 
 ###
 ### Resizing containers

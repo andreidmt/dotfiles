@@ -1,0 +1,9 @@
+```toml
+id=25a1f896-1c2e-4fd2-a4de-2ac64a622212
+```
+
+if [ -f "$filePath" ]; then
+  echo "$filePath exists"
+else
+  echo "$filePath does not exist"
+fi

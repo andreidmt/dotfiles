@@ -1,0 +1,19 @@
+```toml
+id=6d1d1fcc-c71c-41cf-a948-c9fe6a896a27
+docs=[
+  "https://www.cyberciti.biz/faq/unix-linux-bash-script-check-if-variable-is-empty/",
+  "https://www.shellcheck.net/wiki/SC2157"
+]
+```
+
+if [ -z "$variable" ]; then
+  echo "variable is unset or set to the empty string"
+fi
+
+if [ -n "$variable" ]; then
+  echo "variable is set to a non-empty string"
+fi
+
+if [ "$variable" ]; then
+  echo "variable is set to a non-empty string"
+fi

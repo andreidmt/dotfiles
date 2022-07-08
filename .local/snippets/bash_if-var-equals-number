@@ -1,0 +1,9 @@
+```toml
+id=d238c468-ee64-4a5d-97ea-c685a0b5a172
+```
+
+if [ "$var" -eq 3 ]; then
+  echo "variable equals 3";
+else
+  echo "variable does not equal 3";
+fi

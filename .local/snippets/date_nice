@@ -1,0 +1,3 @@
+#!/bin/sh
+
+snippets run "date nice"

@@ -1,0 +1,8 @@
+```toml
+id=e4620c2d-8813-4448-a9a8-cbaf5f3b67eb
+```
+
+if [ "$1" ] && [ "$2" = "lorem" ]; then
+  echo "first arg is set to non-empty value: $1"
+  echo "second arg equals \"lorem\""
+fi

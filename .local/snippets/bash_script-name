@@ -1,0 +1,5 @@
+```toml
+id=799e9ac8-4e5b-45f1-8080-06b16a104f42
+```
+
+scriptName=$(basename "$0")
