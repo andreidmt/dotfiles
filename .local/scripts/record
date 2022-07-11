@@ -25,21 +25,18 @@ killrecording() {
 	updateicon ""
 
 	# even after SIGTERM, ffmpeg may still run, so SIGKILL it.
-	sleep 3
-	kill -9 "$ffmpegId"
-	exit
+	# sleep 3
+	# kill -9 "$ffmpegId"
+	# exit
 }
 
 screencast() {
   ffmpeg -y \
     -f x11grab \
-    -framerate 60 \
-    -probesize 42M \
     -s "$(xdpyinfo | awk '/dimensions/ {print $2;}')" \
     -thread_queue_size 512 \
     -i "$DISPLAY" \
     -f pulse -i default \
-    -r 30 \
     -c:v h264 -crf 0 -preset ultrafast -c:a aac \
     -tune zerolatency \
     -draw_mouse 1 \
