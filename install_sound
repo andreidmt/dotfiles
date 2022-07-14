@@ -1,6 +1,0 @@
-#!/bin/sh -eu
-
-sudo pacman --noconfirm -S \
-  pulseaudio-alsa \
-  pulsemixer \
-  pamixer
