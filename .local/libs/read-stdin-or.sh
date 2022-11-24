@@ -1,13 +1,14 @@
-#!/bin/sh
+#!/bin/sh -e
 
 # readStdinOr(value)
-# Return stdin if not empty, otherwise the given value.
+# Return stdin if not empty, otherwise data passed as args.
 readStdinOr() {
   if [ -t 0 ]; then 
-    echo "$1"
+    printf "%s" "$@"
   else 
-    read -r value
-    echo "$value"
+    while IFS= read -r line; do
+      printf "%s\n" "$line"
+    done < /dev/stdin
   fi
 }
 
