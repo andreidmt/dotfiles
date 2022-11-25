@@ -1,5 +1,11 @@
 ```toml
-id=072a716a-b3a4-4377-afdf-6358b49177be
+id="072a716a-b3a4-4377-afdf-6358b49177be"
+type="snippet"
+syntax="sh"
+description="Check if variable equal a string"
+url=""
+tags=["linux", "bash"]
+createdAt="2022-07-18T16:50:53+02:00"
 ```
 
 if [ "$var" = "lorem" ]; then

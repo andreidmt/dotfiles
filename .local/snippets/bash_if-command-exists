@@ -1,0 +1,16 @@
+```toml
+id="ce9ac2f5-f6e7-486e-a92a-3f6c591aec0e"
+type="snippet"
+syntax="sh"
+description="Check if command exists in PATH"
+url=""
+tags=["linux", "bash"]
+```
+
+. "$LIBRARY_HOME/check-exists.sh"
+
+if checkExistsInPath "commandName" -eq 0; then
+  echo "found commandName"
+else
+  echo "not found commandName"
+fi

@@ -1,0 +1,12 @@
+```toml
+id="7b8b21db-7808-44a2-b498-7d1fccf4be6c"
+type="snippet"
+syntax="sh"
+description="Read lines without trimming spaces"
+url="https://stackoverflow.com/a/29689199"
+tags=["linux", "bash", "read"]
+```
+
+while IFS= read -r line; do
+  printf '%s\n' "$line"
+done < "$file"

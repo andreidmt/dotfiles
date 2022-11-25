@@ -1,5 +1,10 @@
 ```toml
-id=25a1f896-1c2e-4fd2-a4de-2ac64a622212
+id="25a1f896-1c2e-4fd2-a4de-2ac64a622212"
+type="snippet"
+syntax="sh"
+description="Check if a file exists"
+url=""
+tags=["linux", "bash"]
 ```
 
 if [ -f "$filePath" ]; then

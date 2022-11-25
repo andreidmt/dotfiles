@@ -1,6 +1,9 @@
 ```toml
 id=5d73f4e6-38e4-4746-8fd6-59263471e9a3
+syntax="sh"
+description="BASH script template with common practices"
 ```
+
 #!/usr/bin/sh -eu
 
 . "$LIBRARY_HOME/die.sh"
@@ -17,15 +20,9 @@ while :; do
         die 'ERROR: "--title" requires a non-empty option argument.'
       fi
     ;;
-    --)
-      shift
-      break
-    ;;
-    -?*)
-      echo "WARN: Unknown option (ignored): $1" >&2
-    ;;
-    *) 
-      break
+    --) shift; break ;;
+    -?*) echo "WARN: Unknown flag (ignored): $1" >&2 ;;
+    *) break ;;
   esac
   shift
 done
@@ -35,6 +32,6 @@ command() {
 }
 
 case "${1:-command}" in
-  command) command "$@:1" ;;
+  command) command "${@:2}" ;;
   *) die "Command \"$1\" not recognized" ;;
 esac

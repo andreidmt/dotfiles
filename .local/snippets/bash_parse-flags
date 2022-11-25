@@ -1,6 +1,11 @@
 ```toml
-id=52fd62a9-f7f5-4897-97de-acd2eac4208a
-docs=http://mywiki.wooledge.org/BashFAQ/035
+id="52fd62a9-f7f5-4897-97de-acd2eac4208a"
+type="snippet"
+syntax="sh"
+description=""
+url="http://mywiki.wooledge.org/BashFAQ/035"
+tags=[]
+createdAt="2022-07-23T18:32:31+02:00"
 ```
 
 while :; do
@@ -15,15 +20,9 @@ while :; do
         die 'ERROR: "--title" requires a non-empty option argument.'
       fi
     ;;
-    --)
-      shift
-      break
-    ;;
-    -?*)
-      echo "WARN: Unknown option (ignored): $1" >&2
-    ;;
-    *) 
-      break
+    --) shift; break ;;
+    -?*) echo "WARN: Unknown option (ignored): $1" >&2 ;;
+    *) break ;;
   esac
   shift
 done
