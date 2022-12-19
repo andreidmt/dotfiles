@@ -74,6 +74,7 @@ cowsay, apps, -, pacman, "Echo with an ASCII cow"
 youtube-dl, apps, -, pacman, "Youtube Downloader"
 surf, apps, x, aur, "Lightweight Web Browser"
 colorpicker, apps, x, aur, "Color picker"
+syncthing, apps, -, pacman, "Cross device file synchronization"
 
 base-devel, dev, -, pacman, "Group with packages needed for building and compiling"
 nvm, dev, -, aur, "Node.js version manager"
