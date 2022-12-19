@@ -2,7 +2,7 @@
 *.alpha: 0.90
 
 !! Set a default font and font size as below:
-*.font: mono 12
+*.font: mono:pixelsize=14:antialias=true:autohint=true;
 
 !! Font rendering 
 Xft.dpi:       96
