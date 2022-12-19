@@ -1,5 +1,6 @@
 name, category, display manager, package namager, description
 
+gnupg, core, -, pacman, "GnuPG keyring management"
 openssh, core, -, pacman, "SSH client"
 openvpn, core, -, pacman, "VPN client"
 fontconfig, core, -, pacman, "Font configuration"
