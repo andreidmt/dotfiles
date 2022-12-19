@@ -1,50 +1,49 @@
-##
-## i3 config file (v4)
-## Please see https://i3wm.org/docs/userguide.html for a complete reference!
-##
+###
+### i3 config file (v4)
+### Please see https://i3wm.org/docs/userguide.html for a complete reference!
+###
 
-#####
+##
 ## Basic
-#####
+##
 
 default_border pixel 1
+default_floating_border pixel 1
+
+# workaround for https://github.com/i3/i3/issues/5149
+for_window [all] border pixel 3  
+
 smart_borders on
-font pango:monospace 8
+font pango:monospace 12
 workspace_auto_back_and_forth yes
 
-set $mod Mod4
+# Distance between tiled windows
 set $gridSpacing 15
-
-# Use Mouse+$mod to drag floating windows
-floating_modifier $mod
-
-#####
-## Distance between tiled windows
-#####
-
 gaps inner $gridSpacing
 gaps outer 0
 
+# Use Mouse+$mod to drag floating windows
+set $mod Mod4
+floating_modifier $mod
+
+# Toggle window spacing
 bindsym $mod+t gaps inner current set 0; gaps outer current set 0
 bindsym $mod+Shift+t gaps inner current set $gridSpacing; gaps outer current set 0
 
-#####
-## Default floating windows
-#####
-
+# Default floating windows
+for_window [title="such-important"] floating enable
 for_window [title="Steam - Update News"] floating enable
 for_window [window_role="messages"] floating enable
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
-
-for_window [title="such-important"] floating enable
 for_window [floating] resize set width 1000px, resize set height 900px, move position center
 
-#####
-## Startup 
-#####
+##
+## Startup
+##
 
-# Set wallpaper 
+exec --no-startup-id syncthing -no-browser -no-restart
+
 exec --no-startup-id wallpaper reload
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
@@ -53,21 +52,23 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- sys_lock --nofork
 
 bindsym $mod+x exec --no-startup-id sys_lock
 
-#####
-## Rofi
-#####
+##
+## Application menus
+##
 
-bindsym $mod+grave    exec --no-startup-id rofi_index
+bindsym $mod+p      exec --no-startup-id rofi -show run
+bindsym $mod+grave  exec --no-startup-id rofi_index
 
-bindsym $mod+n        exec --no-startup-id st -t such-important -e notes create
-bindsym $mod+Shiftalsa+P  exec --no-startup-id rofi_notes
+# bindsym $mod+n        exec --no-startup-id st -t such-important -e notes create
+bindsym $mod+n        exec --no-startup-id obsidian
+# bindsym $mod+Shift+p  exec --no-startup-id notes ask
 
-bindsym $mod+s        exec --no-startup-id snippets use
-bindsym $mod+Shift+s  exec --no-startup-id snippets find
+bindsym $mod+s        exec --no-startup-id snippets ask-use
+bindsym $mod+Shift+s  exec --no-startup-id snippets ask-create
 
-#####
+##
 ## Fn keys
-#####
+##
 
 # Volume and Mic adjust
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && pkill -RTMIN+12 i3blocks
@@ -84,25 +85,21 @@ bindsym Print exec --no-startup-id screenshot all
 bindsym Shift+Print exec --no-startup-id screenshot window
 bindsym $mod+Shift+Print exec --no-startup-id screenshot area
 
-#####
+##
 ## Navigation
-######
+##
 
 # Start a terminal
-
 bindsym $mod+Return 	    split horizontal exec --no-startup-id terminal-here
 bindsym $mod+Shift+Return split vertical   exec --no-startup-id terminal-here
 
 # Kill focused window
-
 bindsym $mod+Shift+q kill
 
-# Rofi
-
-bindsym $mod+p exec --no-startup-id rofi -show run
+# Move focused top left
+bindsym $mod+b exec --no-startup-id top-left
 
 # Change focus
-
 bindsym $mod+j focus left
 bindsym $mod+Left focus left
 bindsym $mod+k focus down
@@ -113,7 +110,6 @@ bindsym $mod+semicolon focus right
 bindsym $mod+Right focus right
 
 # Move focused window
-
 bindsym $mod+Shift+j move left
 bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+k move down
@@ -124,15 +120,14 @@ bindsym $mod+Shift+semicolon move right
 bindsym $mod+Shift+Right move right
 
 # Change container layout (stacked, tabbed, toggle split)
-
-# bindsym $mod+s layout stacking
-# bindsym $mod+w layout tabbed
+#bindsym $mod+s layout stacking
+#bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
-# Toggle fullscreen mode of focused container
+# Toggle fullscreen mode
 bindsym $mod+f fullscreen toggle	
 
-# Toggle tiling / floating
+# Toggle floating mode
 bindsym $mod+Shift+f floating toggle;
 
 # Focus the parent container
@@ -195,16 +190,16 @@ mode "resize" {
   # Pressing right will grow the window’s width.
   # Pressing up will shrink the window’s height.
   # Pressing down will grow the window’s height.
-  bindsym j resize shrink width 5 px or 5 ppt
-  bindsym k resize grow height 5 px or 5 ppt
-  bindsym l resize shrink height 5 px or 5 ppt
-  bindsym semicolon resize grow width 5 px or 5 ppt
+  bindsym j resize shrink width 3 px or 3 ppt
+  bindsym k resize grow height 3 px or 3 ppt
+  bindsym l resize shrink height 3 px or 3 ppt
+  bindsym semicolon resize grow width 3 px or 3 ppt
 
   # same bindings, but for the arrow keys
-  bindsym Left resize shrink width 5 px or 5 ppt
-  bindsym Down resize grow height 5 px or 5 ppt
-  bindsym Up resize shrink height 5 px or 5 ppt
-  bindsym Right resize grow width 5 px or 5 ppt
+  bindsym Left resize shrink width 3 px or 3 ppt
+  bindsym Down resize grow height 3 px or 3 ppt
+  bindsym Up resize shrink height 3 px or 3 ppt
+  bindsym Right resize grow width 3 px or 3 ppt
 
   # back to normal: Enter or Escape or $mod+r
   bindsym Return mode "default"
@@ -214,7 +209,10 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-# Xresources colors
+##
+## Xresources colors
+##
+
 set_from_resource $darkblack    color0    #000000
 set_from_resource $black        color8    #000000
 set_from_resource $darkred      color1    #000000
@@ -236,11 +234,15 @@ set $barBackground #1d2021AA
 
 # Window decorations
 #                       BORDER        BACKGR   TEXT      INDICATOR      CHILD_BORDER
-client.focused          $red          $red     $magenta  $darkmagenta   $white
+client.focused          $red          $red     $white    $darkmagenta   $white
 client.unfocused        $transparent  $blue    $white    $darkblue      $darkblack
 client.focused_inactive $transparent  $blue    $white    $darkblue      $darkblack
 client.urgent           $darkred      $darkred $black    $darkred       $darkred
 client.background       $black
+
+##
+## i3blocks
+##
 
 bar {
   status_command i3blocks -c $HOME/.config/i3blocks/top
