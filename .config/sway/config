@@ -225,8 +225,11 @@ mode "resize" {
 # Notification daemon
 exec dunst
 
-# PulseAudio daemon
-exec pulseaudio
+# Audio daemon
+# exec pulseaudio
+exec --no-startup-id pipewire
+exec --no-startup-id pipewire-pulse
+exec --no-startup-id wireplumber
 
 ###
 ### Colors and decorations
