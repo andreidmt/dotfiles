@@ -7,6 +7,7 @@ autocmd BufRead,BufNewFile *.flow set filetype=javascript
 autocmd BufRead,BufNewFile *.ejs set filetype=html
 
 autocmd BufRead,BufNewFile .c8rc set filetype=json
+autocmd BufRead,BufNewFile .zerobootrc set filetype=json
 autocmd BufRead,BufNewFile .remarkc set filetype=json
 autocmd BufRead,BufNewFile .browserslistrc set filetype=json
 autocmd BufRead,BufNewFile .commitlintrc set filetype=json

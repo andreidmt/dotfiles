@@ -45,5 +45,3 @@ nnoremap <M-l> <C-w>l
 " https://www.youtube.com/watch?v=lwD8G1P52Sk
 nnoremap <LEADER>s mm[s1z=`m<CR>
 nnoremap <LEADER>S mm]s1z=`m<CR>
-
-map <F1> :NERDTreeFind<CR>

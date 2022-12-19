@@ -9,6 +9,7 @@ source $HOME/.config/nvim/plugin.lsp-config.lua
 source $HOME/.config/nvim/plugin.cmp.lua
 source $HOME/.config/nvim/plugin.codi.vim
 source $HOME/.config/nvim/plugin.telescope.lua
+source $HOME/.config/nvim/plugin.nerdtree.vim
 
 source $HOME/.config/nvim/plugin.gitsigns.lua
 source $HOME/.config/nvim/plugin.colorizer.lua
@@ -21,21 +22,6 @@ let g:sml_smlnj_executable = '/usr/bin/smlnj'
 
 " Latex
 let g:livepreview_previewer = 'zathura'
-
-" File browser
-let NERDTreeShowHidden=1
-let g:NERDTreeGitStatusIndicatorMapCustom = {
-\   "Modified"  : "*",
-\   "Staged"    : "+",
-\   "Untracked" : "✭",
-\   "Renamed"   : "->",
-\   "Unmerged"  : "=",
-\   "Deleted"   : "X",
-\   "Dirty"     : "*",
-\   "Clean"     : "✔︎",
-\   "Ignored"   : '!',
-\   "Unknown"   : "?"
-\ }
 
 " Markdown preview
 let g:mkdp_browser = 'surf'

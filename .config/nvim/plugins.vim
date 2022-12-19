@@ -18,11 +18,11 @@ Plug 'sainnhe/gruvbox-material'
 
 " File browser
 Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin' " git changes in file browser
 
 " Git
 Plug 'tpope/vim-fugitive'          " git commands
 Plug 'lewis6991/gitsigns.nvim'     " git changes in gutter
-Plug 'Xuyuanp/nerdtree-git-plugin' " git changes in file browser
 
 " File finder
 Plug 'nvim-telescope/telescope.nvim'

@@ -37,37 +37,11 @@ telescope.setup({
 
 telescope.load_extension("fzf")
 
-find_files = function()
-  local set = require("telescope.actions.set")
-  local builtin = require("telescope.builtin")
-
-  local opts = {
-    attach_mappings = function(_, map)
-      map("i", "<C-v>", function(prompt_bufnr)
-        set.edit(prompt_bufnr, "vsplit")
-      end)
-
-      -- edit file and matching test file in split
-      -- map("i", "<C-f>", function(prompt_bufnr)
-      --     set.edit(prompt_bufnr, "edit")
-      --     commands.edit_test_file("vsplit $FILE | wincmd w")
-      -- end)
-
-      return true
-    end,
-  }
-
-  local is_git_project = pcall(builtin.git_files, opts)
-  if not is_git_project then
-    builtin.find_files(opts)
-  end
-end
-
 -- lsp
 utils.command("References", "Telescope lsp_references")
 utils.command("Definitions", "Telescope lsp_definitions")
-utils.command("LspSym", "Telescope lsp_workspace_symbols")
-utils.command("LspRangeAct", "Telescope lsp_range_code_actions")
+-- utils.command("LspSym", "Telescope lsp_workspace_symbols")
+-- utils.command("LspRangeAct", "Telescope lsp_range_code_actions")
 
 utils.nmap("<C-p>", "<cmd>Telescope find_files<CR>")
 utils.nmap("<C-f>", "<cmd>Telescope live_grep<CR>")
