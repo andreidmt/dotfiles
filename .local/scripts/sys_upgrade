@@ -1,8 +1,7 @@
 #!/usr/bin/sh
 
-SCRIPT_NAME=\~/.local/scripts/sys_upgrade
-
 sys_upgrade-db
 sys_upgrade-hosts
 sys_upgrade-zsh
 sys_upgrade-packages
+sys_upgrade-aws-cli

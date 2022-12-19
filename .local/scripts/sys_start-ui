@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/sh -eu
 
-if [ "$MACHINE" == "t440p" ]; then
+if [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
   startx
 fi
 
-if [ "$MACHINE" == "skulltop" ]; then
+if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
   dbus-run-session sway
 fi

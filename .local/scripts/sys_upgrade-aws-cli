@@ -1,0 +1,19 @@
+#!/usr/bin/sh -eu
+
+scriptName=$(basename "$0")
+
+cd ~/Tools
+
+# get the latest version of the aws cli
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+# overwrite and quiet
+unzip -o -q awscliv2.zip
+
+# upgrade
+sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+
+# cleanup
+rm -rf awscliv2.zip aws
+
+doomst "$scriptName" "AWS CLI upgraded"

@@ -1,19 +1,15 @@
-#!/usr/bin/sh
+#!/usr/bin/sh -eu
 
-#
-# Remove orphan packages and clear pacman cache
-#
-
-scriptName=\~/.local/scripts/sys.clean
+scriptName=$(basename "$0")
 orphanPackages=$(pacman -Qtdq | tr "\n" " ")
 
 if [ -n "$orphanPackages" ]; then 
   echo "Orphan packages found: $orphanPackages"
   sudo pacman -Rns $orphanPackages
-  notify "$scriptName clean" "Removed $(echo "$orphanPackages" | wc -w) orphan packages"
+  doomst --type success "$scriptName" "Removed $(echo "$orphanPackages" | wc -w) orphan packages"
 else
-  notify "$scriptName clean" "No orphan packages found"
+  doomst "$scriptName" "No orphan packages found"
 fi
 
 sudo pacman -Sc
-notify "$scriptName clean" "After cache cleaup with \`pacman -Sc\`\n\n$(du -h /var/cache/pacman/pkg)"
+doomst "$scriptName" "After cache cleaup with \`pacman -Sc\`\n\n$(du -h /var/cache/pacman/pkg)"
