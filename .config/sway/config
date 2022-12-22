@@ -231,6 +231,9 @@ exec --no-startup-id pipewire
 exec --no-startup-id pipewire-pulse
 exec --no-startup-id wireplumber
 
+# File sync
+exec --no-startup-id syncthing --no-browser --no-restart
+
 ###
 ### Colors and decorations
 ###
