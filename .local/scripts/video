@@ -1,0 +1,39 @@
+#!/usr/bin/bash -e
+
+. "$LIBRARY_HOME/die.sh"
+
+while :; do
+  case $1 in
+    -i|--input)
+      if [ "$2" ]; then
+        input=$2; shift
+      else
+        die 'ERROR: "--input" requires a non-empty option argument.'
+      fi
+    ;;
+    -o|--output)
+      if [ "$2" ]; then
+        output=$2; shift
+      else
+        die 'ERROR: "--output" requires a non-empty option argument.'
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) echo "WARN: Unknown flag (ignored): $1" >&2 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+case "$1" in
+  reduce) 
+    ffmpeg -i "$input" \
+      -vcodec libx265 \
+      -crf 28 \
+      "$output"
+  ;;
+  view) 
+    mpv "$input" 
+  ;;
+  *) die "Command \"$1\" not recognized" ;;
+esac

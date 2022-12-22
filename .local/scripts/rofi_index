@@ -3,22 +3,22 @@
 optionNotes=" Notes"
 optionSnippets=" Snippets"
 optionRecord="辶 Record"
+optionColor=" Pick color"
 optionProjects=" Projects"
 optionDictionary="﬜ Dictionary"
 optionDisplays=" Displays"
 optionPower=" Power"
 
-chosen="$(echo -e "$optionNotes\n$optionSnippets\n$optionRecord\n$optionProjects\n$optionDictionary\n$optionDisplays\n$optionPower" \
+chosen="$(echo -e "$optionNotes\n$optionSnippets\n$optionRecord\n$optionColor\n$optionProjects\n$optionDictionary\n$optionDisplays\n$optionPower" \
   | rofi -dmenu \
-    -i \
-    -p "" \
-		-no-fixed-num-lines \
+    -p ""
 )"
 
 case $chosen in
   "$optionNotes") notes ;;
   "$optionSnippets") snippets ;;
   "$optionRecord") record ;;
+  "$optionColor") screenshot pick-color ;;
   "$optionProjects") projects.find ;;
   "$optionDictionary") rofi.dictionary ;;
   "$optionDisplays") rofi.displays ;;

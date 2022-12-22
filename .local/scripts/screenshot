@@ -1,7 +1,6 @@
-#!/bin/sh
+#!/bin/sh -e
 
-SCRIPT_NAME=\~/.local/scripts/screenshot
-CMD=${1:-all}
+. "$LIBRARY_HOME/die.sh"
 
 DIR="$HOME/Pictures/Screenshots"
 NOW=$(date +"%Y-%B-%d-%A-%R:%S")
@@ -9,43 +8,42 @@ NOW=$(date +"%Y-%B-%d-%A-%R:%S")
 # Make sure Screenshots folder exists
 mkdir -pv "$DIR"
 
-case $CMD in
-  # Select rectangle
+case $1 in
+  color-pick)
+    colorpicker | copy
+  ;;
+
   area)
-    SELECTION=$(hacksaw -f "-i %i -g %g")
+    selection=$(hacksaw -f "-i %i -g %g")
 
     # dont quote, multiple params inside
-    shotgun $SELECTION - | xclip -t "image/png" -selection clipboard
+    shotgun $selection - | xclip -t "image/png" -selection clipboard
 
     xclip -o -selection clipboard > "$DIR/area_$NOW.png"
   ;;
 
-  # Select window
   window)
-    SELECTION=$(slop -f "-g %g")
+    selection=$(slop -f "-g %g")
 
     # dont quote, multiple params inside
-    shotgun $SELECTION - | xclip -t 'image/png' -selection clipboard
+    shotgun $selection - | xclip -t 'image/png' -selection clipboard
 
     xclip -o -selection clipboard > "$DIR/focus_$NOW.png"
   ;;
 
-  # Everything
   all)
     if [ -n "$2" ]; then
-      FILENAME="screen_$NOW.png"
+      filename=$2
     else
-      FILENAME=$2
+      filename="screen_$NOW.png"
     fi
 
-    shotgun "$DIR/$FILENAME"
+    shotgun "$DIR/$filename"
 
-    notify "$SCRIPT_NAME" "<u>Capturing entire screen</u>\n\n$DIR/$FILENAME"
+    doomst "$scriptName" "<u>Capturing entire screen</u>\n\n$DIR/$filename"
   ;;
 
   *)
-    notify-bad "$SCRIPT_NAME" "Command \"$CMD\" not recognized"
-
-    exit 1
+    die "Command \"$1\" not recognized"
   ;;
 esac

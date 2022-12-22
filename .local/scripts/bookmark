@@ -7,13 +7,13 @@ case ${1:-read} in
     url="$2"
     title="$3"
     description="$4"
-    now=$(date_iso)
+    now=$(snippets run "date iso")
 
     echo -e "\"${url}\",\"${title}\",\"${description}\",\"${now}\"" >> ~/bookmarks.csv
   ;;
 
   read)
-    while IFS=, read url title description 
+    while IFS=, read -r url title description 
     do
       echo "URL: $url"
       echo "Title: $title"

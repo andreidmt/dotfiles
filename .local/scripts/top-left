@@ -1,0 +1,15 @@
+#!/usr/bin/sh -e
+
+# top-left()
+# Move the current focused window to the top-left corner of the screen.
+
+focusWindow=$(xdotool getwindowfocus)
+displayGeometry=$(xdotool getdisplaygeometry)
+
+newWidth=$(($(echo "$displayGeometry" | awk '{print $2}') / 4))
+newHeight=$(($(echo "$displayGeometry" | awk '{print $1}') / 4))
+
+i3-msg "floating toggle"
+xdotool windowmove "$focusWindow" 30 30
+xdotool windowsize "$focusWindow" $newHeight $newWidth
+xdotool windowstate --add STICKY "$focusWindow"

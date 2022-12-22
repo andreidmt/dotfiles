@@ -17,31 +17,29 @@ run() {
   if [ -x "$path" ]; then
     $path "${signature[@]:1}"
   else
-    head --bytes=-1 "$path" \
-      | sed '/```toml/,/```/d'
+    sed '/```toml/,/```/d' < "$path"
   fi
 }
 
-# paste(name, ...args)
-# Run a snippet and put it's content in the clipboard.
-paste() {
-  result=$(run "$1")
-
-  if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
-    wl-copy "$result"
-  fi
-
-  if [ "$XDG_CURRENT_DESKTOP" = "x" ]; then
-    printf "%s" "$result" | xsel -p -i 
-    printf "%s" "$result" | xsel -b -i 
-
-    # simulate paste actions, should work in almost all situations
-    xdotool key shift+Insert
-  fi
-}
-
+# open(name)
+# Open a snippet for edit or, if does not exist, create it.
 open() {
   name=$(readStdinOr "$1")
+  path="$SNIPPETS_HOME/$name"
+
+  if [ ! -f "$path" ]; then
+    {
+      echo "\`\`\`toml" 
+      echo "id=\"$(random uuid)\""
+      echo "type=\"snippet\""
+      echo "syntax=\"\""
+      echo "description=\"\""
+      echo "url=\"\""
+      echo "tags=[]"
+      echo "\`\`\`"
+      echo ""
+    } > "$path"
+  fi
 
   # Relevant context for vim's NerdTree
   cd "$SNIPPETS_HOME"
@@ -49,6 +47,8 @@ open() {
   nvim -c "norm zz" -c "set spell" "$name"
 }
 
+# ask()
+#
 ask() {
   rg --files --sortr modified "$SNIPPETS_HOME" \
     | sed 's/^.*\///' \
@@ -60,12 +60,17 @@ ask() {
 
 case ${1-ask-use} in
   ask-create)
-    name=$(ask " create or edit snippet")
+    name=$(ask " snippets, create or edit:")
     [ -n "$name" ] && st -t such-important -e snippets open "$name"
   ;;
   ask-use)
-    name=$(ask " use snippet")
-    [ -n "$name" ] && paste "$name"
+    name=$(ask " snippets, copy:")
+
+    if [ -n "$name" ]; then
+      # not using pipe (run "$name" | copy) since some snippets may output 
+      # content without newline 
+      copy "$(run "$name")"
+    fi
   ;;
   run) run "$2" ;;
   open) open "$2" ;;

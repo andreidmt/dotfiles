@@ -2,33 +2,33 @@
 
 . "$LIBRARY_HOME/die.sh"
 
-FILE=$1
-FOLDER="unpacked-$FILE"        
+archiveFile=$1
+destFolder=${2-"unpacked-$archiveFile"} 
 
-mkdir -p "$FOLDER"
+mkdir -p "$destFolder"
 
-case "$FILE" in
+case "$archiveFile" in
   *.rar)
-    unrar e "$FILE" "$FOLDER"
+    unrar e "$archiveFile" "$destFolder"
   ;;
 
   *.zip)
-    unzip "$FILE" -d "$FOLDER"
+    unzip "$archiveFile" -d "$destFolder"
   ;;
 
   *.tgz|*.tar.gz)
-    tar -xzf "$FILE" -C "$FOLDER"
+    tar -xzf "$archiveFile" -C "$destFolder"
   ;;
 
   *.gz)
-    gunzip "$FILE"
+    gunzip "$archiveFile"
   ;;
 
   *.tar.xz)
-    tar -xf "$FILE" -c "$FOLDER"
+    tar -xf "$archiveFile" -c "$destFolder"
   ;;
 
   *)
-    die "Unknown archive format $FILE"
+    die "Unknown archive format $archiveFile"
   ;;
 esac

@@ -11,11 +11,7 @@ create() {
 
   if [ ! -f "$path" ]; then
     {
-      echo "\`\`\`toml" 
-      echo "id=$(random uuid)"
-      echo "type=draft"
-      echo "date=$(snippets run "date iso")"
-      echo "\`\`\`"
+      snippets run "frontmatter_template-toml draft"
       echo ""
       echo "# $(snippets run "date nice")"
     } > "$path"

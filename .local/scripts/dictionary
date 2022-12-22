@@ -1,0 +1,10 @@
+#!/usr/bin/bash -eu
+
+wordnikAPIKey="kfagekvbej15uhxevzi1svvebrw3jnv9fq82tgwmu7uy6dfyp"
+
+cowsay "﬜ Wordnik dictionary"
+read -r -p "Search: " word
+
+cowsay "Looking for \"$word\" ..."
+curl --silent "https://api.wordnik.com/v4/word.json/$word/definitions?api_key=$wordnikAPIKey" \
+  | jq 'limit(5;.[]) | {partOfSpeech,text}'

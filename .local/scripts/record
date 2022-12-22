@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. "$LIBRARY_HOME/die.sh"
+
 # Usage:
 # `$0`: Ask for recording type via dmenu
 # `$0 screencast`: Record both audio and screen
@@ -107,6 +109,10 @@ videoselected() {
 	updateicon "⏺️"
 }
 
+reduce() {
+  ffmpeg -i "$1" -vcodec libx264 -crf 24 "$2"
+}
+
 ask() {
   if [ -f /tmp/recordingpid ]; then
     shouldEnd=$(printf "No\\nYes" \
@@ -136,13 +142,11 @@ ask() {
 
 case "${1-ask}" in
   ask) ask ;;
-	screencast) screencast;;
-	audio) audio;;
-	video) video;;
-	*selected) videoselected;;
-	kill) killrecording;;
-  *)
-    notify-bad "$scriptName" "Command \"$1\" not defined"
-    exit 1
-  ;;
+	screencast) screencast ;;
+	audio) audio ;;
+	video) video ;;
+  reduce) reduce $@ ;;
+	*selected) videoselected ;;
+	kill) killrecording ;;
+  *) die "Command \"$1\" not defined" ;;
 esac
