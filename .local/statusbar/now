@@ -1,37 +1,42 @@
 #!/usr/bin/sh
 
-CLOCK=$(date '+%I')
+hour=$(date '+%I')
 
-case "$CLOCK" in
-	"00") ICON="🕛" ;;
-	"01") ICON="🕐" ;;
-	"02") ICON="🕑" ;;
-	"03") ICON="🕒" ;;
-	"04") ICON="🕓" ;;
-	"05") ICON="🕔" ;;
-	"06") ICON="🕕" ;;
-	"07") ICON="🕖" ;;
-	"08") ICON="🕗" ;;
-	"09") ICON="🕘" ;;
-	"10") ICON="🕙" ;;
-	"11") ICON="🕚" ;;
-	"12") ICON="🕛" ;;
+case "$hour" in
+	"00") icon="🕛" ;;
+	"01") icon="🕐" ;;
+	"02") icon="🕑" ;;
+	"03") icon="🕒" ;;
+	"04") icon="🕓" ;;
+	"05") icon="🕔" ;;
+	"06") icon="🕕" ;;
+	"07") icon="🕖" ;;
+	"08") icon="🕗" ;;
+	"09") icon="🕘" ;;
+	"10") icon="🕙" ;;
+	"11") icon="🕚" ;;
+	"12") icon="🕛" ;;
 esac
 
-case $BLOCK_BUTTON in
+case "$BLOCK_BUTTON" in
+  # Left click
 	1) 
-    notify " Calendar" "$(cal --color=always -n 2 | sed "s/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/")" 
+    cal2Months=$(cal --color=always -n 2 \
+      | sed "s/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/" \
+    )
+
+    doomst --title " Calendar" --message "$cal2Months"
   ;;
 esac
 
-DAY=$(date +%-e)
+day=$(date +%-e)
 
-case $DAY in
-  1?) DAY=${DAY}th ;;
-  1)  DAY=${DAY}st ;;
-  2)  DAY=${DAY}nd ;;
-  3)  DAY=${DAY}rd ;;
-  *)  DAY=${DAY}th ;;
+case $day in
+  1?) day=${day}th ;;
+  1|21|31) day=${day}st ;;
+  2|22) day=${day}nd ;;
+  3|23) day=${day}rd ;;
+  *) day=${day}th ;;
 esac
 
-printf '%s %s\n' "$ICON" "$(date "+$DAY %B %Y :: %T ")" 
+printf '%s %s\n' "$icon" "$(date "+$day %B %Y :: %T ")" 
