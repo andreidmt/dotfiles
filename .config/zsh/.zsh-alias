@@ -1,10 +1,10 @@
 # configs
 alias cb="nvim ~/.bashrc"
 alias cx="nvim ~/.xinitrc"
-alias cs="nvim ~/.local"
-alias cz="nvim ~/.config/zsh/.zshrc"
-alias ci="nvim ~/.config/i3/config"
-alias cv="nvim ~/.config/nvim/init.vim"
+alias cs="cd ~/.local && nvim ~/.local/scripts"
+alias cz="cd ~/.config && nvim ~/.config/zsh/.zshrc"
+alias ci="cd ~/.config && nvim ~/.config/i3/config"
+alias cv="cd ~/.config && nvim ~/.config/nvim/init.vim"
 
 # npm
 alias npu="npm run update"

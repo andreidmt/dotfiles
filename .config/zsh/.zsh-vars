@@ -7,9 +7,10 @@ export FILE="nnn"
 export MACHINE="$(uname -n)"
 
 ## Content
-export NOTES_HOME="$HOME/Work/andreidmt.dotfiles-private/Notes"
-export SNIPPETS_HOME="$HOME/Work/andreidmt.dotfiles/.local/snippets"
-export LIBRARY_HOME="$HOME/Work/andreidmt.dotfiles/.local/libs"
+export WORK_HOME="$HOME/Work"
+export NOTES_HOME="$WORK_HOME/andreidmt.dotfiles-private/Notes"
+export SNIPPETS_HOME="$WORK_HOME/andreidmt.dotfiles/.local/snippets"
+export LIBRARY_HOME="$WORK_HOME/andreidmt.dotfiles/.local/libs"
 
 ##
 export SSH_ASKPASS="sys_ask-pass"
