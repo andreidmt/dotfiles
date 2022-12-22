@@ -2,6 +2,9 @@
 
 # readStdinOr(value)
 # Return stdin if not empty, otherwise data passed as args.
+#
+# Example:
+# pipedContentOrFirstParam=$(readStdinOr "$1")
 readStdinOr() {
   if [ -t 0 ]; then 
     printf "%s" "$@"
