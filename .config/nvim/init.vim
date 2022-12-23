@@ -17,6 +17,12 @@ source $HOME/.config/nvim/plugin.colorizer.lua
 source $HOME/.config/nvim/keys.vim
 source $HOME/.config/nvim/autocmd.vim
 
+" Copilot
+
+let g:copilot_filetypes = {
+\ '*': v:true,
+\ }
+
 " SML
 let g:sml_smlnj_executable = '/usr/bin/smlnj'
 
