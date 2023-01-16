@@ -167,9 +167,14 @@ search() {
   esac
 }
 
+details() {
+  pacman -Qi "$1"
+}
+
 case "$1" in
   help) printHelp ;;
   list) list "${@:2}" ;;
+  info|details) details "${@:2}" ;;
   install) install "${@:2}" ;;
   remove) remove "${@:2}" ;;
   search) search "${@:2}" ;;
