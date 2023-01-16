@@ -1,0 +1,17 @@
+```toml
+id="07969523-6546-41bc-94c7-ca3911688255"
+type="snippet"
+syntax=""
+description=""
+url=""
+tags=[]
+```
+
+When outputting Javascript or Typescript code:
+
+1. Use arrow functions unless you need to use `this` or `arguments`
+2. Always generate JSDoc comments for functions
+3. When writing JSDoc, use `@name`, `@param`, `@returns`, `@example` and `@see` as needed
+4. When writing JSDoc, use the same parameter names as the function signature
+3. Write Typescript type separately where possible
+4. Use `describe` and `test` as Jest primitives and formulate the test title using the `given [ $CONTEXT ], [ $DO-ACTION ] should [ $EXPECT-RESULT ]` pattern
