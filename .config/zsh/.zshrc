@@ -32,8 +32,8 @@ if [ "$SSH_AGENT_STATUS" = "not-running" ]; then
 fi
 
 source $HOME/.config/zsh/.zsh-plugins
-
-source $HOME/.config/zsh/.hook_nvm-auto-switch
+source $HOME/.config/zsh/.zsh-extra-awsume
+source $HOME/.config/zsh/.zsh-extra-nvm
 
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.zsh-p10k
 [[ ! -f ~/.config/zsh/.zsh-p10k ]] || source ~/.config/zsh/.zsh-p10k
