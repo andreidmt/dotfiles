@@ -5,11 +5,11 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+source $HOME/.config/zsh/.zsh-config
+
 source $HOME/.config/zsh/.zsh-vars
 
 source $HOME/.config/zsh/.zsh-alias
-
-source $HOME/.config/zsh/.zsh-config
 
 # Start ssh-agent if none running 
 
