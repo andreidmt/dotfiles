@@ -42,6 +42,34 @@ printHelp() {
   echo ""
 }
 
+# Remove listed packages from all local repositories
+remove() {
+  source="pacman"
+  while :; do
+    case "$1" in
+      -s|--source) source="$2"; shift;;
+      --) shift; break ;;
+      -?*) echo "WARN: Unknown option (ignored): $1" >&2 ;;
+      *) break ;;
+    esac
+    shift
+  done
+
+  case "$source" in
+    pacman) 
+      echo "# sudo pacman -R \"$1\""
+      sudo pacman -R "$1"
+    ;;
+    aur) 
+      aur repo --list-path | while read -r repo_path; do
+        echo "# repo-remove \"$repo_path\" \"$1\""
+        repo-remove "$repo_path" "$1"
+      done
+    ;;
+    manual) result=$(pacman -Qm) ;;
+  esac
+}
+
 # list(...options)
 list() {
   source="pacman"
@@ -143,6 +171,7 @@ case "$1" in
   help) printHelp ;;
   list) list "${@:2}" ;;
   install) install "${@:2}" ;;
+  remove) remove "${@:2}" ;;
   search) search "${@:2}" ;;
   remove_orphans) remove_orphans "${@:2}" ;;
   *) 
