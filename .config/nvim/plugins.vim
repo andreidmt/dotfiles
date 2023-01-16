@@ -51,7 +51,7 @@ Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 
 " Cool
-Plug 'gyim/vim-boxdraw'            " Draw ASCII boxes
+Plug 'jbyuki/venn.nvim'            " Draw ASCII boxes
 Plug 'metakirby5/codi.vim'         " Sketchpad
 Plug 'mzlogin/vim-markdown-toc'    " Auto Table of Contents based on Markdown Headings
 
