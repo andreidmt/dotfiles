@@ -101,5 +101,6 @@ dockerfile-language-server-nodejs, dev, -, npm, "Dockerfile LSP server"
 yaml-language-server, dev, -, npm, "YAML LSP server"
 stylelint-lsp, dev, -, npm, "CSS Stylelint LSP server"
 npm-check-updates, dev, -, npm, "Interactive dependency upgrader"
+serverless, dev, -, npm, "Serverless Framework"
 
 awsume, dev, -, pip, "AWS CLI credential manager"
