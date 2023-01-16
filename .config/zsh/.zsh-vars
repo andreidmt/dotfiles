@@ -5,6 +5,7 @@ export BROWSER="firefox-developer-edition"
 export READER="zathura"
 export FILE="nnn"
 export MACHINE="$(uname -n)"
+export TERMINAL="alacritty"
 
 ## Content
 export WORK_HOME="$HOME/Work"
