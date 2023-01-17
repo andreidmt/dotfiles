@@ -28,6 +28,3 @@ export NVM_COMPLETION=true
 ## User scripts
 export PATH=$PATH:~/.local/bin
 export PATH=$PATH:~/.local/scripts
-
-## Machine specific
-source $HOME/.config/zsh/.zsh-local
