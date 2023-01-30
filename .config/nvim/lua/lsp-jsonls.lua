@@ -4,52 +4,56 @@ return {
 
     lspconfig.jsonls.setup({
       on_attach = on_attach,
-
       settings = {
         json = {
-          -- Schemas https://www.schemastore.org
           schemas = {
-            lerna = {
+            {
+              description = 'Nx configuration file',
+              fileMatch = {'nx.json'},
+              url = 'http://json.schemastore.org/nx'
+            },
+            {
+              description = 'TypeScript compiler configuration file',
+              fileMatch = {'tsconfig.json', 'tsconfig.*.json'},
+              url = 'http://json.schemastore.org/tsconfig'
+            },
+            {
+              description = 'NPM package.json',
+              fileMatch = {'package.json'},
+              url = 'http://json.schemastore.org/package'
+            },
+            {
+              description = 'Lerna config',
               fileMatch = {'lerna.json'},
               url = 'http://json.schemastore.org/lerna'
             },
-            node = {
-              fileMatch = {"package.json"},
-              url = "https://json.schemastore.org/package.json"
-            }, 
-            typescript = {
-              fileMatch = {"tsconfig*.json"},
-              url = "https://json.schemastore.org/tsconfig.json"
-            }, 
-            prettier = {
-              fileMatch = {
-                ".prettierrc", ".prettierrc.json", "prettier.config.json"
-              },
-              url = "https://json.schemastore.org/prettierrc.json"
-            }, 
-            eslint = {
-              fileMatch = {".eslintrc", ".eslintrc.json"},
-              url = "https://json.schemastore.org/eslintrc.json"
-            }, 
-            babel = {
-              fileMatch = {
-                ".babelrc", ".babelrc.json", "babel.config.json"
-              },
-              url = "https://json.schemastore.org/babelrc.json"
+            {
+              description = 'Babel configuration',
+              fileMatch = {'.babelrc.json', '.babelrc', 'babel.config.json'},
+              url = 'http://json.schemastore.org/babel'
             },
-            stylelint = {
-              fileMatch = {
-                ".stylelintrc", ".stylelintrc.json", "stylelint.config.json"
-              },
-              url = "http://json.schemastore.org/stylelintrc.json"
+            {
+              description = 'ESLint config',
+              fileMatch = {'.eslintrc.json', '.eslintrc'},
+              url = 'http://json.schemastore.org/eslintrc'
+            },
+            {
+              description = 'Prettier config',
+              fileMatch = {'.prettierrc', '.prettierrc.json', 'prettier.config.json'},
+              url = 'http://json.schemastore.org/prettierrc'
+            },
+            {
+              description = 'Stylelint config',
+              fileMatch = {'.stylelintrc', '.stylelintrc.json', 'stylelint.config.json'},
+              url = 'http://json.schemastore.org/stylelintrc'
             }
           }
         }
       },
-
       flags = { 
         debounce_text_changes = 150
-      },
+      }
     })
+
   end,
 }
