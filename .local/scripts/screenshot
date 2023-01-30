@@ -1,49 +1,50 @@
 #!/bin/sh -e
 
-. "$LIBRARY_HOME/die.sh"
-
-DIR="$HOME/Pictures/Screenshots"
-NOW=$(date +"%Y-%B-%d-%A-%R:%S")
+scriptName=$(basename "$0")
+screenshotHome="$HOME/Pictures/Screenshots"
+now=$(date +"%Y-%B-%d-%A-%R:%S")
 
 # Make sure Screenshots folder exists
-mkdir -pv "$DIR"
+mkdir -pv "$screenshotHome"
 
 case $1 in
-  color-pick)
-    colorpicker | copy
+  pick-color)
+    colorpicker --short --one-shot --preview | xclip -selection clipboard
   ;;
 
   area)
     selection=$(hacksaw -f "-i %i -g %g")
+    dimension=$(echo "$selection" | awk '{print $4}' | awk -F+ '{print $1}')
+    path="$screenshotHome/area_$now.png"
 
     # dont quote, multiple params inside
-    shotgun $selection - | xclip -t "image/png" -selection clipboard
-
-    xclip -o -selection clipboard > "$DIR/area_$NOW.png"
+    shotgun $selection "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst "$scriptName, area $dimension" "$path"
   ;;
 
   window)
     selection=$(slop -f "-g %g")
+    dimension=$(echo "$selection" | awk '{print $2}' | awk -F+ '{print $1}') 
+    path="$screenshotHome/window_$now.png"
 
     # dont quote, multiple params inside
-    shotgun $selection - | xclip -t 'image/png' -selection clipboard
-
-    xclip -o -selection clipboard > "$DIR/focus_$NOW.png"
+    shotgun $selection "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst "$scriptName, window $dimension" "$path"
   ;;
 
   all)
-    if [ -n "$2" ]; then
-      filename=$2
-    else
-      filename="screen_$NOW.png"
-    fi
+    filename=${2:-"screen_$now.png"}
+    path="$screenshotHome/$filename"
 
-    shotgun "$DIR/$filename"
-
-    doomst "$scriptName" "<u>Capturing entire screen</u>\n\n$DIR/$filename"
+    shotgun "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst "$scriptName - screen" "$path"
   ;;
 
   *)
-    die "Command \"$1\" not recognized"
+    doomst --type error "$scriptName" "$1"
+    exit 1
   ;;
 esac

@@ -17,7 +17,8 @@ do
   #
   "y")
     echo -n "$(readlink -f "$file")" | xclip -selection clipboard && 
-    notify "sxiv" "Path copied to clipboard.\n\n$(readlink -f "$file")" & 
+
+    doomst "sxiv" "Path copied to clipboard.\n\n$(readlink -f "$file")" & 
   ;;  
 
   # Delete file via rofi confirm
