@@ -1,7 +1,133 @@
-#!/usr/bin/sh
+#!/usr/bin/bash -e
 
-sys_upgrade-db
-sys_upgrade-hosts
-sys_upgrade-zsh
-sys_upgrade-packages
-sys_upgrade-aws-cli
+scriptName=$(basename "$0")
+
+# Update hosts file with blocking lists for fakenews, gambling, social media 
+# and tracking
+updateHosts() {
+  sudo curl https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-social/hosts -o /etc/hosts.steven
+
+  sudo cp /etc/hosts /etc/hosts.bak
+  sudo cp /etc/hosts-own /etc/hosts-own.bak
+
+  sudo cat /etc/hosts-own | sudo tee /etc/hosts > /dev/null
+  sudo cat /etc/hosts.steven | sudo tee -a /etc/hosts > /dev/null
+
+  doomst --type success "$scriptName - /etc/hosts" \
+    "Fakenews, gambling, social media and tracking hosts file updated"
+}
+
+# Update global npm packages using npm-check-update
+updateNPM() {
+  npm i -g npm-check-updates
+  status=$(ncu -g | tail -n 1)
+
+  # if last line starts with "npm" then there are updates
+  case "$status" in
+    npm*) ncu -g -u ;;
+    *) doomst --type success "$scriptName - npm" "$status" ;;
+  esac
+}
+
+# Update zsh plugins. 
+#  - stored in ~/.local/bin/zsh-plugins
+#  - picked up by ~/.config/zsh/.zsh-plugins
+updateZSH() {
+  plugins=(
+    # Replace zsh's default completion selection menu with fzf! 
+    "Aloxaf/fzf-tab.git"
+    # ZSH_SYNTAX
+    "zsh-users/zsh-syntax-highlighting.git"
+    # ZSH_SUGGESTIONS
+    "zsh-users/zsh-autosuggestions.git"
+    # ZSH_POWER10K
+    "romkatv/powerlevel10k.git"
+    # nvm can be kind of a pain to install and keep up to date. This zsh plugin
+    # allows you to quickly setup nvm once then never worry about it again.
+    "lukechilds/zsh-nvm.git"
+    # Implementation Fish shell's history search feature, where you can type in
+    # any part of any command from history and cycle through the matches.
+    "zsh-users/zsh-history-substring-search.git"
+  )
+
+  rm -rf "$HOME/.local/bin/zsh-plugins"
+  mkdir -p "$HOME/.local/bin/zsh-plugins"
+
+  for gitAddress in "${plugins[@]}"
+  do
+    printf "\n###\n### %s\n###\n\n" "Downloading $gitAddress"
+
+    cd "$HOME/.local/bin/zsh-plugins" && git clone "https://github.com/$gitAddress"
+  done
+
+  doomst --type success "$scriptName - zsh" "Plugins updated"
+}
+
+# Update AWS CLI 
+updateAWS() {
+  cd /tmp
+
+  # get the latest version of the aws cli
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  
+  # overwrite and quiet
+  unzip -oq awscliv2.zip
+
+  # upgrade
+  sudo ./aws/install --update \
+    --bin-dir /usr/local/bin \
+    --install-dir /usr/local/aws-cli
+
+  # cleanup
+  rm -rf awscliv2.zip aws
+
+  doomst --type success "$scriptName - aws-cli" \
+    "Updated to latest $(aws --version | awk '{print $1}')"
+}
+
+# Update pacman packages
+updatePacman() {
+  sudo pacman -Syyuv --noconfirm
+
+  # update i3blocks widgets with signal 10
+  pkill -SIGRTMIN+10 i3blocks
+
+  doomst --type success "$scriptName - pacman" "Packages updated"
+}
+
+updatePacmanDB() {
+  sudo pacman-key --refresh-keys
+
+  # Update package database
+  sudo pacman -Syy --noconfirm
+
+  # Update keyring
+  # sudo pacman -Sy archlinux-keyring
+
+  packageCount=$(pacman -Qu | wc | awk '{print $1}')
+
+  doomst --type success "$scriptName - pacman" \
+    "Database updated, ${packageCount} available."
+
+  # update i3blocks widgets with signal 10
+  pkill -SIGRTMIN+10 i3blocks
+}
+
+case "$1" in
+  hosts) updateHosts ;;
+  npm) updateNPM ;;
+  zsh) updateZSH ;;
+  aws) updateAWS ;;
+  packages) updatePacman ;;
+  packages-db) updatePacmanDB ;;
+  ""|all)
+    updateHosts
+    updateNPM
+    updateZSH
+    updateAWS
+    updatePacman
+  ;;
+  *)
+    doomst --type error "$scriptName" "Invalid argument \"$1\""
+    exit 1
+esac
