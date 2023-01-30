@@ -89,7 +89,7 @@ list() {
   case "$source" in
     pacman) result="$(pacman -Q)" ;;
     aur) 
-      result=$(aur repo -d t440p --list) 
+      result=$(aur repo --list) 
 
       if [ "$shouldShowUpdates" ]; then
         result=$(echo "$result" | aur vercmp)
