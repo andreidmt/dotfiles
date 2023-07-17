@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+# Custom script to add multiple files' contents to the clipboard buffer,
+# formatted for markdown.
+
+# Fail on first error, undefined variable or error in a pipe
+set -eu
+set -o pipefail
+
+BUFFER_CONTENT=""
+
+add_file_to_buffer() {
+  local file_path=$(realpath "$1")
+  local file_name=$(basename "$file_path")
+  local file_content=$(cat "$file_path")
+
+  BUFFER_CONTENT+="Content of ${file_path}:\n\n"
+  BUFFER_CONTENT+="\`\`\`${file_name#*.}\n"
+  BUFFER_CONTENT+="${file_content}\n"
+  BUFFER_CONTENT+="\`\`\`\n"
+}
+
+add_directory_to_buffer() {
+  for file_path in "$1"/*; do
+    if [ -f "$file_path" ]; then
+      add_file_to_buffer "$file_path"
+    fi
+  done
+}
+
+parse_arguments() {
+  echo "Parsing arguments..."
+  for arg in "$@"; do
+    if [ ! -e "$arg" ]; then
+      echo "WARN: File or directory does not exist: $arg" >&2
+      continue
+    fi
+    if [ -f "$arg" ]; then
+      echo "Adding file $arg to buffer..."
+      add_file_to_buffer "$arg"
+    elif [ -d "$arg" ]; then
+      echo "Adding all files in directory $arg to buffer..."
+      add_directory_to_buffer "$arg"
+    else
+      echo "WARN: Unknown argument (ignored): $arg" >&2
+    fi
+  done
+}
+
+copy_to_clipboard() {
+  printf "%b" "$BUFFER_CONTENT" | xclip -selection clipboard
+  echo "Content copied to clipboard."
+}
+
+main() {
+  parse_arguments "$@"
+  copy_to_clipboard
+
+  echo -e "\nDone."
+}
+
+main "$@"
+
