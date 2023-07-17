@@ -5,12 +5,12 @@ scriptName=$(basename "$0")
 # Update hosts file with blocking lists for fakenews, gambling, social media 
 # and tracking
 updateHosts() {
-  sudo curl https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-social/hosts -o /etc/hosts.steven
+  sudo curl https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts -o /etc/hosts.steven
 
   sudo cp /etc/hosts /etc/hosts.bak
-  sudo cp /etc/hosts-own /etc/hosts-own.bak
+  sudo cp /etc/hosts.own /etc/hosts.own.bak
 
-  sudo cat /etc/hosts-own | sudo tee /etc/hosts > /dev/null
+  sudo cat /etc/hosts.own | sudo tee /etc/hosts > /dev/null
   sudo cat /etc/hosts.steven | sudo tee -a /etc/hosts > /dev/null
 
   doomst --type success "$scriptName - /etc/hosts" \
@@ -19,14 +19,7 @@ updateHosts() {
 
 # Update global npm packages using npm-check-update
 updateNPM() {
-  npm i -g npm-check-updates
-  status=$(ncu -g | tail -n 1)
-
-  # if last line starts with "npm" then there are updates
-  case "$status" in
-    npm*) ncu -g -u ;;
-    *) doomst --type success "$scriptName - npm" "$status" ;;
-  esac
+  ncu -g
 }
 
 # Update zsh plugins. 
@@ -45,6 +38,12 @@ updateZSH() {
     # nvm can be kind of a pain to install and keep up to date. This zsh plugin
     # allows you to quickly setup nvm once then never worry about it again.
     "lukechilds/zsh-nvm.git"
+    # A better npm completion script for ZSH
+    # - Makes npm install recommendations from npm cache
+    # - Makes npm uninstall recommendations from dependencies/devDependencies
+    # - Shows detailed information on script contents for npm run
+    # - Falls back to default npm completions if we don't have anything better
+    "lukechilds/zsh-better-npm-completion"
     # Implementation Fish shell's history search feature, where you can type in
     # any part of any command from history and cycle through the matches.
     "zsh-users/zsh-history-substring-search.git"
@@ -57,7 +56,7 @@ updateZSH() {
   do
     printf "\n###\n### %s\n###\n\n" "Downloading $gitAddress"
 
-    cd "$HOME/.local/bin/zsh-plugins" && git clone "https://github.com/$gitAddress"
+    cd "$HOME/.local/bin/zsh-plugins" && git clone "https://github.com/$gitAddress" --depth 1
   done
 
   doomst --type success "$scriptName - zsh" "Plugins updated"
@@ -87,6 +86,10 @@ updateAWS() {
 
 # Update pacman packages
 updatePacman() {
+  # Clean pacman cache
+  sudo rm -R /var/lib/pacman/sync
+  
+  # Update package database from scratch
   sudo pacman -Syyuv --noconfirm
 
   # update i3blocks widgets with signal 10
@@ -113,18 +116,26 @@ updatePacmanDB() {
   pkill -SIGRTMIN+10 i3blocks
 }
 
+updateLuaLSP() {
+  cd ~/Tools/lua-language-server
+  git pull
+  ./make.sh
+}
+
 case "$1" in
   hosts) updateHosts ;;
   npm) updateNPM ;;
   zsh) updateZSH ;;
   aws) updateAWS ;;
+  lua-lsp) updateLuaLSP ;;
   packages) updatePacman ;;
   packages-db) updatePacmanDB ;;
   ""|all)
-    updateHosts
+    # updateHosts
     updateNPM
     updateZSH
     updateAWS
+    updateLuaLSP
     updatePacman
   ;;
   *)
