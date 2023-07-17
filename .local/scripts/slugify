@@ -10,7 +10,10 @@ patternDuplicateDashes='-+'
 patternUppercase='[A-Z]'
 patternLeadingTrailingDashes='^-+|-+$'
 
-echo "$1" | sed -E \
+# input either from pipe or $1
+input=$(cat - || echo "$1")
+
+echo "$input" | sed -E \
   -e "s/$patternNonAlphanumeric/-/g" \
   -e "s/$patternDuplicateDashes/-/g" \
   -e "s/$patternUppercase/\L&/g" \
