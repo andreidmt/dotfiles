@@ -1,9 +1,6 @@
 #!/bin/sh -eu
 
-# Slugify a string, with ChatGPTs help
-#
-# @param {string} $1 - The input string to be slugified
-# @return {string} - The slugified string
+# Make a string safe for use in a URL and/or filenames
 
 patternNonAlphanumeric='[^a-zA-Z0-9]'
 patternDuplicateDashes='-+'
