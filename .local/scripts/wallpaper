@@ -3,7 +3,12 @@
 . "$LIBRARY_HOME/die.sh"
 CMD=$1
 
-RESOLUTION="2560x1440"
+# Main screen resolution
+RESOLUTION=$(xrandr \
+  | grep 'connected primary' \
+  | awk '{print $4}' \
+  | awk -F '+' '{print $1}' \
+)
 
 case $CMD in
   reload)
