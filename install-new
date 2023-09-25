@@ -3,31 +3,23 @@
 # absolute dir path of this script file
 dirpath=$(dirname "$(realpath "$0")")
 
-echoTitle() {
-  echo ""
-  echo "###############################################"
-  echo "# $1"
-  echo "###############################################"
-  echo ""
-}
-
-echoTitle "Install 'git' to clone dotfiles"
+echo "###############################################"
+echo "# Install 'git' to clone dotfiles"
+echo "###############################################"
 
 sudo pacman --noconfirm -S git
 
-echoTitle "Create core directories"
-
 dotfile_home="$HOME/Work/andreidmt/dotfiles"
+git clone git@github.com:andreidmt/dotfiles.git "$dotfile_home"
 
-mkdir -p "$dotfile_home"
+echo "###############################################"
+echo "# Create core directories"
+echo "###############################################"
+
 mkdir -p "$HOME/Downloads"
 mkdir -p "$HOME/Media"
 mkdir -p "$HOME/Backups"
 mkdir -p "$HOME/Pictures/Wallpapers"
 mkdir -p "$HOME/Pictures/Screenshots"
 mkdir -p "$HOME/Work/asd14"
-
-echoTitle "Clone dotfiles"
-
-git clone git@github.com:andreidmt/dotfiles.git "$dotfile_home"
 
