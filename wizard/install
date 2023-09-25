@@ -4,10 +4,10 @@
 dirpath=$(dirname "$(realpath "$0")")
 
 echo "###############################################"
-echo "# 1. Install 'git' to clone dotfiles"
+echo "# 1. Install base packages"
 echo "###############################################"
 
-sudo pacman --noconfirm -S git
+sudo pacman --noconfirm -S git openssh
 
 dotfile_home="$HOME/Work/andreidmt/dotfiles"
 git clone git@github.com:andreidmt/dotfiles.git "$dotfile_home"
