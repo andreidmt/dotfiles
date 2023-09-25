@@ -31,7 +31,7 @@ echo "###############################################"
 PS3="Pick user to install for:"
 
 select user in $(ls "/home"); do
-  if [ -n "$user" ]; then
+  if [ -z "$user" ]; then
     echo_error "Need to pick a user"
     exit 1 
   fi
