@@ -1,37 +1,79 @@
-#!/bin/sh -eu
+#!/bin/bash
 
-# absolute dir path of this script file
-dirpath=$(dirname "$(realpath "$0")")
+set -e          # exit on error
+set -u          # exit on undefined variable
+set -o pipefail # exit on fail in pipe
+
+SCRIPT_NAME="artix-wizzard"
+
+echo_bold() {
+  echo -e "\033[1m$1\033[0m"
+}
+
+echo_error() {
+  echo -e "\n[$SCRIPT_NAME] \033[31m$1\033[0m\n" >&2
+}
+
+##
+## Andrei's Artix Linux installation script. 
+##
+
+# Require script to be run as root.
+if [ "$(id -u)" != 0 ]; then
+  echo_error "You must be root to run this program"
+  exit 1
+fi
+
+echo "###############################################"
+echo "#  0. Pick user to install for  ###############"
+echo "###############################################"
+
+PS3="Pick user to install for:"
+
+select user in $(ls "/home"); do
+  if [ -n "$user" ]; then
+    echo_error "Need to pick a user"
+    exit 1 
+  fi
+
+  echo_bold "Selected user: $user"
+done
+
+USER_HOME="/home/$user"
 
 echo "###############################################"
 echo "#  1. Install openssh  ########################"
 echo "###############################################"
 
-sudo pacman --noconfirm -S openssh
+pacman --noconfirm -S openssh
 
 echo "###############################################"
 echo "#  1.1 Add GitHub SSH key fingerprints  #######"
 echo "###############################################"
 
-echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$HOME/.ssh/known_hosts"
-echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" >> "$HOME/.ssh/known_hosts"
-echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=" >> "$HOME/.ssh/known_hosts"
+# Public key fingerprints can be used to validate a connection to a 
+# remote server. This makes sure that the server you are connecting to
+# is the correct one and not a malicious server.
+
+echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$USER_HOME/.ssh/known_hosts"
+echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" >> "$USER_HOME/.ssh/known_hosts"
+echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=" >> "$USER_HOME/.ssh/known_hosts"
 
 echo "###############################################"
-echo "#  2. Install dotfiles  #######################"
+echo "# 2. Create core directories"
 echo "###############################################"
 
-dotfile_home="$HOME/Work/andreidmt/dotfiles"
-git clone git@github.com:andreidmt/dotfiles.git "$dotfile_home"
+mkdir -p "$USER_HOME/Downloads"
+mkdir -p "$USER_HOME/Media"
+mkdir -p "$USER_HOME/Backups"
+mkdir -p "$USER_HOME/Pictures/Wallpapers"
+mkdir -p "$USER_HOME/Pictures/Screenshots"
+mkdir -p "$USER_HOME/Work/asd14"
+mkdir -p "$USER_HOME/Work/andreidmt"
 
 echo "###############################################"
-echo "# 3. Create core directories"
+echo "#  3. Install dotfiles  #######################"
 echo "###############################################"
 
-mkdir -p "$HOME/Downloads"
-mkdir -p "$HOME/Media"
-mkdir -p "$HOME/Backups"
-mkdir -p "$HOME/Pictures/Wallpapers"
-mkdir -p "$HOME/Pictures/Screenshots"
-mkdir -p "$HOME/Work/asd14"
-
+DOTFILES_HOME="$USER_HOME/Work/andreidmt/dotfiles"
+git clone git@github.com:andreidmt/dotfiles.git "$DOTFILES_HOME"
