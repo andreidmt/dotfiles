@@ -4,7 +4,7 @@
 dirpath=$(dirname "$(realpath "$0")")
 
 echo "###############################################"
-echo "# Install 'git' to clone dotfiles"
+echo "# 1. Install 'git' to clone dotfiles"
 echo "###############################################"
 
 sudo pacman --noconfirm -S git
@@ -13,7 +13,7 @@ dotfile_home="$HOME/Work/andreidmt/dotfiles"
 git clone git@github.com:andreidmt/dotfiles.git "$dotfile_home"
 
 echo "###############################################"
-echo "# Create core directories"
+echo "# 2. Create core directories"
 echo "###############################################"
 
 mkdir -p "$HOME/Downloads"
