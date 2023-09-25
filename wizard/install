@@ -21,28 +21,24 @@ echo_success() {
 ##
 
 echo "###############################################"
-echo "#  0. Pick user to install for  ###############"
+echo "#  0. Confirm user to install for  ############"
 echo "###############################################"
 
-PS3="Pick user to install for:"
+echo "Install for user $(whoami) (UID: $(id -u)), continue? [y/N]"
 
-select user in $(ls "/home"); do
-  if [ -z "$user" ]; then
-    echo_error "Need to pick a user"
-    exit 1 
-  fi
+read -r response
+if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+  echo_error "Aborting..."
+  exit 1
+fi
 
-  break
-done
-
-USER_HOME="/home/$user"
-echo_success "Selected user $(echo_bold "$user") in $(echo_bold "/home/$USER_HOME")"
+echo_success "Continuing with installation..."
 
 echo "###############################################"
 echo "#  1. Install openssh  ########################"
 echo "###############################################"
 
-pacman --noconfirm -S openssh
+sudo pacman --noconfirm -S openssh
 
 echo "###############################################"
 echo "#  1.1 Add GitHub SSH key fingerprints  #######"
@@ -52,9 +48,9 @@ echo "###############################################"
 # remote server. This makes sure that the server you are connecting to
 # is the correct one and not a malicious server.
 
-echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$USER_HOME/.ssh/known_hosts"
-echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" >> "$USER_HOME/.ssh/known_hosts"
-echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=" >> "$USER_HOME/.ssh/known_hosts"
+echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$HOME/.ssh/known_hosts"
+echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" >> "$HOME/.ssh/known_hosts"
+echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=" >> "$HOME/.ssh/known_hosts"
 
 echo_success
 
@@ -62,13 +58,13 @@ echo "###############################################"
 echo "# 2. Create core directories"
 echo "###############################################"
 
-mkdir -p "$USER_HOME/Downloads"
-mkdir -p "$USER_HOME/Media"
-mkdir -p "$USER_HOME/Backups"
-mkdir -p "$USER_HOME/Pictures/Wallpapers"
-mkdir -p "$USER_HOME/Pictures/Screenshots"
-mkdir -p "$USER_HOME/Work/asd14"
-mkdir -p "$USER_HOME/Work/andreidmt"
+mkdir -p "$HOME/Downloads"
+mkdir -p "$HOME/Media"
+mkdir -p "$HOME/Backups"
+mkdir -p "$HOME/Pictures/Wallpapers"
+mkdir -p "$HOME/Pictures/Screenshots"
+mkdir -p "$HOME/Work/asd14"
+mkdir -p "$HOME/Work/andreidmt"
 
 echo_success
 
@@ -76,7 +72,7 @@ echo "###############################################"
 echo "#  3. Install dotfiles  #######################"
 echo "###############################################"
 
-DOTFILES_HOME="$USER_HOME/Work/andreidmt/dotfiles"
+DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
 git clone git@github.com:andreidmt/dotfiles.git "$DOTFILES_HOME"
 
 echo_success
