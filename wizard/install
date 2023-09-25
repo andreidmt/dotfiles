@@ -37,6 +37,7 @@ select user in $(ls "/home"); do
   fi
 
   echo_bold "Selected user: $user"
+  break
 done
 
 USER_HOME="/home/$user"
