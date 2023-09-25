@@ -4,18 +4,16 @@ set -e          # exit on error
 set -u          # exit on undefined variable
 set -o pipefail # exit on fail in pipe
 
-SCRIPT_NAME="artix-wizzard"
-
 echo_bold() {
   echo -e "\033[1m$1\033[0m"
 }
 
 echo_error() {
-  echo -e "\033[31m❌ [$SCRIPT_NAME] $1\033[0m" >&2
+  echo -e "\033[31m❌ $1\033[0m" >&2
 }
 
 echo_success() {
-  echo -e "\033[32m✅ [$SCRIPT_NAME] ${1:-Done}\033[0m"
+  echo -e "\033[32m✅ ${1:-Done}\033[0m"
 }
 
 ##
