@@ -20,9 +20,9 @@ echo_success() {
 ## Andrei's Artix Linux installation script. 
 ##
 
-echo "###############################################"
-echo "#  0. Confirm user to install for  ############"
-echo "###############################################"
+################################################
+echo_bold "0. Confirm user to install for"
+################################################
 
 echo "Install for user $(whoami) (UID: $(id -u)), continue? [y/N]"
 
@@ -34,15 +34,15 @@ fi
 
 echo_success "Continuing with installation..."
 
-echo "###############################################"
-echo "#  1. Install openssh  ########################"
-echo "###############################################"
+################################################
+echo_bold "1. Install openssh"
+################################################
 
 sudo pacman --noconfirm -S openssh
 
-echo "###############################################"
-echo "#  1.1 Add GitHub SSH key fingerprints  #######"
-echo "###############################################"
+################################################
+echo "1.1 Add GitHub SSH key fingerprints"
+################################################
 
 # Public key fingerprints can be used to validate a connection to a 
 # remote server. This makes sure that the server you are connecting to
@@ -54,9 +54,9 @@ echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEii
 
 echo_success
 
-echo "###############################################"
-echo "# 2. Create core directories"
-echo "###############################################"
+################################################
+echo "2. Create core directories"
+################################################
 
 mkdir -p "$HOME/Downloads"
 mkdir -p "$HOME/Media"
@@ -68,9 +68,9 @@ mkdir -p "$HOME/Work/andreidmt"
 
 echo_success
 
-echo "###############################################"
-echo "#  3. Install dotfiles  #######################"
-echo "###############################################"
+################################################
+echo "3. Install dotfiles"
+################################################
 
 DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
 git clone git@github.com:andreidmt/dotfiles.git "$DOTFILES_HOME"
