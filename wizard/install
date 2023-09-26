@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e          # exit on error
-set -u          # exit on undefined variable
 set -o pipefail # exit on fail in pipe
 
 echo_bold() {
