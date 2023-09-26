@@ -20,12 +20,12 @@ echo_success() {
 ##
 
 ################################################
-echo_bold "0. Confirm user to install for"
+echo_bold "0. Confirm user"
 ################################################
 
-echo "Install for user $(whoami)"
-echo "UID: $(id -u)"
-echo "Home folder: $HOME"
+echo "Install for user $(whoami):"
+echo " - UID: $(id -u)"
+echo " - Home folder: $HOME"
 echo "Press any key to continue or CTRL+C to abort:"
 
 read -n 1 -s
