@@ -3,10 +3,6 @@
 set -e          # exit on error
 set -o pipefail # exit on fail in pipe
 
-echo_white() {
-  echo -e "\033[37m$1\033[0m"
-}
-
 echo_bold() {
   echo -e "\033[1m$1\033[0m"
 }
@@ -27,13 +23,12 @@ echo_success() {
 echo_bold "0. Confirm user to install for"
 ################################################
 
-echo "Install for user $(whoami) (UID: $(id -u)), continue? [y/N]"
+echo "Install for user $(whoami)"
+echo "UID: $(id -u)"
+echo "Home folder: $HOME"
+echo "Press any key to continue or CTRL+C to abort:"
 
-read -r response
-if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
-  echo_error "Aborting..."
-  exit 1
-fi
+read -n 1 -s
 
 echo_success "Continuing..."
 
@@ -81,11 +76,8 @@ fi
 # Add the SSH private key to the ssh-agent
 ssh-add "$github_key_path"
 
-echo_white "Add the following SSH key to your GitHub account (https://github.com/settings/keys):"
+echo_bold "Add the following SSH key to your GitHub account (https://github.com/settings/keys):"
 cat "$github_key_path.pub"
-
-echo "Press any key to continue when done..."
-read -n 1 -s
 
 echo_success
 
@@ -108,6 +100,6 @@ echo_bold "3. Install dotfiles"
 ################################################
 
 DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
-git clone git@github.com:andreidmt/dotfiles.git "$DOTFILES_HOME"
+git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
 
 echo_success
