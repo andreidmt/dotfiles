@@ -60,7 +60,7 @@ echo_success
 echo_bold "1.2 Create SSH key pair for GitHub"
 ################################################
 
-github_key_path="$HOME/.ssh/$(whoami)@$(hostname)_github"
+github_key_path="$HOME/.ssh/$(whoami)@$(uname -n)_github"
 
 ssh-keygen -t ed25519 -f "$github_key_path" -q -N ""
 ssh-add "$github_key_path"
