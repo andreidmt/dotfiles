@@ -100,6 +100,14 @@ echo_bold "3. Install dotfiles"
 ################################################
 
 DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
-git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
+
+if [ -d "$DOTFILES_HOME" ]; then
+  echo "Dotfiles already installed at $DOTFILES_HOME, pulling insted..."
+  cd "$DOTFILES_HOME" && git pull
+else 
+  git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
+fi
+
+ls -al
 
 echo_success
