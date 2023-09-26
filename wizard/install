@@ -103,7 +103,7 @@ DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
 
 if [ -d "$DOTFILES_HOME" ]; then
   echo "Dotfiles already cloned in $DOTFILES_HOME, pulling insted..."
-  cd "$DOTFILES_HOME" && git pull
+  cd "$DOTFILES_HOME" && git pull && cd -
 else 
   git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
 fi
