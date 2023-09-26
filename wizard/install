@@ -3,6 +3,10 @@
 set -e          # exit on error
 set -o pipefail # exit on fail in pipe
 
+echo_white() {
+  echo -e "\033[37m$1\033[0m"
+}
+
 echo_bold() {
   echo -e "\033[1m$1\033[0m"
 }
@@ -68,16 +72,16 @@ else
 fi
 
 if [ -z "$SSH_AGENT_PID" ]; then
-  echo_bold "Starting ssh-agent..."
+  echo "Starting ssh-agent..."
   eval "$(ssh-agent -s)"
 else
-  echo_bold "ssh-agent is already running"
+  echo "ssh-agent is already running"
 fi
 
 # Add the SSH private key to the ssh-agent
 ssh-add "$github_key_path"
 
-echo "Add the following SSH key to your GitHub account (https://github.com/settings/keys):"
+echo_white "Add the following SSH key to your GitHub account (https://github.com/settings/keys):"
 cat "$github_key_path.pub"
 
 echo "Press any key to continue when done..."
