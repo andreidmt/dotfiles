@@ -23,7 +23,7 @@ echo_success() {
 echo_bold "0. Confirm user"
 ################################################
 
-echo "Install for user $(whoami):"
+echo "Install for user $(echo_bold "$(whoami)"):"
 echo " - UID: $(id -u)"
 echo " - Home folder: $HOME"
 echo "Press any key to continue or CTRL+C to abort:"
