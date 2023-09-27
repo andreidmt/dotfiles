@@ -103,7 +103,7 @@ echo_bold "3. Create core directories"
 mkdir -v -p "$HOME/Downloads"
 mkdir -v -p "$HOME/Media"
 mkdir -v -p "$HOME/Backups"
-ln -v -s "$DOTFILES_HOME/wallpapers" "$HOME/Pictures/Wallpapers"
+ln -v -f -s "$DOTFILES_HOME/wallpapers" "$HOME/Pictures/Wallpapers"
 mkdir -v -p "$HOME/Pictures/Screenshots"
 mkdir -v -p "$HOME/Work/asd14"
 mkdir -v -p "$HOME/Work/andreidmt"
@@ -117,6 +117,6 @@ echo_bold "4. Install wayland and sway"
 sudo pacman --noconfirm -S wayland sway swayidle swaylock
 
 mkdir -v -p "$HOME/.config/sway"
-ln -s "$DOTFILES_HOME/.config/sway/config" "$HOME/.config/sway/config"
+ln -v -f -s "$DOTFILES_HOME/.config/sway/config" "$HOME/.config/sway/config"
 
 echo_success
