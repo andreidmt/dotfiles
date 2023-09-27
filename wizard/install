@@ -85,18 +85,18 @@ echo_success
 echo_bold "2. Create core directories"
 ################################################
 
-mkdir -p "$HOME/Downloads"
-mkdir -p "$HOME/Media"
-mkdir -p "$HOME/Backups"
-mkdir -p "$HOME/Pictures/Wallpapers"
-mkdir -p "$HOME/Pictures/Screenshots"
-mkdir -p "$HOME/Work/asd14"
-mkdir -p "$HOME/Work/andreidmt"
+mkdir -v -p "$HOME/Downloads"
+mkdir -v -p "$HOME/Media"
+mkdir -v -p "$HOME/Backups"
+mkdir -v -p "$HOME/Pictures/Wallpapers"
+mkdir -v -p "$HOME/Pictures/Screenshots"
+mkdir -v -p "$HOME/Work/asd14"
+mkdir -v -p "$HOME/Work/andreidmt"
 
 echo_success
 
 ################################################
-echo_bold "3. Install dotfiles"
+echo_bold "3. Install andreidmt/dotfiles repo"
 ################################################
 
 DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
@@ -107,7 +107,5 @@ if [ -d "$DOTFILES_HOME" ]; then
 else 
   git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
 fi
-
-ls -al
 
 echo_success
