@@ -1,5 +1,5 @@
 [core]
-	editor = nvim -c "startinsert"
+  editor = nvim -c "startinsert" # use nvim when editing commit messages
   pager = delta
 [init]
 	defaultBranch = main
@@ -8,7 +8,7 @@
 	username = andreidmt
 	email = 5057797+andreidmt@users.noreply.github.com
 [pull]
-	rebase = true
+	rebase = true # pull first and apply local commits on top
 [status]
 	submoduleSummary = true
 [push]
