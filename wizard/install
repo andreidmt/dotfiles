@@ -15,6 +15,12 @@ echo_success() {
   echo -e "\033[32m✅ ${1:-Done}\033[0m"
 }
 
+wait_for_any_key() {
+  echo "Press any key to continue or CTRL+C to abort:"
+  read -n 1 -s
+  echo_success "Continuing..."
+}
+
 ##
 ## Andrei's Artix Linux installation script. 
 ##
@@ -26,17 +32,15 @@ echo_bold "0. Confirm user"
 echo "Install for user $(echo_bold "$(whoami)"):"
 echo " - UID: $(id -u)"
 echo " - Home folder: $HOME"
-echo "Press any key to continue or CTRL+C to abort:"
 
-read -n 1 -s
-
-echo_success "Continuing..."
+wait_for_any_key
 
 ################################################
 echo_bold "1. Install openssh"
 ################################################
 
-sudo pacman --noconfirm -S openssh
+sudo pacman --noconfirm -S \
+  openssh mesa
 
 ################################################
 echo_bold "1.1 Add GitHub SSH key fingerprints"
@@ -114,9 +118,31 @@ echo_success
 echo_bold "4. Install wayland and sway"
 ################################################
 
-sudo pacman --noconfirm -S wayland sway swayidle swaylock
+sudo pacman --noconfirm -S \
+  wayland wl-clipboard qt5-wayland \
+  sway swayidle swaylock \
+  shotgun hacksaw slop slurp
 
-mkdir -v -p "$HOME/.config/sway"
-ln -v -f -s "$DOTFILES_HOME/.config/sway/config" "$HOME/.config/sway/config"
+ln -v -f -s "$DOTFILES_HOME/.config/sway" "$HOME/.config/sway"
 
 echo_success
+
+################################################
+echo_bold "5. Install alacritty and fonts"
+################################################
+
+sudo pacman --noconfirm -S \
+  alacritty fontconfig \
+  ttf-liberation gnu-free-fonts \
+  ttf-firacode-nerd ttf-font-awesome otf-hasklig-nerd ttf-hack-nerd \
+  ttf-jetbrains-mono-nerd
+
+ln -v -f -s "$DOTFILES_HOME/.config/alacritty" "$HOME/.config/alacritty"
+ln -v -f -s "$DOTFILES_HOME/.config/fontconfig" "$HOME/.config/fontconfig"
+
+echo_success
+
+################################################
+echo_bold "5. Install ZSH"
+################################################
+
