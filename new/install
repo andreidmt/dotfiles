@@ -3,23 +3,7 @@
 set -e          # exit on error
 set -o pipefail # exit on fail in pipe
 
-echo_bold() {
-  echo -e "\033[1m$1\033[0m"
-}
-
-echo_error() {
-  echo -e "\033[31m❌ $1\033[0m" >&2
-}
-
-echo_success() {
-  echo -e "\033[32m✅ ${1:-Done}\033[0m"
-}
-
-wait_for_any_key() {
-  echo "Press any key to continue or Ctrl+C to abort..."
-  read -r -n 1 -s
-  echo_success "Continuing..."
-}
+. ./install_utils
 
 ##
 ## Andrei's Artix Linux installation script. 
@@ -31,11 +15,16 @@ echo_bold "0. Confirm user"
 
 USER=$(whoami)
 
-echo "Install for user $(echo_bold "$USER"):"
-echo " - UID: $(id -u)"
-echo " - Home folder: $HOME"
+if is_install_step_done "0_confirm_user"; then
+  echo "Step already ran, skipping..." 
+else
+  echo "Install for user $(echo_bold "$USER"):"
+  echo " - UID: $(id -u)"
+  echo " - Home folder: $HOME"
 
-wait_for_any_key
+  wait_for_any_key
+  save_install_progress "0_confirm_user"
+fi
 
 ################################################
 echo_bold "1. Install core packages"
@@ -72,8 +61,8 @@ sudo pacman --noconfirm -S "${core_packages[@]}"
 ln -v -f -s "$DOTFILES_HOME/new/.config/bat" "$HOME/.config/bat"
 ln -v -f -s "$DOTFILES_HOME/new/.config/neofetch" "$HOME/.config/neofetch"
 ln -v -f -s "$DOTFILES_HOME/new/home/.gitconfig" "$HOME/.gitconfig"
-cp -v "$DOTFILES_HOME/new/home/doomguy.png" "$HOME"
-cp -v "$DOTFILES_HOME/new/home/doomguy-blood.png" "$HOME"
+ln -v -f -s "$DOTFILES_HOME/new/home/doomguy.png" "$HOME/doomguy.png"
+ln -v -f -s "$DOTFILES_HOME/new/home/doomguy-blood.png" "$HOME/doomguy-blood.png"
 
 ################################################
 echo_bold "1.1 Add GitHub SSH key fingerprints"
@@ -148,7 +137,7 @@ mkdir -v -p "$HOME/Pictures/Screenshots"
 ln -v -f -s "$DOTFILES_HOME/wallpapers" "$HOME/Pictures/Wallpapers"
 
 # Folder bookmarks in file managers
-ln -v -f -s "$DOTFILES_HOME/.config/gtk-3.0" "$HOME/.config/gtk-3.0"
+ln -v -f -s "$DOTFILES_HOME/new/.config/gtk-3.0" "$HOME/.config/gtk-3.0"
 
 echo_success
 
@@ -169,8 +158,8 @@ wayland_packages=(
 
 sudo pacman --noconfirm -S "${wayland_packages[@]}"
 
-ln -v -f -s "$DOTFILES_HOME/.config/sway" "$HOME/.config/sway"
-ln -v -f -s "$DOTFILES_HOME/.config/i3blocks" "$HOME/.config/i3blocks"
+ln -v -f -s "$DOTFILES_HOME/new/.config/sway" "$HOME/.config/sway"
+ln -v -f -s "$DOTFILES_HOME/new/.config/i3blocks" "$HOME/.config/i3blocks"
 
 echo_success
 
@@ -191,8 +180,8 @@ alacritty_packages=(
 
 sudo pacman --noconfirm -S "${alacritty_packages[@]}"
 
-ln -v -f -s "$DOTFILES_HOME/.config/alacritty" "$HOME/.config/alacritty"
-ln -v -f -s "$DOTFILES_HOME/.config/fontconfig" "$HOME/.config/fontconfig"
+ln -v -f -s "$DOTFILES_HOME/new/.config/alacritty" "$HOME/.config/alacritty"
+ln -v -f -s "$DOTFILES_HOME/new/.config/fontconfig" "$HOME/.config/fontconfig"
 
 echo_success
 
@@ -207,13 +196,16 @@ zsh_packages=(
 
 sudo pacman --noconfirm -S "${zsh_packages[@]}"
 
+ln -v -f -s "$DOTFILES_HOME/new/.config/zsh" "$HOME/.config/zsh"
+ln -v -f -s "$DOTFILES_HOME/new/.config/.zshrc" "$HOME/.zshrc"
+
 ################################################
 echo_bold "5.1 Set ZSH as default shell"
 ################################################
 
 sudo chsh -s "$(which zsh)" "$USER"
 
-echo_success
+wait_for_any_key "Ctrl+c to exit and restart your session to enter ZSH or press any key to continue..."
 
 ################################################
 echo_bold "6. Install NVim"
