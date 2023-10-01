@@ -1,0 +1,45 @@
+## General
+export MAILTO="andrei.dumitrescu@pm.me"
+export EDITOR="nvim"
+export BROWSER="firefox-developer-edition"
+export READER="zathura"
+export FILE="nnn"
+export MACHINE="$(uname -n)"
+export TERMINAL="alacritty"
+
+## Content
+export WORK_HOME="$HOME/Work"
+export NOTES_HOME="$WORK_HOME/andreidmt.dotfiles-private/Notes"
+export LIBRARY_HOME="$WORK_HOME/andreidmt.dotfiles/.local/libs"
+
+##
+export SSH_ASKPASS="~/.local/scripts/sys_ask-pass"
+export SUDO_ASKPASS="~/.local/scripts/sys_ask-pass"
+export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
+
+## Standards
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+
+## Node.JS version manager
+export NVM_COMPLETION=true
+
+## User scripts
+export PATH=$PATH:~/.local/bin
+export PATH=$PATH:~/.local/scripts
+export PATH=$PATH:~/Tools/lua-language-server/bin
+
+# AWS
+source $HOME/.local/entity.aws/.env
+
+# Snippets
+source $HOME/.local/entity.snippets/.env
+export PATH=$PATH:~/.local/entity.snippets/bin
+
+# Bookmarks
+source $HOME/.local/entity.bookmarks/.env
+export PATH=$PATH:~/.local/entity.bookmarks/bin
+
+# Bash Markdown
+source $HOME/.local/entity.bmd/.env
