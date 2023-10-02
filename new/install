@@ -3,10 +3,52 @@
 set -e          # exit on error
 set -o pipefail # exit on fail in pipe
 
-. ./install_utils
+##
+## Utility functions
+##
+
+echo_bold() {
+  echo -e "\033[1m$1\033[0m"
+}
+
+echo_error() {
+  echo -e "\033[31m❌ $1\033[0m" >&2
+}
+
+echo_success() {
+  echo -e "\033[32m✅ ${1:-Done}\033[0m"
+}
+
+wait_for_any_key() {
+  echo "${1:-Press any key to continue or Ctrl+C to abort...}"
+  read -r -n 1 -s
+  echo_success "Continuing..."
+}
+
+INSTALL_FILE_HASH=$(sha256sum "$0" "./install" | awk '{print $1}')
+INSTALL_PROGRESS_FILE="/tmp/andreidmt-dotfiles-install-progress-$INSTALL_FILE_HASH"
+
+# Mark a step as done by appending its name to the progress file
+# Usage: save_install_progress "step name"
+save_install_progress() {
+  if [ ! -f "$INSTALL_PROGRESS_FILE" ]; then
+    touch "$INSTALL_PROGRESS_FILE"
+  fi
+
+  echo "$1" >> "$INSTALL_PROGRESS_FILE"
+}
+
+# Check if a step has already been done
+# Usage: is_install_step_done "step name"
+# Returns: 0 if step is done, 1 otherwise
+is_install_step_done() {
+  local step_name="$1"
+
+  grep -q "$step_name" "$INSTALL_PROGRESS_FILE"
+}
 
 ##
-## Andrei's Artix Linux installation script. 
+## Andrei's Artix Linux installation script
 ##
 
 ################################################
