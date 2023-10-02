@@ -72,6 +72,12 @@ fi
 echo_bold "0.1 Enable Arch Linux repositories"
 ################################################
 
+# Note: Never enable `code` Arch Linux repository, it will break the system.
+# See https://wiki.artixlinux.org/Main/Repositories
+
+# Note: Arch Linux repositories must be after Artix Linux repositories 
+# in pacman.conf
+
 sudo pacman --noconfirm -S \
   artix-archlinux-support # Arch Linux mirrorlist for Artix Linux
 
@@ -79,6 +85,10 @@ if grep -q "^\[extra\]$" /etc/pacman.conf; then
   echo "[extra] already enabled"
 else
   {
+    echo "#"
+    echo "# Arch Linux repositories"
+    echo "#"
+    echo ""
     echo "[extra]"
     echo "Include = /etc/pacman.d/mirrorlist-arch" 
   } >> /etc/pacman.conf
