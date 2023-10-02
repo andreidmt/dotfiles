@@ -223,16 +223,16 @@ mode "resize" {
 ###
 
 # Notification daemon
-exec dunst
+#exec dunst
 
 # Audio daemon
 # exec pulseaudio
-exec --no-startup-id pipewire
-exec --no-startup-id pipewire-pulse
-exec --no-startup-id wireplumber
+#exec --no-startup-id pipewire
+#exec --no-startup-id pipewire-pulse
+#exec --no-startup-id wireplumber
 
 # File sync
-exec --no-startup-id syncthing --no-browser --no-restart
+#exec --no-startup-id syncthing --no-browser --no-restart
 
 ###
 ### Colors and decorations
@@ -264,62 +264,6 @@ client.unfocused        $transparent  $blue    $foreground  $darkblue      $tran
 client.focused_inactive $transparent  $blue    $foreground  $darkblue      $transparent
 client.urgent           $darkred      $darkred $background  $darkred       $darkred
 
-bar {
-  status_command i3blocks -c $HOME/.config/i3blocks/top
-  output DP-5
-  tray_output none
-  position top
-
-  font pango:mono 14
-  height 40
-  separator_symbol " :: "
-
-  colors {
-		background          $bgTransparent
-    statusline          $foreground
-    separator           $foreground
-    focused_workspace   $cyan           $darkcyan      $foreground
-    inactive_workspace  $bgTransparent  $bgTransparent $foreground
-    urgent_workspace    $red            $darkred       $foreground
-  }
-}
-
-bar {
-  status_command i3blocks -c $HOME/.config/i3blocks/bottom
-  output DP-5
-  workspace_buttons no
-  position bottom
-
-  font pango:mono 14
-  tray_padding 5
-  height 40
-  separator_symbol " :: "
-
-  colors {
-		background          $bgTransparent
-    statusline          $foreground
-    separator           $foreground
-    focused_workspace   $cyan           $darkcyan      $foreground
-    inactive_workspace  $bgTransparent  $bgTransparent $foreground
-    urgent_workspace    $red            $darkred       $foreground
-  }
-}
-
-bar {
-  output HDMI-A-1
-  workspace_buttons yes
-  tray_output none
-  position top
-
-  font pango:mono 12
-  height 30
-
-  colors {
-		background          $bgTransparent
-    statusline          $foreground
-    separator           $foreground
-    focused_workspace   $cyan           $darkcyan      $foreground
-    inactive_workspace  $bgTransparent  $bgTransparent $foreground
-    urgent_workspace    $red            $darkred       $foreground
-  }
+bar { 
+  swaybar_command waybar
 }

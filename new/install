@@ -189,19 +189,24 @@ echo_bold "4. Install wayland, sway and friends"
 
 wayland_packages=(
   wayland           # Wayland compositor infrastructure
+  xorg-xlsclients   # List client applications running under XWayland
+  qt5-wayland       # Qt5 bindings for Wayland 
+  glfw-wayland      # Library for OpenGL, OpenGL ES, Vulkan, window and input
   wl-clipboard      # Clipboard manager for Wayland
   sway              # i3-compatible Wayland compositor
+  waybar            # Wayland bar for Sway and Wlroots based compositors
   swayidle          # Idle management daemon for Wayland
   swaylock          # Screen locker for Wayland
   shotgun           # Screenshot utility for Wayland
   hacksaw           # Select Rectangle utility for Wayland
   slop              # Select Window utility for Wayland 
+  wofi              # Launcher/menu program for wlroots-based compositors
 )
 
 sudo pacman --noconfirm -S "${wayland_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/sway" "$HOME/.config/sway"
-ln -v -f -s "$DOTFILES_HOME/new/.config/i3blocks" "$HOME/.config/i3blocks"
+# ln -v -f -s "$DOTFILES_HOME/new/.config/i3blocks" "$HOME/.config/i3blocks"
 
 echo_success
 
