@@ -57,12 +57,14 @@ if grep --quiet "^\[extra\]$" /etc/pacman.conf; then
   echo "[extra] already enabled"
 else
   {
+    echo ""
     echo "#"
     echo "# Arch Linux repositories"
     echo "#"
     echo ""
     echo "[extra]"
     echo "Include = /etc/pacman.d/mirrorlist-arch" 
+    echo ""
   } | sudo tee --append /etc/pacman.conf > /dev/null
 fi
 
@@ -75,7 +77,8 @@ else
   } | sudo tee --append /etc/pacman.conf > /dev/null
 fi
 
-sudo pacman -Syyu --noconfirm
+# Update just the pacman database, not the packages
+sudo pacman -Sy
 
 wait_for_key_press
 
