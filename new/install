@@ -27,6 +27,7 @@ wait_for_key_press() {
 
 alias install_pacman_package="sudo pacman --noconfirm --sync" 
 alias update_pacman_database="sudo pacman --noconfirm --sync --refresh"
+alias install_aur_package="aur sync --no-view"
 
 ################################################
 ##
@@ -79,6 +80,7 @@ else
   {
     echo "[community]"
     echo "Include = /etc/pacman.d/mirrorlist-arch" 
+    echo ""
   } | sudo tee --append /etc/pacman.conf > /dev/null
 fi
 
@@ -153,7 +155,7 @@ core_aur_packages=(
 )
 
 install_pacman_package "${core_packages[@]}"
-aur sync "${core_aur_packages[@]}"
+install_aur_package "${core_aur_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/bat" "$HOME/.config/bat"
 ln -v -f -s "$DOTFILES_HOME/new/.config/neofetch" "$HOME/.config/neofetch"
