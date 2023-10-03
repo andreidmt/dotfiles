@@ -53,7 +53,7 @@ echo_bold "0.1 Enable Arch Linux repositories"
 
 sudo pacman --noconfirm -S artix-archlinux-support
 
-if grep -q "^\[extra\]$" /etc/pacman.conf; then
+if grep --quiet "^\[extra\]$" /etc/pacman.conf; then
   echo "[extra] already enabled"
 else
   {
@@ -63,16 +63,16 @@ else
     echo ""
     echo "[extra]"
     echo "Include = /etc/pacman.d/mirrorlist-arch" 
-  } >> /etc/pacman.conf
+  } | sudo tee --append /etc/pacman.conf > /dev/null
 fi
 
-if grep -q "^\[community\]$" /etc/pacman.conf; then
+if grep --quiet "^\[community\]$" /etc/pacman.conf; then
   echo "[community] already enabled"
 else
   {
     echo "[community]"
     echo "Include = /etc/pacman.d/mirrorlist-arch" 
-  } >> /etc/pacman.conf
+  } | sudo tee --append /etc/pacman.conf > /dev/null
 fi
 
 sudo pacman -Syyu --noconfirm
