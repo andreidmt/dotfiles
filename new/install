@@ -27,7 +27,6 @@ wait_for_key_press() {
 
 alias install_pacman_package="sudo pacman --noconfirm --sync" 
 alias update_pacman_database="sudo pacman --noconfirm --sync --refresh"
-alias install_aur_package="aur sync --no-view"
 
 ################################################
 ##
@@ -121,6 +120,8 @@ update_pacman_database
 
 wait_for_key_press
 
+alias install_aur_package="aur sync --no-view"
+
 ################################################
 echo_bold "1. Install core packages"
 ################################################
@@ -147,11 +148,11 @@ core_packages=(
   ripgrep           # Grep alternative
   bat               # Cat with syntax highlighting and Git integration
   tealdeer          # Client for tldr
+  git-delta         # Git diff viewer
 )
 core_aur_packages=(
   # Faster cli tools re-written in Rust
   ytop              # System monitor
-  delta             # Git diff viewer
 )
 
 install_pacman_package "${core_packages[@]}"
