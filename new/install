@@ -138,7 +138,6 @@ core_packages=(
   networkmanager    # Network connection manager
   openssh           # SSH server and client
   # Faster cli tools re-written in Rust
-  ytop              # System monitor
   bandwhich         # Network utilization
   tokei             # Code statistics
   exa               # Ls alternative
@@ -146,10 +145,15 @@ core_packages=(
   ripgrep           # Grep alternative
   bat               # Cat with syntax highlighting and Git integration
   tealdeer          # Client for tldr
+)
+core_aur_packages=(
+  # Faster cli tools re-written in Rust
+  ytop              # System monitor
   delta             # Git diff viewer
 )
 
 install_pacman_package "${core_packages[@]}"
+aur sync "${core_aur_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/bat" "$HOME/.config/bat"
 ln -v -f -s "$DOTFILES_HOME/new/.config/neofetch" "$HOME/.config/neofetch"
