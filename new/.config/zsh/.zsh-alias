@@ -1,9 +1,7 @@
 # configs
-alias cb="nvim ~/.bashrc"
-alias cx="nvim ~/.xinitrc"
 alias cs="cd ~/.local && nvim ."
 alias cz="cd ~/.config && nvim ~/.config/zsh/.zshrc"
-alias ci="cd ~/.config && nvim ~/.config/i3/config"
+alias cw="cd ~/.config && nvim ~/.config/sway/config"
 alias cv="cd ~/.config && nvim ~/.config/nvim/init.vim"
 
 # npm
@@ -23,11 +21,16 @@ alias nvlts="nvm ls-remote \
   | head -n 1"
 
 #
-alias jcurl='curl --verbose --header "Content-Type: application/json"'
-alias ls='ls --color=auto --group-directories-first'
-alias lsa='ls -Alh --color=auto --group-directories-first'
+alias top="bottom"
+alias htop="bottom"
+alias ls='exa --color=auto --group-directories-first'
+alias lsa='exa -Al --color=auto --group-directories-first'
 alias vi='nvim'
 alias vim='nvim'
+
+#
+alias curl_json='curl --verbose --header "Content-Type: application/json"'
+alias curl_no_redirect='curl --verbose --location --max-redirs 0'
 alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit'
 
 # find in file names
