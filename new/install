@@ -132,7 +132,23 @@ echo_success "AUR repositories enabled via local repository $LOCAL_AUR_REPO_PATH
 wait_for_key_press
 
 ################################################
-echo_title "1. Install core packages"
+echo_title "1. Install andreidmt/dotfiles repo"
+################################################
+
+DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
+
+if [ -d "$DOTFILES_HOME" ]; then
+  echo_bold "Dotfiles already cloned in $DOTFILES_HOME, pulling insted..."
+  cd "$DOTFILES_HOME" && git pull && cd -
+else 
+  git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
+fi
+
+echo_success "andreidmt/dotfiles repo cloned in $DOTFILES_HOME"
+wait_for_key_press
+
+################################################
+echo_title "2. Install core packages"
 ################################################
 
 core_packages=(
@@ -219,22 +235,6 @@ echo_bold "Add the following SSH key to your GitHub account (https://github.com/
 cat "$GITHUB_SSH_KEY_PATH.pub"
 
 echo_success "SSH key pair created at $GITHUB_SSH_KEY_PATH"
-wait_for_key_press
-
-################################################
-echo_title "2. Install andreidmt/dotfiles repo"
-################################################
-
-DOTFILES_HOME="$HOME/Work/andreidmt/dotfiles"
-
-if [ -d "$DOTFILES_HOME" ]; then
-  echo_bold "Dotfiles already cloned in $DOTFILES_HOME, pulling insted..."
-  cd "$DOTFILES_HOME" && git pull && cd -
-else 
-  git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
-fi
-
-echo_success "andreidmt/dotfiles repo cloned in $DOTFILES_HOME"
 wait_for_key_press
 
 ################################################
