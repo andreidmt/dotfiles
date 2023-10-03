@@ -84,6 +84,8 @@ fi
 
 update_pacman_database
 
+wait_for_key_press
+
 ################################################
 echo_bold "0.2 Enable AUR repositories"
 ################################################
@@ -94,15 +96,25 @@ HOSTNAME=$(uname -n)
 LOCAL_AUR_REPO_NAME="$HOSTNAME-aur"
 LOCAL_AUR_REPO_PATH="/home/pacman-local"
 
-{
-  echo "[$LOCAL_AUR_REPO_NAME]"
-  echo "SigLevel = Optional TrustAll"
-  echo "Server = file://$LOCAL_AUR_REPO_PATH"
-} | sudo tee --append /etc/pacman.conf > /dev/null
+if grep --quiet "^\[$LOCAL_AUR_REPO_NAME\]$" /etc/pacman.conf; then
+  echo "Local repository [$LOCAL_AUR_REPO_NAME] already enabled"
+else
+  {
+    echo "[$LOCAL_AUR_REPO_NAME]"
+    echo "SigLevel = Optional TrustAll"
+    echo "Server = file://$LOCAL_AUR_REPO_PATH"
+  } | sudo tee --append /etc/pacman.conf > /dev/null
+fi
 
+# Create the directory for the local AUR repository if it doesn't exist
 sudo install --directory "$LOCAL_AUR_REPO_PATH" \
   --owner "$USER" --group "$USER" --m 755
-repo-add "$LOCAL_AUR_REPO_PATH/$LOCAL_AUR_REPO_NAME.db.tar.gz"
+
+# Initialize the local AUR repository database
+if [ ! -f "$LOCAL_AUR_REPO_PATH/$LOCAL_AUR_REPO_NAME.db.tar.gz" ]; then
+  repo-add "$LOCAL_AUR_REPO_PATH/$LOCAL_AUR_REPO_NAME.db.tar.gz"
+fi
+
 update_pacman_database
 
 wait_for_key_press
