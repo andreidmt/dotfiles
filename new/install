@@ -25,9 +25,23 @@ wait_for_key_press() {
   echo_success "Continuing..."
 }
 
+install_pacman_package() {
+  if pacman --query --quiet "$1" > /dev/null; then
+    echo "$1 already installed, skipping..."
+  else
+    sudo pacman --noconfirm --sync "$1"
+  fi
+}
+
+update_pacman_database() {
+  sudo pacman --noconfirm --sync --refresh
+}
+
+################################################
 ##
 ## Andrei's Artix Linux installation script
 ##
+################################################
 
 ################################################
 echo_bold "0. Confirm user"
@@ -51,7 +65,7 @@ echo_bold "0.1 Enable Arch Linux repositories"
 # Note: Arch Linux repositories must be after Artix Linux repositories 
 # in pacman.conf
 
-sudo pacman --noconfirm -S artix-archlinux-support
+install_pacman_package artix-archlinux-support
 
 if grep --quiet "^\[extra\]$" /etc/pacman.conf; then
   echo "[extra] already enabled"
@@ -77,8 +91,28 @@ else
   } | sudo tee --append /etc/pacman.conf > /dev/null
 fi
 
-# Update just the pacman database, not the packages
-sudo pacman -Sy
+update_pacman_database
+
+################################################
+echo_bold "0.2 Enable AUR repositories"
+################################################
+
+install_pacman_package aurutils
+
+HOSTNAME=$(uname -n)
+LOCAL_AUR_REPO_NAME="$HOSTNAME-aur"
+LOCAL_AUR_REPO_PATH="/home/pacman-local"
+
+{
+  echo "[$LOCAL_AUR_REPO_NAME]"
+  echo "SigLevel = Optional TrustAll"
+  echo "Server = file://$LOCAL_AUR_REPO_PATH"
+} | sudo tee --append /etc/pacman.conf > /dev/null
+
+sudo install --directory "$LOCAL_AUR_REPO_PATH" \
+  --owner "$USER" --group "$USER" --m 755
+repo-add "$LOCAL_AUR_REPO_PATH/$LOCAL_AUR_REPO_NAME.db.tar.gz"
+update_pacman_database
 
 wait_for_key_press
 
@@ -96,7 +130,7 @@ core_packages=(
   unzip             # Zip file decompressor
   zathura           # PDF viewer
   zathura-pdf-mupdf # MuPDF plugin for Zathura
-  zathura-pdf-ps    # PS plugin for Zathura
+  zathura-ps        # PS plugin for Zathura
   nnn               # File manager
   networkmanager    # Network connection manager
   openssh           # SSH server and client
@@ -112,7 +146,7 @@ core_packages=(
   delta             # Git diff viewer
 )
 
-sudo pacman --noconfirm -S "${core_packages[@]}"
+install_pacman_package "${core_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/bat" "$HOME/.config/bat"
 ln -v -f -s "$DOTFILES_HOME/new/.config/neofetch" "$HOME/.config/neofetch"
@@ -142,7 +176,7 @@ wait_for_key_press
 echo_bold "1.2 Create SSH key pair for GitHub"
 ################################################
 
-GITHUB_SSH_KEY_PATH="$HOME/.ssh/$(whoami)@$(uname -n)_github"
+GITHUB_SSH_KEY_PATH="${HOME}/.ssh/${USER}@${HOSTNAME}_github"
 
 if [ -f "$GITHUB_SSH_KEY_PATH" ]; then
   echo "SSH key pair already exists at $GITHUB_SSH_KEY_PATH, skipping..."
@@ -219,7 +253,7 @@ wayland_packages=(
   wofi              # Launcher/menu program for wlroots-based compositors
 )
 
-sudo pacman --noconfirm -S "${wayland_packages[@]}"
+install_pacman_package "${wayland_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/sway" "$HOME/.config/sway"
 # ln -v -f -s "$DOTFILES_HOME/new/.config/i3blocks" "$HOME/.config/i3blocks"
@@ -241,7 +275,7 @@ alacritty_packages=(
   ttf-firacode-nerd       # 
 )
 
-sudo pacman --noconfirm -S "${alacritty_packages[@]}"
+install_pacman_package "${alacritty_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/alacritty" "$HOME/.config/alacritty"
 ln -v -f -s "$DOTFILES_HOME/new/.config/fontconfig" "$HOME/.config/fontconfig"
@@ -257,7 +291,7 @@ zsh_packages=(
   starship  # The minimal, blazing-fast, and infinitely customizable prompt
 )
 
-sudo pacman --noconfirm -S "${zsh_packages[@]}"
+install_pacman_package "${zsh_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/zsh" "$HOME/.config/zsh"
 ln -v -f -s "$DOTFILES_HOME/new/.config/.zshrc" "$HOME/.zshrc"
@@ -278,7 +312,7 @@ nvim_packages=(
   neovim    # Vim-fork focused on extensibility and usability 
 )
 
-pacman --noconfirm -S "${nvim_packages[@]}"
+install_pacman_package "${nvim_packages[@]}"
 
 wait_for_key_press
 
