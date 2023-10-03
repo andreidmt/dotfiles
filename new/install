@@ -59,7 +59,7 @@ echo_bold "0.1 Enable Arch Linux repositories"
 install_pacman_package artix-archlinux-support
 
 if grep --quiet "^\[extra\]$" /etc/pacman.conf; then
-  echo "[extra] already enabled"
+  echo_bold "[extra] package repository already enabled, skipping..." 
 else
   {
     echo ""
@@ -74,7 +74,7 @@ else
 fi
 
 if grep --quiet "^\[community\]$" /etc/pacman.conf; then
-  echo "[community] already enabled"
+  echo_bold "[community] package repository already enabled, skipping..." 
 else
   {
     echo "[community]"
@@ -98,7 +98,7 @@ LOCAL_AUR_REPO_NAME="$HOSTNAME-aur"
 LOCAL_AUR_REPO_PATH="/home/pacman-local"
 
 if grep --quiet "^\[$LOCAL_AUR_REPO_NAME\]$" /etc/pacman.conf; then
-  echo "Local repository [$LOCAL_AUR_REPO_NAME] already enabled"
+  echo_bold "[$LOCAL_AUR_REPO_NAME] local repository already configured, skipping..."
 else
   {
     echo "[$LOCAL_AUR_REPO_NAME]"
@@ -112,7 +112,9 @@ sudo install --directory "$LOCAL_AUR_REPO_PATH" \
   --owner "$USER" --group "$USER" --m 755
 
 # Initialize the local AUR repository database
-if [ ! -f "$LOCAL_AUR_REPO_PATH/$LOCAL_AUR_REPO_NAME.db.tar.gz" ]; then
+if [ -f "$LOCAL_AUR_REPO_PATH/$LOCAL_AUR_REPO_NAME.db.tar.gz" ]; then
+  echo "[$LOCAL_AUR_REPO_NAME] local repository already initialized, skipping..."
+else
   repo-add "$LOCAL_AUR_REPO_PATH/$LOCAL_AUR_REPO_NAME.db.tar.gz"
 fi
 
@@ -140,7 +142,10 @@ core_packages=(
   nnn               # File manager
   networkmanager    # Network connection manager
   openssh           # SSH server and client
-  # Faster cli tools re-written in Rust
+  # Faster cli tools re-written in Rust. 
+  # See more: 
+  # https://zaiste.net/posts/shell-commands-rust/
+  # https://itsfoss.com/rust-cli-tools/
   bandwhich         # Network utilization
   tokei             # Code statistics
   exa               # Ls alternative
@@ -149,14 +154,10 @@ core_packages=(
   bat               # Cat with syntax highlighting and Git integration
   tealdeer          # Client for tldr
   git-delta         # Git diff viewer
-)
-core_aur_packages=(
-  # Faster cli tools re-written in Rust
-  ytop              # System monitor
+  bottom            # System monitor
 )
 
 install_pacman_package "${core_packages[@]}"
-install_aur_package "${core_aur_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/bat" "$HOME/.config/bat"
 ln -v -f -s "$DOTFILES_HOME/new/.config/neofetch" "$HOME/.config/neofetch"
