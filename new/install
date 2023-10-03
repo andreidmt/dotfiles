@@ -128,7 +128,7 @@ update_pacman_database
 
 alias install_aur_package="aur sync --no-view"
 
-echo_success "AUR repositories enabled via local repository $LOCAL_AUR_REPO_PATH. Use aur sync to install AUR packages"
+echo_success "AUR repositories enabled via local repository $LOCAL_AUR_REPO_PATH. Use 'aur sync' to install AUR packages."
 wait_for_key_press
 
 ################################################
@@ -216,7 +216,7 @@ echo_title "1.2 Create SSH key pair for GitHub"
 GITHUB_SSH_KEY_PATH="${HOME}/.ssh/${USER}@${HOSTNAME}_github"
 
 if [ -f "$GITHUB_SSH_KEY_PATH" ]; then
-  echo "SSH key pair already exists at $GITHUB_SSH_KEY_PATH, skipping..."
+  echo_bold "SSH key pair already exists at $GITHUB_SSH_KEY_PATH, skipping..."
 else 
   ssh-keygen -t ed25519 -f "$GITHUB_SSH_KEY_PATH" -q -N ""
 fi
@@ -320,7 +320,7 @@ zsh_packages=(
 install_pacman_package "${zsh_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/zsh" "$HOME/.config/zsh"
-ln -v -f -s "$DOTFILES_HOME/new/.config/.zshrc" "$HOME/.zshrc"
+ln -v -f -s "$DOTFILES_HOME/new/.config/zsh/.zshrc" "$HOME/.zshrc"
 
 echo_success "ZSH & Staship installed"
 
@@ -333,7 +333,7 @@ sudo chsh -s "$(which zsh)" "$USER"
 wait_for_key_press "Press any key to continue or Ctrl+C to abort and restart the system into ZSH. You dont need to do this for the install process to finish" 
 
 ################################################
-echo_bold "6. Install NVim"
+echo_title "6. Install NVim"
 ################################################
 
 nvim_packages=(
@@ -346,7 +346,7 @@ echo_success "NVim installed"
 wait_for_key_press
 
 ################################################
-echo_title "6.1 Clone NvChad"
+echo_title "6.1 Clone NvChad config"
 ################################################
 
 # Blazing fast Neovim config providing solid defaults and a beautiful UI, 
