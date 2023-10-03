@@ -25,17 +25,8 @@ wait_for_key_press() {
   echo_success "Continuing..."
 }
 
-install_pacman_package() {
-  if pacman --query --quiet "$1" > /dev/null; then
-    echo "$1 already installed, skipping..."
-  else
-    sudo pacman --noconfirm --sync "$1"
-  fi
-}
-
-update_pacman_database() {
-  sudo pacman --noconfirm --sync --refresh
-}
+alias install_pacman_package="sudo pacman --noconfirm --sync" 
+alias update_pacman_database="sudo pacman --noconfirm --sync --refresh"
 
 ################################################
 ##
