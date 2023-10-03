@@ -19,32 +19,10 @@ echo_success() {
   echo -e "\033[32m✅ ${1:-Done}\033[0m"
 }
 
-wait_for_any_key() {
+wait_for_key_press() {
   echo "${1:-Press any key to continue or Ctrl+C to abort...}"
   read -r -n 1 -s
   echo_success "Continuing..."
-}
-
-INSTALL_FILE_HASH=$(sha256sum "$0" "./install" | awk '{print $1}')
-INSTALL_PROGRESS_FILE="/tmp/andreidmt-dotfiles-install-progress-$INSTALL_FILE_HASH"
-
-# Mark a step as done by appending its name to the progress file
-# Usage: save_install_progress "step name"
-save_install_progress() {
-  if [ ! -f "$INSTALL_PROGRESS_FILE" ]; then
-    touch "$INSTALL_PROGRESS_FILE"
-  fi
-
-  echo "$1" >> "$INSTALL_PROGRESS_FILE"
-}
-
-# Check if a step has already been done
-# Usage: is_install_step_done "step name"
-# Returns: 0 if step is done, 1 otherwise
-is_install_step_done() {
-  local step_name="$1"
-
-  grep -q "$step_name" "$INSTALL_PROGRESS_FILE"
 }
 
 ##
@@ -57,16 +35,11 @@ echo_bold "0. Confirm user"
 
 USER=$(whoami)
 
-if is_install_step_done "0_confirm_user"; then
-  echo "Step already ran, skipping..." 
-else
-  echo "Install for user $(echo_bold "$USER"):"
-  echo " - UID: $(id -u)"
-  echo " - Home folder: $HOME"
+echo "Install for user $(echo_bold "$USER"):"
+echo " - UID: $(id -u)"
+echo " - Home folder: $HOME"
 
-  wait_for_any_key
-  save_install_progress "0_confirm_user"
-fi
+wait_for_key_press
 
 ################################################
 echo_bold "0.1 Enable Arch Linux repositories"
@@ -78,8 +51,7 @@ echo_bold "0.1 Enable Arch Linux repositories"
 # Note: Arch Linux repositories must be after Artix Linux repositories 
 # in pacman.conf
 
-sudo pacman --noconfirm -S \
-  artix-archlinux-support # Arch Linux mirrorlist for Artix Linux
+sudo pacman --noconfirm -S artix-archlinux-support
 
 if grep -q "^\[extra\]$" /etc/pacman.conf; then
   echo "[extra] already enabled"
@@ -105,7 +77,7 @@ fi
 
 sudo pacman -Syyu --noconfirm
 
-echo_success
+wait_for_key_press
 
 ################################################
 echo_bold "1. Install core packages"
@@ -155,11 +127,13 @@ echo_bold "1.1 Add GitHub SSH key fingerprints"
 #
 # Read more: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints
 
-echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$HOME/.ssh/known_hosts"
-echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=" >> "$HOME/.ssh/known_hosts"
-echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=" >> "$HOME/.ssh/known_hosts"
+{
+  echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" 
+  echo "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg="
+  echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
+} > "$HOME/.ssh/known_hosts"
 
-echo_success
+wait_for_key_press
 
 ################################################
 echo_bold "1.2 Create SSH key pair for GitHub"
@@ -186,7 +160,7 @@ ssh-add "$GITHUB_SSH_KEY_PATH"
 echo_bold "Add the following SSH key to your GitHub account (https://github.com/settings/keys):"
 cat "$GITHUB_SSH_KEY_PATH.pub"
 
-wait_for_any_key
+wait_for_key_press
 
 ################################################
 echo_bold "2. Install andreidmt/dotfiles repo"
@@ -201,7 +175,7 @@ else
   git clone https://github.com/andreidmt/dotfiles.git "$DOTFILES_HOME"
 fi
 
-echo_success
+wait_for_key_press
 
 ################################################
 echo_bold "3. Create core directories"
@@ -220,7 +194,7 @@ ln -v -f -s "$DOTFILES_HOME/wallpapers" "$HOME/Pictures/Wallpapers"
 # Folder bookmarks in file managers
 ln -v -f -s "$DOTFILES_HOME/new/.config/gtk-3.0" "$HOME/.config/gtk-3.0"
 
-echo_success
+wait_for_key_press
 
 ################################################
 echo_bold "4. Install wayland, sway and friends"
@@ -247,7 +221,7 @@ sudo pacman --noconfirm -S "${wayland_packages[@]}"
 ln -v -f -s "$DOTFILES_HOME/new/.config/sway" "$HOME/.config/sway"
 # ln -v -f -s "$DOTFILES_HOME/new/.config/i3blocks" "$HOME/.config/i3blocks"
 
-echo_success
+wait_for_key_press
 
 ################################################
 echo_bold "5. Install terminal and fonts"
@@ -269,7 +243,7 @@ sudo pacman --noconfirm -S "${alacritty_packages[@]}"
 ln -v -f -s "$DOTFILES_HOME/new/.config/alacritty" "$HOME/.config/alacritty"
 ln -v -f -s "$DOTFILES_HOME/new/.config/fontconfig" "$HOME/.config/fontconfig"
 
-echo_success
+wait_for_key_press
 
 ################################################
 echo_bold "5. Install ZSH"
@@ -291,7 +265,7 @@ echo_bold "5.1 Set ZSH as default shell"
 
 sudo chsh -s "$(which zsh)" "$USER"
 
-wait_for_any_key "Ctrl+c to exit and restart your session to enter ZSH or press any key to continue..."
+wait_for_key_press "Press any key to continue or Ctrl+C to abort and restart the system into ZSH. You dont need to do this for the install process to finish" 
 
 ################################################
 echo_bold "6. Install NVim"
@@ -303,6 +277,8 @@ nvim_packages=(
 
 pacman --noconfirm -S "${nvim_packages[@]}"
 
+wait_for_key_press
+
 ################################################
 echo_bold "6.1 Clone NvChad"
 ################################################
@@ -313,5 +289,5 @@ echo_bold "6.1 Clone NvChad"
 git clone https://github.com/NvChad/NvChad "$HOME/.config/nvim_nvchad" --depth 1
 ln -v -f -s "$HOME/.config/nvim_nvchad" "$HOME/.config/nvim"
 
-echo_success
+wait_for_key_press
 
