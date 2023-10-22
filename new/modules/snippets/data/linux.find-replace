@@ -1,0 +1,1 @@
+rg -l 'lorem' | xargs sed -i 's/lorem/lorem-ipsum/g'

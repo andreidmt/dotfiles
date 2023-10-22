@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+## HMVC style encapsulated modules. 
+## 
+## Each module has its own .init file and can contain functions, scripts,  
+## variables, etc. that are specific to that module's domain.
+
+_dir="$(dirname "$0")"
+
+module_init_files=$(find "$_dir"/*/ -name ".init" -type f)
+
+for init_file in $module_init_files; do
+  source "$init_file"
+done

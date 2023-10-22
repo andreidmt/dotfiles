@@ -1,0 +1,65 @@
+```toml
+id="ada9dfbf-0619-4967-8500-6c9c4d3a9ab1"
+type="snippet"
+syntax="yaml"
+description="GitLab CI/CD configuration for a Node.js project"
+url=""
+tags=[ci, gitlab, nodejs, npm, javascript, typescript]
+```
+
+stages:
+  - prepare
+  - code-analysis
+
+.image:
+  node-lts: node:18
+
+.cache:
+  node-modules: &NODE-MODEULES-CACHE
+    key:
+      prefix: node-modules
+      files: [ package-lock.json ]
+    paths: [ node_modules ]
+    policy: pull
+  node-modules-populate:
+    <<: *NODE-MODEULES-CACHE
+    policy: pull-push
+  npm: &NPM-CACHE
+    key:
+      prefix: npm
+      files: [ package-lock.json ]
+    paths: [ .npm ]
+    policy: pull
+  npm-populate:
+    <<: *NPM-CACHE
+    policy: pull-push
+
+📦 setup:
+  stage: prepare
+  image: !reference [.image, node-lts]
+  cache:
+    - !reference [.cache, node-modules-populate]
+    - !reference [.cache, npm-populate]
+  script:
+    - npm run setup
+
+🧼 lint:
+  stage: code-analysis
+  image: !reference [.image, node-lts]
+  cache: !reference [.cache, node-modules]
+  script:
+    - npm run lint
+
+🧪 test:
+  stage: code-analysis
+  image: !reference [.image, node-lts]
+  cache: !reference [.cache, node-modules]
+  script:
+    - npm run test
+
+🕵️ typecheck:
+  stage: code-analysis
+  image: !reference [.image, node-lts]
+  cache: !reference [.cache, node-modules]
+  script:
+    - npm run typecheck

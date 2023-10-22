@@ -1,0 +1,10 @@
+```toml
+id="8665ef96-dd2f-4802-a7c5-69bf238be30b"
+type="snippet"
+syntax=""
+description=""
+url=""
+tags=[]
+```
+
+. "$LIBRARY_HOME/guard-is-root.sh"

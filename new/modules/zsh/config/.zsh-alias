@@ -34,4 +34,4 @@ alias curl_no_redirect='curl --verbose --location --max-redirs 0'
 alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit'
 
 # find in file names
-alias rgf="rg --files | rg"
+alias rgf="rg --files --hidden | rg"

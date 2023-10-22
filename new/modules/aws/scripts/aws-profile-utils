@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+
+set -e
+
+displayHelp() {
+  local script_name=$(basename "$0")
+
+  cat << EOF
+Usage: $script_name <command> [options] <profile_name>
+
+Commands:
+  ls|list       List all profiles in the AWS credentials file
+  details       Output all properties from the AWS config file (including 
+                related sso-session if one exists)
+  get-property  Output the value of a specified field for the given profile
+
+Options:
+  [--also-credentials] (for 'details' command) Include properties from the AWS credentials file
+  <field_name> (for 'get-property' command) The field name to fetch the value for
+
+Example:
+  $script_name details my-profile
+  $script_name get-property my-profile region
+EOF
+}
+
+parse_arguments() {
+  COMMAND="$1"
+  shift 
+
+  while :; do
+    case $1 in
+      -h|--help)
+        displayHelp
+        exit 0
+      ;;
+      
+      -c|--also-credentials)
+        ALSO_CREDENTIALS="true"
+      ;;
+
+      # Standalone "--" terminates argument processing
+      --) shift; break ;;
+
+      # Argument not recognized
+      -?*)
+        echo "Error: Unknown argument $1" >&2
+        exit 1
+      ;;
+
+      # anything else, considered as non-option argument
+      *) break ;;
+    esac
+    shift
+  done
+}
+
+exists() {
+  local profile_name="$1"
+
+  if grep -E "^\[($profile_name)\]$" ~/.aws/config > /dev/null; then
+    return 0
+  fi
+}
+
+getSection() {
+  local header_title="$1"
+  local contents="$(cat -)"
+
+  echo "$contents" \
+    | grep --after-context=100 "^\[.*$header_title.*\]" \
+    | awk "NR==1 {next} /^\[/ {exit} {print}" \
+    | awk '{if ($1=="") exit; print}'
+}
+
+getProperty() {
+  local field_name="$1"
+  local properties="$2"
+
+  echo "$properties" \
+    | grep "^$field_name" \
+    | awk -F'=' '{print $2}' \
+    | sed 's/^[[:blank:]]*//'
+}
+
+getAllProfileProperties() {
+  local profile_name="$1"
+  local contents=$(cat -)
+  local properties=$(echo "$contents" | getSection "$profile_name")
+
+  echo "$properties"
+
+  if [[ "$properties" =~ sso_session ]]; then
+    local sso_name=$(getProperty "sso_session" "$properties")
+    
+    echo "$contents" | getSection "$sso_name"
+  fi
+}
+
+cmdDetails() {
+  local profile_name="$1"
+  local aws_files=(~/.aws/config)
+
+  if [ "$ALSO_CREDENTIALS" = "true" ]; then
+    aws_files+=(~/.aws/credentials)
+  fi
+
+  for file in "${aws_files[@]}"; do
+    if [ ! -f "$file" ]; then
+      continue
+    fi
+    getAllProfileProperties "$profile_name" < "$file"
+  done
+}
+
+cmdGetProperty() {
+  local profile_name="$1"
+  local field_name="$2"
+  local properties=$(cmdDetails "$profile_name")
+  local field_value=$(getProperty "$field_name" "$properties")
+
+  if [ -n "$field_value" ]; then
+    echo "$field_value"
+    exit 0
+  fi
+
+  exit 1
+}
+
+cmdList() {
+  grep -E '^\[(profile )?([a-zA-Z0-9_-]+)\]$' ~/.aws/config \
+    | sed -E 's/^\[(profile )?([a-zA-Z0-9_-]+)\]$/\2/'
+}
+
+cmdExists() {
+  local profile_name="$1"
+
+  if exists "$profile_name"; then
+    exit 0
+  fi
+
+  exit 1
+}
+
+##
+## Main
+##
+
+parse_arguments "$@"
+
+case "$COMMAND" in
+  ls|list) cmdList ;;
+  details) cmdDetails "${@:2}" ;; 
+  get-property) cmdGetProperty "${@:2}" ;; 
+  exists) cmdExists "${@:2}" ;;
+  *) displayHelp; exit 1 ;;
+esac

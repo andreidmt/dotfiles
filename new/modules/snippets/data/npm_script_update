@@ -1,0 +1,14 @@
+```toml
+id="db210172-d802-4def-bd91-e4275fbc7f92"
+type="snippet"
+syntax=""
+description=""
+url=""
+tags=[]
+```
+"scripts": {
+  "update": "ncu --interactive",
+},
+"devDependencies": {
+  "npm-check-updates": "^16.6.3",
+},

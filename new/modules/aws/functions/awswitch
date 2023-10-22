@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+
+# Switch AWS profiles. This script is meant to be sourced from your .bashrc or 
+# .zshrc.
+#
+# Exported variables:
+#  AWS_PROFILE: The name of the profile to use
+#  AWS_REGION: The region to use for the profile
+# 
+# Usage:
+#  aws-switch ls        # List available profiles in ~/.aws/credentials
+#  aws-switch [profile] # Switch to profile (default: default)
+awswitch() {
+  command="$1"
+
+  if [ "$command" = "ls" ]; then 
+    aws-profile-utils list
+    return 0
+  fi
+
+  profile="${1:-default}"
+
+  if ! aws-profile-utils exists "$profile"; then
+    echo "Error: Profile '$profile' not found in ~/.aws/credentials" >&2
+    return 1
+  fi
+
+  echo "Switched to AWS profile: $profile"
+  export AWS_PROFILE="$profile"
+  export AWS_REGION="$(aws-profile-utils get-property "$profile" "region")"
+
+  echo "Testing connection..."
+  if aws sts get-caller-identity; then
+    return 0
+  fi
+
+  echo "Failed to connect. Checking for SSO profile..."
+  if aws-profile-utils get-property "$profile" "sso_start_url"; then
+    echo "SSO profile detected. Attempting to login..."
+    aws sso login --profile "$profile"
+    echo "Testing connection..."
+    if aws sts get-caller-identity; then
+      return 0
+    fi
+  else
+    echo "No sso-session detected for $profile."
+  fi
+}

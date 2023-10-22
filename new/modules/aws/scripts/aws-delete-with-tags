@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+# Custom script to clean up resources tagged with specific keys and values
+
+# Fail on first error, undefined variable or error in a pipe
+set -eu
+set -o pipefail
+
+declare -A TAGS=() RESOURCES=()
+
+parse_arguments() {
+  echo "Parsing arguments..."
+
+  add_tag() {
+    local tag=$1
+    IFS='=' read -ra PARTS <<< "$tag"
+    TAGS[${PARTS[0]}]=${PARTS[1]}
+  }
+
+  for arg in "$@"; do
+    case "$arg" in
+      --tag-*)
+        echo "Adding tag $arg..."
+        add_tag "${arg/--tag-/}"
+        ;;
+      *)
+        echo "WARN: Unknown argument (ignored): $arg" >&2
+        ;;
+    esac
+  done
+}
+
+get_resources() {
+  if [[ ${#TAGS[@]} -eq 0 ]]; then
+    cowsay "No tags specified. Getting all resources..."
+  else
+    cowsay "Getting resources with tags ${TAGS[*]}..."
+  fi
+
+  # Create tag filters string for AWS CLI
+  local tag_filters=()
+  for key in "${!TAGS[@]}"; do
+    tag_filters+=("Key=$key,Values=${TAGS[$key]}")
+  done
+
+  # Get all resources with the specific tags
+  local resource_arns
+  resource_arns=$(aws resourcegroupstaggingapi get-resources \
+    --tag-filters "${tag_filters[@]}" \
+    --query 'ResourceTagMappingList[].ResourceARN' --output text \
+  )
+
+  for arn in $resource_arns; do
+    local type=$(echo "$arn" | cut -d ":" -f3)
+    RESOURCES["$type"]+="$arn "
+  done
+}
+
+display_resources() {
+  echo "Resources to be deleted:"
+
+  for type in "${!RESOURCES[@]}"; do
+    echo -e "\n$type:"
+    for arn in ${RESOURCES[$type]}; do
+      echo "$arn"
+    done
+  done
+}
+
+confirm_deletion() {
+  read -p "Are you sure you want to delete these resources? " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1
+  fi
+}
+
+delete_resources() {
+  echo "Deleting resources..."
+
+  # Loop over each resource type and try to delete it
+  for type in "${!RESOURCES[@]}"; do
+    echo "Deleting $type resources..."
+
+    for arn in ${RESOURCES[$type]}; do
+      if [[ $arn == arn:aws:lambda* ]]; then
+        local function_name=$(echo "$arn" | cut -d':' -f7)
+        echo "Deleting Lambda function: $function_name"
+        # aws lambda delete-function --function-name $function_name
+      else
+        echo "Unsupported resource type: $arn"
+        echo "Please delete it manually."
+      fi
+    done
+  done
+}
+
+main() {
+  parse_arguments "$@"
+  get_resources
+  display_resources
+  confirm_deletion
+  delete_resources
+
+  echo -e "\nCleanup completed."
+}
+
+main "$@"

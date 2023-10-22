@@ -1,0 +1,15 @@
+```toml
+id="d238c468-ee64-4a5d-97ea-c685a0b5a172"
+type="snippet"
+syntax="sh"
+description="Check if variable does not exist or is empty"
+url=["https://www.cyberciti.biz/faq/unix-linux-bash-script-check-if-variable-is-empty/"]
+tags=["linux", "bash"]
+createdAt="2022-07-18T16:50:00+02:00"
+```
+
+if [ "$var" -eq 3 ]; then
+  echo "variable equals 3";
+else
+  echo "variable does not equal 3";
+fi

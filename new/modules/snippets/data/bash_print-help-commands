@@ -1,0 +1,28 @@
+```toml
+id="8953e863-1242-4739-a112-fa156118a56d"
+type="snippet"
+syntax="sh"
+description="Print help information about current script"
+url=""
+tags=["linux", "bash"]
+```
+
+printHelp() {
+  echo "NAME"
+  echo "  $scriptName"
+  echo ""
+  echo "SYNOPSIS"
+  echo "  $scriptName <command> [options] [targets]"
+  echo ""
+  echo "DESCRIPTION"
+  echo "  Wrapper with common action over pacman and aur" 
+  echo ""
+  echo "COMMANDS"
+  echo "  help             Print this help and exit"
+  echo "  list             List installed packages from a given source"
+  echo "    -s, --source aur|pacman"
+  echo "  install          Download and install a package"
+  echo "    -s, --source aur|pacman"
+  echo "  remove_orphans   Remove orphaned packages"
+  echo ""
+}

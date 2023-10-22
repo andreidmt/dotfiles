@@ -1,0 +1,28 @@
+```toml
+id="2d59f1c4-3169-4bdc-ac63-317d7ee6f4e0"
+type="snippet"
+syntax="yaml"
+description=""
+url=""
+tags=[]
+```
+
+.cache:
+  node-modules: &NODE-MODEULES-CACHE
+    key:
+      prefix: node-modules
+      files: [ package-lock.json ]
+    paths: [ node_modules ]
+    policy: pull
+  node-modules-populate:
+    <<: *NODE-MODEULES-CACHE
+    policy: pull-push
+  npm: &NPM-CACHE
+    key:
+      prefix: npm
+      files: [ package-lock.json ]
+    paths: [ .npm ]
+    policy: pull
+  npm-populate:
+    <<: *NPM-CACHE
+    policy: pull-push

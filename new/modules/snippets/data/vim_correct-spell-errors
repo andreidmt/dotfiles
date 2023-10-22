@@ -1,0 +1,30 @@
+```toml
+id="eb2a349c-ceba-4b81-b77c-abbee609e5c8"
+type="snippet"
+syntax=""
+description=""
+url="https://jdhao.github.io/2019/04/29/nvim_spell_check"
+tags=[]
+```
+
+```nvim
+" spell languages
+set spelllang=en,cjk
+
+" Show nine spell checking candidates at most
+set spellsuggest=best,9
+```
+
+In insert mode, if you have typed a word which Vim thinks is miss-spelled, an
+underline is shown below. To correct this error, press <C-x> followed by s. A
+completion menu will show a list of suggestions. You can then choose the
+correct one.
+
+- `[s`: go to previous spell error
+- `]s`: go to next spell error
+
+The built-in spell checker is not perfect and can create false positives
+easily. If you think a word is not a spell error, you can use `zg` to add it to
+your spell file. To correct an error, press `z=`. A list of candidate words
+will be shown. You are prompted to enter a number to select the correct one. Or
+you may use `1z=` to choose the first candidate directly.

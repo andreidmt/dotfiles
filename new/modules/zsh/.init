@@ -1,0 +1,12 @@
+_dir="$(dirname "$0")"
+
+export ZSH_CONFIG_HOME="$_dir/config"
+export ZSH_PLUGIN_HOME="$_dir/bin"
+
+source "$ZSH_CONFIG_HOME/.zsh-config"
+source "$ZSH_CONFIG_HOME/.zsh-vars"
+source "$ZSH_CONFIG_HOME/.zsh-vars-local"
+source "$ZSH_CONFIG_HOME/.zsh-alias"
+source "$ZSH_CONFIG_HOME/.zsh-plugins"
+source "$ZSH_CONFIG_HOME/.zsh-extra-nvm"
+source "$ZSH_CONFIG_HOME/.zsh-local"

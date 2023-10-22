@@ -1,0 +1,5 @@
+```toml
+id=a2d90995-685a-41da-979b-5c6cc382cef6
+```
+
+scriptDir=$(dirname "$(realpath "$0")")

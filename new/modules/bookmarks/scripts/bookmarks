@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Bookmarks are individual .toml files stored in $BOOKMARKS_HOME.
+# This script provides a CRUD interface for managing bookmarks.
+#
+# Author: Andrei Dumitrescu
+# Version: 1.0
+# License: MIT
+
+. "$LIBRARY_HOME/die.sh"
+. "$LIBRARY_HOME/read-stdin-or.sh"
+
+_getTomlField() {
+  local input=$(readStdinOr "$1")
+
+  if [ -p /dev/stdin ]; then
+    field_name="$1"
+  else
+    field_name="$2"
+  fi
+
+  echo "$input" \
+    | grep "^$field_name=" \
+    | sed --regexp-extended "s/^${field_name}=\"(.*)\"$/\1/" \
+    | sed 's/\\\"/"/g' \
+    | sed "s/\\\'/\'/g"
+}
+
+list() {
+  for file in "$BOOKMARKS_HOME"/*.toml
+  do
+    local content="$(cat "$file")"
+    local title="$(_getTomlField "$content" "title")"
+    local author="$(_getTomlField "$content" "author")"
+
+    echo "$author - $title"
+  done
+}
+
+# Open Nvim with the bookmark file. If the file does not exist, create it 
+# applying a template.
+_openOrCreate() {
+  local path="$1"
+
+  if [ ! -f "$path" ]; then
+    path="$BOOKMARKS_HOME/$path.toml"
+
+    {
+      echo "id=\"$(random uuid)\""
+      echo "url=\"\""
+      echo "title=\"\""
+      echo "author=\"\""
+      echo "tags=[\"linux\"]"
+      echo "type=\"article|library|video|documentation\""
+      echo "created_at=\"$(date --iso-8601=seconds)\""
+      echo ""
+    } > "$path"
+  fi
+
+  # Set nvim's NerdTree file explorer to the snippets directory
+  cd "$BOOKMARKS_HOME"
+
+  nvim \
+    -c "norm zz" \
+    -c "set spell" \
+    -c "set syntax=markdown" \
+    "$path"
+}
+
+# Choose a bookmark from the list of all bookmarks. If no bookmark is found 
+# for the user's query, return the query.
+chooseBookmark() {
+  local title="$1"
+  local delimiter_count=$(echo "$BOOKMARKS_HOME" \
+    | grep --only-matching "/" \
+    | wc --lines
+  ) 
+  local all_bookmarks=$(rg --files --glob '**/data/*' \
+    --sortr modified \
+    "$BOOKMARKS_HOME"
+  )
+  local choice=$(echo "$all_bookmarks" \
+    | fzf \
+      --preview 'bat --color=always --style=numbers --line-range :500 {}' \
+      --preview-window=right:85:wrap \
+      --header "$title" \
+      --delimiter "/" \
+      --with-nth=$(( delimiter_count + 2 )) \
+      --print-query
+    )
+  local query=$(echo "$choice" | head -n 1)
+  local bookmark_path=$(echo "$choice" | tail -n 1)
+
+  if [ -z "$bookmark_path" ]; then
+    echo "$query"
+  else
+    echo "$bookmark_path"
+  fi
+}
+
+case ${1:-copy} in
+  list) list ;;
+  open)
+    path=$(chooseBookmark " open bookmark:")
+
+    if [ -f "$path" ]; then
+      bookmarkURL=$(cat "$path" | _getTomlField "url")
+      xdg-open "$bookmarkURL"
+    fi
+  ;;
+  upsert)
+    path=$(chooseBookmark " edit or create snippet:")
+    echo "$path" 
+    _openOrCreate "$path"
+  ;;
+  *) die "Command \"$1\" not recognized" ;;
+esac

@@ -1,0 +1,11 @@
+```toml
+id="65ce8d1f-2aba-4c19-97fe-06ef3c66d305"
+type="snippet"
+syntax="bash"
+description=""
+url="https://www.shellhacks.com/bash-colors/"
+tags=["linux", "bash"]
+created="2022-10-27T10:42:35+02:00"
+```
+
+\e[32mGreen Text\e[0m

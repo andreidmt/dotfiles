@@ -1,0 +1,14 @@
+```toml
+id="2f95178f-71f5-47cd-a193-313178d94c00"
+type="snippet"
+syntax=""
+description=""
+url=""
+tags=[]
+```
+
+/**
+ * @callback AFunction
+ * @param {string} foo
+ * @returns {string}
+ */

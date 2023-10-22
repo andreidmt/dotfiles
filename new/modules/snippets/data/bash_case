@@ -1,0 +1,19 @@
+```toml
+id="80c8ae0a-061c-42df-aba9-c38b138e9638"
+type="snippet"
+syntax="sh"
+description=""
+url=""
+tags=["linux", "bash"]
+createdAt="2022-07-18T16:36:52+02:00"
+```
+
+case "$1" in
+  value|another-value)
+    echo "$1 equals value or another-value"
+  ;;
+  *)
+    echo "nothing matched"
+  ;;
+esac
+

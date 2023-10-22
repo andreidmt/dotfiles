@@ -1,0 +1,5 @@
+t.equal(
+  sum(2, 0 - 1),
+  1,
+  "given [multiple parameter] should [return the correct sum]"
+)

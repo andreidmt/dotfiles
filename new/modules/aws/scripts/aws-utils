@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+set -e
+
+list_stacks() {
+  aws cloudformation list-stacks \
+    --query 'StackSummaries[].{Name:StackName, Status:StackStatus}'
+}
+
+list_log_groups_matching_pattern() {
+  local pattern="$1"
+  local max_items_per_call=50  # Adjust this value as needed
+  local next_token=""
+  local count=0
+
+  while true; do
+    if [ -z "$next_token" ]; then
+      response=$(aws logs describe-log-groups --limit "$max_items_per_call")
+    else
+      response=$(aws logs describe-log-groups --limit "$max_items_per_call" \
+        --next-token "$next_token"
+      )
+    fi
+
+    page_names=$(echo "$response" \
+      | jq -r ".logGroups[] | select(.logGroupName | test(\"$pattern\")) | .logGroupName"
+    )
+    echo "$page_names"
+
+    page_count=$(echo "$page_names" | wc -l)
+    count=$((count + page_count))
+    next_token=$(echo "$response" | jq -r ".nextToken // empty")
+
+    if [ -z "$next_token" ]; then
+      break
+    fi
+  done
+
+  echo "Log groups search matching \"$pattern\" resulted in $count results"
+}
+
+command=$1
+
+case $command in
+  stacks) list_stacks "$@" ;;
+  log-groups) list_log_groups_matching_pattern "${@:2}" ;;
+  *)
+    echo "Usage: $0 list"
+    exit 1
+    ;;
+esac

@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+_dir="$(dirname "$0")"
+
+export PATH="$PATH:$_dir/scripts"
+export AWS_PROFILE="r3wy"
+export AWS_PAGER=""
+
+for functionFile in "$_dir/functions/"*; do
+  . "$functionFile"
+done

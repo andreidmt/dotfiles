@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+
+set -e
+
+. "$LIBRARY_HOME/die"
+. "$LIBRARY_HOME/read-stdin-or"
+
+# List all snippet files in the snippets directory.
+list() {
+  local shouldShowOnlyExecutables=false
+
+  while :; do
+    case $1 in
+      -e|--only-executables)
+        shouldShowOnlyExecutables=true
+      ;;
+      --) shift; break ;;
+      -?*) echo "WARN: Unknown option (ignored): $1" >&2 ;;
+      *) break ;;
+    esac
+    shift
+  done
+
+  if [ "$shouldShowOnlyExecutables" ]; then
+    rg --files --sortr modified "$SNIPPETS_HOME" \
+      | sed 's/^.*\///' \
+      | xargs -I {} sh -c 'test -x "$SNIPPETS_HOME/{}" && echo {} || true'
+  else
+    rg --files --sortr modified "$SNIPPETS_HOME" \
+      | sed 's/^.*\///'
+  fi
+}
+
+# Execute a snippet file if it has +x permissions, otherwise output it's contents.
+executeOrCopy() {
+  local path=$1
+  if [ -x "$path" ]; then
+    $1
+  else
+    sed '/```toml/,/```/d' < "$1"
+  fi
+}
+
+# Runs a snippet file by name. 
+#
+# This allows you to run a snippet without having to specify the full path to 
+# the snippet file or having the snippet folder in your PATH.
+#
+# Arguments:
+# $1: Snippet signature
+#
+# Example:
+# run "date iso"
+run() {
+  read -r -a signature <<< "$(readStdinOr "$1")"
+  local path="$SNIPPETS_HOME/${signature[0]}"
+
+  if [ ! -f "$path" ]; then
+    die "Snippet '$path' does not exist"
+  fi
+
+  if [ -x "$path" ]; then
+    $path "${signature[@]:1}"
+  else
+    sed '/```toml/,/```/d' < "$path"
+  fi
+}
+
+# Open Nvim with the snippet file. If the snippet file does not exist, create
+# it with a default TOML header.
+#
+# Arguments:
+# $1: Snippet file path
+open() {
+  local name=$(readStdinOr "$1")
+
+  if [ ! -f "$1" ]; then
+    {
+      echo "\`\`\`toml" 
+      echo "id=\"$(random uuid)\""
+      echo "type=\"snippet\""
+      echo "description=\"\""
+      echo "tags=[]"
+      echo "created_at=\"$(date --iso-8601=seconds)\""
+      echo "\`\`\`"
+      echo ""
+    } > "$1"
+  fi
+
+  # Set nvim's NerdTree file explorer to the snippets directory
+  cd "$SNIPPETS_HOME"
+
+  nvim \
+    -c "norm zz" \
+    -c "set spell" \
+    -c "set syntax=markdown" \
+    "$name"
+}
+
+# Ask the user to select a snippet from a list of snippets. If no mached 
+# snippet is found, the user's query is returned.
+chooseSnippet() {
+  local title="$1"
+  local delimiter_count=$(echo "$SNIPPETS_HOME" \
+    | grep --only-matching "/" \
+    | wc --lines
+  ) 
+  local choice=$(rg --files --glob '**/data/*' \
+    --sortr modified \
+    "$SNIPPETS_HOME" \
+    | fzf \
+      --preview 'bat --color=always --style=numbers --line-range :500 {}' \
+      --preview-window=right:85:wrap \
+      --header "$title" \
+      --delimiter "/" \
+      --with-nth=$(( delimiter_count + 2 )) \
+      --print-query
+    )
+  local query=$(echo "$choice" | head -n 1)
+  local path=$(echo "$choice" | tail -n 1)
+
+  if [ -z "$path" ]; then
+    echo "$query"
+  else
+    echo "$path"
+  fi
+}
+
+case ${1-copy} in
+  list) 
+    list "${@:2}"
+  ;;
+  run)
+    run "$2"
+  ;;
+  copy)
+    path=$(chooseSnippet " copy snippet:")
+
+    if [ -n "$path" ] && [ -f "$path" ]; then
+      # not using pipe (run "$snippet" | copy) since some snippets may output 
+      # content without newline 
+      copy "$(executeOrCopy "$path")"
+    fi
+  ;;
+  upsert)
+    path=$(chooseSnippet " edit or create snippet:")
+
+    if [ -n "$path" ]; then
+      open "$path"
+    fi
+  ;;
+  *) die "Command \"$1\" not defined" ;;
+esac
