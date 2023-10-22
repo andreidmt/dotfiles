@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e          # exit on error
 set -o pipefail # exit on fail in pipe
@@ -258,7 +258,7 @@ echo_success "Core directories created"
 wait_for_key_press
 
 ################################################
-echo_title "4. Install terminal and fonts"
+echo_title "4. Install Alacritty terminal and fonts"
 ################################################
 
 alacritty_packages=(
@@ -277,11 +277,11 @@ install_pacman_package "${alacritty_packages[@]}"
 ln -v -f -s "$DOTFILES_HOME/new/.config/alacritty" "$HOME/.config/alacritty"
 ln -v -f -s "$DOTFILES_HOME/new/.config/fontconfig" "$HOME/.config/fontconfig"
 
-echo_success "Terminal & Fonts installed"
+echo_success "Alacritty terminal and fonts installed"
 wait_for_key_press
 
 ################################################
-echo_title "5. Install wayland, sway and friends"
+echo_title "5. Install Wayland, Sway and friends"
 ################################################
 
 wayland_packages=(
@@ -305,11 +305,11 @@ install_pacman_package "${wayland_packages[@]}"
 
 ln -v -f -s "$DOTFILES_HOME/new/.config/sway" "$HOME/.config/sway"
 
-echo_success "Wayland & Sway packages installed"
+echo_success "Wayland, Sway and friends installed"
 wait_for_key_press
 
 ################################################
-echo_title "5. Install ZSH"
+echo_title "5. Install ZSH & Starship"
 ################################################
 
 zsh_packages=(
@@ -319,8 +319,7 @@ zsh_packages=(
 
 install_pacman_package "${zsh_packages[@]}"
 
-ln -v -f -s "$DOTFILES_HOME/new/.config/zsh" "$HOME/.config/zsh"
-ln -v -f -s "$DOTFILES_HOME/new/.config/zsh/.zshrc" "$HOME/.zshrc"
+ln -v -f -s "$DOTFILES_HOME/new/modules/zsh/.env" "$HOME/.zshrc"
 
 echo_success "ZSH & Staship installed"
 
@@ -331,6 +330,11 @@ echo_title "5.1 Set ZSH as default shell"
 sudo chsh -s "$(which zsh)" "$USER"
 
 wait_for_key_press "Press any key to continue or Ctrl+C to abort and restart the system into ZSH. You dont need to do this for the install process to finish" 
+
+################################################
+echo_title "5.2 Install ZSH plugins"
+################################################
+
 
 ################################################
 echo_title "6. Install NVim"
