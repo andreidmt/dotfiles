@@ -1,15 +1,51 @@
 #!/usr/bin/sh -eu
 
-scriptName=$(basename "$0")
-orphanPackages=$(pacman -Qtdq | tr "\n" " ")
+removeOrphanPackages() {
+  orphan_packages=$(pacman -Qtdq | tr "\n" " ")
 
-if [ -n "$orphanPackages" ]; then 
-  echo "Orphan packages found: $orphanPackages"
-  sudo pacman -Rns $orphanPackages
-  doomst --type success "$scriptName" "Removed $(echo "$orphanPackages" | wc -w) orphan packages"
-else
-  doomst "$scriptName" "No orphan packages found"
-fi
+  if [ -n "$orphan_packages" ]; then 
+    cowthink "PACMAN: Removing orphan packages, found $(echo "$orphan_packages" | wc -w) packages"
+    sudo pacman -Rns $orphan_packages
+  else
+    cowthink "PACMAN: No orphan packages found"
+  fi
+}
 
-sudo pacman -Sc
-doomst "$scriptName" "After cache cleaup with \`pacman -Sc\`\n\n$(du -h /var/cache/pacman/pkg)"
+removePacmanCache() {
+  cowthink "PACMAN: Removing cache"
+  sudo pacman -Sc
+}
+
+removeNPMCache() {
+  cowthink "NPM: Removing cache"
+  npm cache clean --force
+}
+
+removeYarnCache() {
+  cowthink "YARN: Removing cache"
+  yarn cache clean
+}
+
+#
+# Main
+#
+
+free_space=$(df -h)
+home_before_free_space=$(echo "$free_space" | grep "/home" | awk '{print $4}')
+root_before_free_space=$(echo "$free_space" | grep "/$" | awk '{print $4}')
+
+removeOrphanPackages
+removePacmanCache
+removeYarnCache
+removeNPMCache
+
+free_space=$(df -h)
+home_after_free_space=$(echo "$free_space" | grep "/home" | awk '{print $4}')
+root_after_free_space=$(echo "$free_space" | grep "/$" | awk '{print $4}')
+
+cowsay "Free space before & after"
+{
+  echo "# before after"
+  echo "/home $home_before_free_space $home_after_free_space"
+  echo "/ $root_before_free_space $root_after_free_space"
+} | column -t -s ' '
