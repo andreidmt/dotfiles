@@ -3,26 +3,31 @@ local actions = require("telescope.actions")
 local utils = require("utils")
 
 telescope.setup({
-  extensions = {
-    fzf = { 
-      fuzzy = true, 
-      override_generic_sorter = true, 
-      override_file_sorter = true
-    },
-  },
   defaults = {
     vimgrep_arguments = {
-      "rg",
-      "--color=never",
-      "--no-heading",
-      "--with-filename",
-      "--line-number",
-      "--column",
-      "--smart-case",
-      "--ignore",
-      "--hidden",
-      "-g",
-      "!.git",
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '--hidden',
+      -- ignore files in .gitignore, .npm, .git, node_modules, etc.
+      '--glob',
+      '!.git/**',
+      '--glob',
+      '!**/node_modules/**',
+      '--glob',
+      '!**/package-lock.json',
+      '--glob',
+      '!**/.yarn-cache/**',
+      '--glob',
+      '!**/yarn.lock',
+      '--glob',
+      '!**/.npm/**',
+      '--glob',
+      '!**/.nx/cache/**',
     },
     mappings = {
       i = {
@@ -31,6 +36,13 @@ telescope.setup({
         ["<M-u>"] = actions.preview_scrolling_up,
         ["<M-d>"] = actions.preview_scrolling_down,
       },
+    },
+  },
+  extensions = {
+    fzf = {
+      fuzzy = true,
+      override_generic_sorter = true,
+      override_file_sorter = true
     },
   },
 })
@@ -46,4 +58,4 @@ utils.command("Definitions", "Telescope lsp_definitions")
 utils.nmap("<C-p>", "<cmd>Telescope find_files<CR>")
 utils.nmap("<C-f>", "<cmd>Telescope live_grep<CR>")
 utils.nmap("<C-c>", "<cmd>Telescope git_commits<CR>")
-utils.nmap("<C-u>", "<cmd>Telescope lsp_references<CR>")
+utils.nmap("gr", "<cmd>Telescope lsp_references<CR>")
