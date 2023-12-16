@@ -1,67 +1,105 @@
 #!/usr/bin/env sh
 
-# This script provides utilities to switch between AWS profiles and to ensure
-# the user is logged in to AWS. It checks for dependencies, lists profiles,
-# switches profiles, and handles SSO login. This script should be sourced
-# to modify the current shell's environment variables.
+print_help() {
+  cat << EOF
+NAME
+  awswitch - AWS profile switcher for the command line
 
-. "$LIBRARY_HOME/guard-is-sourced"
-. "$LIBRARY_HOME/does-command-exist"
+SYNOPSIS
+  awswitch [ls] | [profile_name] | [-h|--help]
 
-guard_is_sourced
+DESCRIPTION
+  This function allows for easy switching between AWS profiles. 
+  It is intended to be sourced from your .bashrc or .zshrc file as it exports 
+  the AWS_PROFILE and AWS_REGION environment variables.
 
-# Verifies if the user is logged in to AWS.
-_awswitch_is_user_logged_in() {
-  if aws sts get-caller-identity >/dev/null 2>&1; then
-    echo "AWS connection established."
-    return 0
-  else
-    echo "Failed to establish AWS connection."
-    return 1
-  fi
+  When invoked without arguments, it will prompt to select a profile from 
+  available AWS profiles defined in ~/.aws/config
+
+  - ls                   Lists available profiles in ~/.aws/config.
+  - [profile_name]       Switches to the specified AWS profile. If no profile 
+                         is specified, a menu is shown to select one.
+
+EXAMPLES
+  awswitch ls            # List available AWS profiles
+  awswitch               # Select and switch to an AWS profile
+  awswitch my-profile    # Switch to 'my-profile'
+
+DEPENDENCIES
+  aws-profile-utils, choose
+
+SEE ALSO
+  aws(1) 
+EOF
 }
 
-# Log in to an AWS SSO profile.
-_awswitch_login_as() {
-  sso_url=$(aws-profile-utils get-property "$1" "sso_start_url")
-
-  if [ -n "$sso_url" ]; then
-    echo "SSO profile detected. Attempting to login..."
-    aws sso login --profile "$1"
-
-    # Check if the user is logged in after login attempt.
-    _awswitch_is_user_logged_in 
-
-    return 0
-  else
-    echo "No SSO session detected for profile '$1'."
-    return 1
-  fi
+select_profile() {
+  aws-profile-utils list \
+    | awk -v current="$AWS_PROFILE" '{print ($1 == current ? " " : "  ") $1}' \
+    | choose -p "Switch AWS profile:" \
+    | sed 's/^..//'
 }
 
-# Main function to switch AWS profiles or list available profiles.
+switch_to_profile() {
+  profile="$1"
+  prev_profile="$AWS_PROFILE"
+  prev_region="$AWS_REGION"
+
+  export AWS_PROFILE="$profile"
+  export AWS_REGION="$(aws-profile-utils get-property "$profile" "region")"
+
+  if ! (test_connection || login_sso "$profile"); then
+    echo "Error: Failed to switch to profile '$profile'" >&2
+    export AWS_PROFILE="$prev_profile"
+    export AWS_REGION="$prev_region"
+    return 1
+  fi
+
+  echo "Switched to AWS profile: $profile"
+}
+
+test_connection() {
+  echo "Testing connection..."
+  aws sts get-caller-identity
+}
+
+login_sso() {
+  profile="$1"
+
+  if ! aws-profile-utils get-property "$profile" "sso_start_url"; then
+    echo "No SSO session detected for $profile."
+    return 1
+  fi
+
+  echo "SSO profile detected. Attempting to login..."
+  aws sso login --profile "$profile"
+  test_connection
+}
+
 awswitch() {
-  does_command_exist aws aws-profile-utils
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    print_help
+    return 0
+  fi
 
-  # List available profiles if 'ls' is passed as the first argument.
-  if [ "$1" = "ls" ]; then
+  command="$1"
+
+  if [ "$command" = "ls" ]; then
     aws-profile-utils list
     return 0
   fi
 
-  # Switch to the specified profile or to the 'default' if none is specified.
-  profile="${1:-default}"
-  if ! aws-profile-utils exists "$profile"; then
-    echo "Error: Profile '$profile' not found in ~/.aws/credentials" >&2
+  profile="${command:-$(select_profile)}"
+
+  if [ -z "$profile" ]; then
+    echo "No profile selected."
     return 1
   fi
 
-  # Export the AWS_PROFILE and AWS_REGION environment variables.
-  export AWS_PROFILE="$profile"
-  AWS_REGION=$(aws-profile-utils get-property "$profile" "region")
-  export AWS_REGION
+  if ! aws-profile-utils exists "$profile"; then
+    echo "Error: Profile '$profile' not found in ~/.aws/config" >&2
+    return 1
+  fi
 
-  echo "Switched to AWS profile: $profile"
-  _awswitch_login_as "$profile" || return 1
+  switch_to_profile "$profile"
 }
-
