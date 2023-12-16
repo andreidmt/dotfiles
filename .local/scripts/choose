@@ -1,5 +1,24 @@
 #!/usr/bin/env sh
 
+# NAME
+#  choose 
+#
+# SYNOPSIS
+#   choose [-p|--prompt <prompt>]
+#
+# DESCRIPTION
+#   Wrapper script for rofi or fzf to select an option from stdin.
+#   If DISPLAY is set, rofi is used, otherwise fzf is used.
+#
+#   -p, --prompt <prompt> Prompt to display before the options,
+#                         default: "Select an option:"
+#
+# EXAMPLES
+#   find . -type f | choose -p "Select a file:"
+#
+# SEE ALSO
+#   rofi(1), fzf(1)
+
 # -e: exit on error, -u: error on undefined variable
 set -eu 
 
