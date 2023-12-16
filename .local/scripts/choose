@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+
+# -e: exit on error, -u: error on undefined variable
+set -eu 
+
+# Default prompt
+PROMPT="Select an option:"
+
+# Process command-line arguments
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -p|--prompt) PROMPT="$2"; shift ;;
+    *) echo "Unknown parameter: $1"; exit 1 ;;
+  esac
+  shift
+done
+
+# Check for piped data
+if [ -t 0 ]; then
+  echo "No data piped in."
+  exit 1
+fi
+
+# Read piped data
+stdin_data=$(cat)
+
+# DISPLAY variable indicates a graphical environment
+if [ -n "$DISPLAY" ]; then
+  echo "$stdin_data" | rofi -dmenu -markup-rows -p "$PROMPT"
+else
+  echo "$stdin_data" | fzf --ansi --prompt "$PROMPT > "
+fi
