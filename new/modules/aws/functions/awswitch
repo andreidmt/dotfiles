@@ -9,16 +9,20 @@ SYNOPSIS
   awswitch [ls] | [profile_name] | [-h|--help]
 
 DESCRIPTION
-  This function allows for easy switching between AWS profiles. 
+  Function for easy switching between AWS profiles. 
   It is intended to be sourced from your .bashrc or .zshrc file as it exports 
   the AWS_PROFILE and AWS_REGION environment variables.
 
   When invoked without arguments, it will prompt to select a profile from 
   available AWS profiles defined in ~/.aws/config
 
-  - ls                   Lists available profiles in ~/.aws/config.
-  - [profile_name]       Switches to the specified AWS profile. If no profile 
+COMMANDS
+  ls                     Lists available profiles in ~/.aws/config.
+  [profile_name]         Switches to the specified AWS profile. If no profile 
                          is specified, a menu is shown to select one.
+
+OPTIONS
+  -h, --help             Display this help message.
 
 EXAMPLES
   awswitch ls            # List available AWS profiles
@@ -97,7 +101,7 @@ awswitch() {
   fi
 
   if ! aws-profile-utils exists "$profile"; then
-    echo "Error: Profile '$profile' not found in ~/.aws/config" >&2
+    echo "Profile '$profile' not found in ~/.aws/config" >&2
     return 1
   fi
 

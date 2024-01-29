@@ -1,0 +1,53 @@
+#!/usr/bin/env sh
+
+# NAME
+#  nvm_lts - List the latest LTS versions of Node.js
+#
+# SYNOPSIS
+#  nvm_lts <command>
+#
+# COMMANDS
+#  ls      List the latest LTS versions of Node.js
+#  latest  Print the latest LTS version of Node.js
+#  upgrade Upgrade Node.js to the latest LTS version
+#
+# SEE ALSO
+#  nvm(1), awk(1), grep(1), tr(1)
+
+nvm_lts() {
+  command=$1
+
+  case "$command" in
+    ls|latest|upgrade) ;;
+    *) echo "Usage: nvm_lts <command>" >&2; return 1 ;;
+  esac
+
+  if [ "$command" = "ls" ]; then
+    nvm ls-remote --lts \
+      | grep "Latest LTS"
+  fi
+
+  if [ "$command" = "latest" ]; then
+    nvm ls-remote --lts --no-colors \
+      | grep "Latest LTS" \
+      | tail -n 1 \
+      | sed "s/^->//g" \
+      | awk '{print $1}'
+  fi
+
+  if [ "$command" = "upgrade" ]; then
+    latest=$(nvm_lts latest)
+    current=$(nvm current)
+
+    if [ "$latest" != "$current" ]; then
+      echo "Upgrading Node.js from $current to $latest ..."
+      nvm install "$latest" \
+        --reinstall-packages-from="$current" \
+        --latest-npm \
+        --default
+    else
+      echo "Node.js is already at the latest LTS version ($latest)."
+    fi
+  fi
+}
+

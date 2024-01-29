@@ -1,0 +1,49 @@
+.TH jot 1 "January 2024" "v0.1" "jot Manual"
+.SH NAME
+.B jot
+\- Quickly write text in Neovim and echo it to the terminal.
+.SH SYNOPSIS
+.B jot
+[\-h|\--help]
+[\-c|\--continue]
+.SH DESCRIPTION
+Quick note-taking. 
+.B jot
+is designed for writing an idea, something to remember, code snippets, or lists in a full-fledged editor instead of 
+.B echo.
+It opens a 
+.B nvim
+session within a floating 
+.B alacritty
+terminal window, centered on the screen. 
+.P
+The script creates a temporary note file and can optionally continue editing the last note saved. The note's content is echoed to the terminal after saving and exiting Neovim.
+.P
+Configuration settings for Neovim include Markdown syntax highlighting, text wrapping, and spell checking.
+.SH OPTIONS
+.TP
+.B \-h, \--help
+Display this help and exit.
+.TP
+.B \-c, \--continue
+Continue editing the last saved note. Without this flag, a new note is created every time the script is run.
+.SH FILES
+.TP
+.B ~/.jot/last_note_path
+Stores the path of the last note for continuation.
+.SH ERRORS
+If no text is entered, jot exits with a non-zero status.
+.SH EXAMPLES
+.P
+.B jot | wc -c
+.RS
+Count the number of characters in the text entered in jot.
+.RE
+.P
+.B jot > ~/Notes/draft/$(datetime-short).md
+.RS
+Save the note to a file with a timestamp in the filename.
+.RE
+.SH "SEE ALSO"
+.BR nvim(1),
+.BR alacritty(1)

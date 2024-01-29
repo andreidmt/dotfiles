@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+openai_completions_log() {
+  id=$(uuidgen)
+  now=$(date-iso)
+  query="$1"
+  answer="$2"
+  temperature="$3"
+  summary="$4"
+
+  {
+    echo "---"
+    echo "id: \"$id\""
+    echo "date: \"$now\""
+    echo "model: \"$OPENAI_DEFAULT_MODEL\""
+    echo "temperature: $temperature"
+    echo "summary: \"$summary\""
+    echo "---"
+    echo ""
+    echo "## "
+    echo ""
+    echo "$query"
+    echo ""
+    echo "## 󰚩"
+    echo ""
+    echo "$answer"
+  } > "$OPENAI_COMPLETIONS_LOGS/$id.md" 
+}

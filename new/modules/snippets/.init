@@ -1,6 +1,13 @@
 #!/usr/bin/env sh
 
-_dir="$(dirname "$0")"
+export SNIPPETS_HOME="$(dirname "$0")"
+export SNIPPETS_DATA="$SNIPPETS_HOME/data"
+export SNIPPETS_SCRIPTS="$SNIPPETS_HOME/scripts"
 
-export PATH="$PATH:$_dir/scripts"
-export SNIPPETS_HOME="$_dir/data"
+##
+## Main
+##
+
+export PATH="$SNIPPETS_SCRIPTS:$PATH"
+
+echo " $(underline "$(find "$SNIPPETS_DATA" -type f | wc -l) snippets") available (mod+s)"

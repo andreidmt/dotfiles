@@ -1,0 +1,36 @@
+#!/bin/sh
+
+while read file
+do
+  case "$1" in
+  # Set wallpaper
+  "w")
+    wallpaper set "$(readlink -f "$file")" &
+  ;;  
+
+  # Rotate 90deg
+  "r")
+    echo $file
+    convert -rotate 90 "$file" "$file" 
+  ;;
+
+  #
+  "y")
+    filePath=$(readlink -f "$file")
+    fileType=$(file -b --mime-type "$file")
+
+    xclip -selection clipboard -t "$fileType" "$filePath"
+
+    doomst "sxiv" "File contents copied to clipboard.\n\n$(readlink -f "$file")" & 
+  ;;  
+
+  # Delete file via rofi confirm
+  "d")
+    [ "$(printf "No\\nYes" | rofi -dmenu -p "Delete $file?")" = "Yes" ] && rm "$file" && doomst --type success "sxiv" "File deleted.\n\n$file" 
+  ;;  
+
+  # Open with Gimp
+  "g")
+    gimp "$file" & ;;
+  esac
+done

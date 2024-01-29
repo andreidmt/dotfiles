@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+# Custom SSH_ASKPASS script to prompt for the SSH key passphrase.
+
+if [ -z "$DISPLAY" ]; then
+  # No graphical environment - use the terminal to prompt for passphrase
+  # -s flag makes the input silent for security
+  # -p flag allows to display a prompt
+  echo "Enter passphrase for ssh key: "
+  read -r passphrase
+  echo "$passphrase"
+else
+  rofi -dmenu \
+    -password \
+    -case-insensitive \
+    -no-fixed-num-lines \
+    -p "Password for ssh key:"
+fi

@@ -1,0 +1,51 @@
+#!/usr/bin/env sh
+
+# Entry point for the OpenAI shell module. 
+# Automaticly loaded by the shell in .zshrc.
+
+export OPENAI_HOME="$(dirname "$0")"
+export OPENAI_MODEL_PATH="$OPENAI_HOME/.cache/current-model"
+export OPENAI_ICON="󱚥"
+export OPENAI_LOCAL="$OPENAI_HOME/.local"
+export OPENAI_CACHE="$OPENAI_HOME/.cache"
+
+################## Prepare module directories
+
+mkdir -p "$OPENAI_CACHE" "$OPENAI_LOCAL"
+
+################## Expose scripts and libs
+
+export OPENAI_LIBS="$OPENAI_HOME/libs"
+export OPENAI_SCRIPTS="$OPENAI_HOME/scripts"
+
+add_to_path "$OPENAI_SCRIPTS"
+
+if [ "$HMVC_DEBUG" = true ]; then
+  lib_files="$(find "$OPENAI_LIBS" -type f)"
+  script_files="$(find "$OPENAI_SCRIPTS" -type f)"
+
+  echo "$OPENAI_ICON $(underline "$(echo "$script_files" | wc -l) scripts") added to \$PATH"
+  echo "$OPENAI_ICON $(underline "$(echo "$lib_files" | wc -l) libs") available under \$OPENAI_LIBS"
+fi
+
+################## Local/private env vars, not tracked by git
+
+. "$OPENAI_HOME/.env"
+
+################## SQLite database
+
+export OPENAI_DB_FILE="$OPENAI_LOCAL/ai.db"
+
+if [ ! -f "$OPENAI_DB_FILE" ]; then
+  cat \
+    "$OPENAI_SCRIPTS/settings/schema.sql" \
+    "$OPENAI_SCRIPTS/users/schema.sql" \
+    "$OPENAI_SCRIPTS/conversations/schema.sql" \
+    "$OPENAI_SCRIPTS/messages/schema.sql" \
+    | sqlite3 "$OPENAI_DB_FILE"
+
+  echo "$OPENAI_ICON SQLite database created at \$OPENAI_DB_FILE"
+else
+  echo "$OPENAI_ICON SQLite database exists at \$OPENAI_DB_FILE"
+  ai-db-count | sed 's/^/   /'
+fi

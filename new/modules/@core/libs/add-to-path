@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+# NAME
+#  add-to-path - Add a directory and it's subdirectories to $PATH
+#
+# SYNOPSIS
+#  add-to-path <DIR>...
+#
+# DESCRIPTION
+#  Adds a directory and it's subdirectories to $PATH. If a directory already
+#  exists in $PATH, it will not be added again.
+
+add_to_path() {
+  if [ $# -eq 0 ]; then
+    echo "Usage: add-to-path <DIR>..."
+    return 1
+  fi
+
+  for dir in "$@"; do
+    if [ ! -d "$dir" ]; then
+      echo "Directory '$dir' does not exist"
+      return 1
+    fi
+
+    find "$dir" -type d | while IFS= read -r sub_dir; do
+      if echo "$PATH" | grep --quiet "$sub_dir"; then
+        continue
+      fi
+
+      export PATH="$sub_dir:$PATH"
+    done
+  done
+}

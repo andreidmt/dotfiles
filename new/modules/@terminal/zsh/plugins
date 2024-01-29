@@ -1,0 +1,12 @@
+# Syntax highlighting
+source $TERMINALM_LOCAL/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Fish like history search feature when pressing UP or DOWN
+source $TERMINALM_LOCAL/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+# Fish like autosuggestions
+source $TERMINALM_LOCAL/zsh-autosuggestions/zsh-autosuggestions.zsh
+

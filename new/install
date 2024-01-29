@@ -165,6 +165,7 @@ core_packages=(
   nnn               # File manager
   networkmanager    # Network connection manager
   openssh           # SSH server and client
+  tree              # List contents of directories in a tree-like format
   # Faster cli tools re-written in Rust. 
   # See more: 
   # https://zaiste.net/posts/shell-commands-rust/
@@ -299,6 +300,7 @@ wayland_packages=(
   hacksaw           # Select Rectangle utility for Wayland
   slop              # Select Window utility for Wayland 
   wofi              # Launcher/menu program for wlroots-based compositors
+  gromit-mpx        # Draw on screen
 )
 
 install_pacman_package "${wayland_packages[@]}"

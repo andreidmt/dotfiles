@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# NAME
+#  bold - print bold text
+#
+# SYNOPSIS
+#  bold [TEXT]...
+
+printf "\x1b[1m%b\x1b[0m" "$@"
+

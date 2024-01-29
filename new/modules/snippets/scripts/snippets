@@ -1,39 +1,42 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -e
+# -e: exit on error, -u: error on undefined variable
+set -eu
 
-. "$LIBRARY_HOME/die"
-. "$LIBRARY_HOME/read-stdin-or"
+. "$CORE_LIBS/stdin-or"
+. "$CORE_LIBS/die"
 
 # List all snippet files in the snippets directory.
 list() {
-  local shouldShowOnlyExecutables=false
+  show_only_runnable=false
 
-  while :; do
+  while [ "$#" -gt 0 ]; do
     case $1 in
       -e|--only-executables)
-        shouldShowOnlyExecutables=true
+        show_only_runnable=true
       ;;
       --) shift; break ;;
-      -?*) echo "WARN: Unknown option (ignored): $1" >&2 ;;
+      -?*) die "Unknown option (ignored): $1" ;;
       *) break ;;
     esac
     shift
   done
 
-  if [ "$shouldShowOnlyExecutables" ]; then
-    rg --files --sortr modified "$SNIPPETS_HOME" \
-      | sed 's/^.*\///' \
-      | xargs -I {} sh -c 'test -x "$SNIPPETS_HOME/{}" && echo {} || true'
+  if [ "$show_only_runnable" = true ]; then
+    rg --files --sortr modified "$SNIPPETS_DATA" \
+      | xargs -I {} sh -c 'test -x "{}" && echo {} || true' \
+      | xargs -I {} basename "{}" \
+      | sort
   else
-    rg --files --sortr modified "$SNIPPETS_HOME" \
+    rg --files --sortr modified "$SNIPPETS_DATA" \
       | sed 's/^.*\///'
   fi
 }
 
-# Execute a snippet file if it has +x permissions, otherwise output it's contents.
-executeOrCopy() {
-  local path=$1
+# Execute a snippet file if it has +x permissions, otherwise output it's
+# contents.
+run_or_copy() {
+  path=$1
   if [ -x "$path" ]; then
     $1
   else
@@ -52,16 +55,19 @@ executeOrCopy() {
 # Example:
 # run "date iso"
 run() {
-  read -r -a signature <<< "$(readStdinOr "$1")"
-  local path="$SNIPPETS_HOME/${signature[0]}"
+  signature=$(stdin_or "$1")
+  name=${signature%% *}
+  params=${signature#* }
+  path="$SNIPPETS_DATA/${name}"
 
   if [ ! -f "$path" ]; then
-    die "Snippet '$path' does not exist"
+    die "Snippet <u>${name}</u> does not exist in <u>${SNIPPETS_DATA}</u>"
   fi
 
   if [ -x "$path" ]; then
-    $path "${signature[@]:1}"
+    $path $params 
   else
+    # Remove entire TOML metadata header
     sed '/```toml/,/```/d' < "$path"
   fi
 }
@@ -72,7 +78,7 @@ run() {
 # Arguments:
 # $1: Snippet file path
 open() {
-  local name=$(readStdinOr "$1")
+  name=$(stdin_or "$1")
 
   if [ ! -f "$1" ]; then
     {
@@ -88,7 +94,7 @@ open() {
   fi
 
   # Set nvim's NerdTree file explorer to the snippets directory
-  cd "$SNIPPETS_HOME"
+  cd "$SNIPPETS_DATA"
 
   nvim \
     -c "norm zz" \
@@ -99,15 +105,14 @@ open() {
 
 # Ask the user to select a snippet from a list of snippets. If no mached 
 # snippet is found, the user's query is returned.
-chooseSnippet() {
-  local title="$1"
-  local delimiter_count=$(echo "$SNIPPETS_HOME" \
+# Synopsis: choose_snippet <title>
+choose_snippet() {
+  title="$1"
+  delimiter_count=$(echo "$SNIPPETS_DATA" \
     | grep --only-matching "/" \
     | wc --lines
   ) 
-  local choice=$(rg --files --glob '**/data/*' \
-    --sortr modified \
-    "$SNIPPETS_HOME" \
+  choice=$(rg --files --glob '**/data/*' --sortr modified "$SNIPPETS_DATA" \
     | fzf \
       --preview 'bat --color=always --style=numbers --line-range :500 {}' \
       --preview-window=right:85:wrap \
@@ -116,8 +121,8 @@ chooseSnippet() {
       --with-nth=$(( delimiter_count + 2 )) \
       --print-query
     )
-  local query=$(echo "$choice" | head -n 1)
-  local path=$(echo "$choice" | tail -n 1)
+  query=$(echo "$choice" | head -n 1)
+  path=$(echo "$choice" | tail -n 1)
 
   if [ -z "$path" ]; then
     echo "$query"
@@ -128,26 +133,29 @@ chooseSnippet() {
 
 case ${1-copy} in
   list) 
-    list "${@:2}"
+    shift
+    list "$@"
   ;;
   run)
     run "$2"
   ;;
   copy)
-    path=$(chooseSnippet " copy snippet:")
+    path=$(choose_snippet " copy snippet:")
 
     if [ -n "$path" ] && [ -f "$path" ]; then
       # not using pipe (run "$snippet" | copy) since some snippets may output 
       # content without newline 
-      copy "$(executeOrCopy "$path")"
+      yank "$(run_or_copy "$path")"
     fi
   ;;
   upsert)
-    path=$(chooseSnippet " edit or create snippet:")
+    path=$(choose_snippet "󱩼 edit or create snippet:")
 
     if [ -n "$path" ]; then
       open "$path"
     fi
   ;;
-  *) die "Command \"$1\" not defined" ;;
+  *) 
+    die "Command <u>$1</u> not defined"
+  ;;
 esac

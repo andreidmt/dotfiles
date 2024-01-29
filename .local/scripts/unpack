@@ -1,6 +1,6 @@
 #!/usr/bin/sh -e
 
-. "$LIBRARY_HOME/die.sh"
+. "$LIBRARY_HOME/die"
 
 archiveFile=$1
 destFolder=${2-"unpacked-$archiveFile"} 

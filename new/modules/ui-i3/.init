@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+export UII3_HOME="$(dirname "$0")"
+export UII3_SCRIPTS="$UII3_HOME/scripts"
+export I3BLOCKS_HOME="$UII3_HOME/i3blocks"
+
+##
+## Main
+##
+
+export PATH="$UII3_SCRIPTS:$PATH"
+
+## Symlink application configs
+
+config_dirs="picom
+redshift
+i3
+rofi
+newsboat
+sxiv"
+
+echo "$config_dirs" | while IFS="" read -r dir; do
+  if [ ! -d "$HOME/.config/$dir" ]; then
+    echo "Config for $(red "$dir not found"), symlinking ..."
+    ln -s "$UII3_HOME/$dir" "$HOME/.config/$dir"
+  fi
+done
+
+## Start services in background if not already running, decupled from shell
+
+if is_process_running "Xorg"; then
+  if ! is_process_running "redshift"; then
+    echo " Starting background process $(underline "redshift")" 
+    nohup screen-auto-temp > /dev/null 2>&1 &
+  fi
+
+  if ! is_process_running "picom"; then
+    echo " Starting background process $(underline "picom")" 
+    nohup picom -b > /dev/null 2>&1 &
+  fi
+fi
+

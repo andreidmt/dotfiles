@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+
+export UI_HOME="$(dirname "$0")"
+
+##
+## Main
+##
+
+## Symlink application configs
+
+config_dirs="fontconfig
+dunst
+gtk-3.0"
+
+echo "$config_dirs" | while IFS="" read -r dir; do
+  if [ ! -d "$HOME/.config/$dir" ]; then
+    echo "Config for $(red "$dir not found"), symlinking ..."
+    ln -s "$UI_HOME/$dir" "$HOME/.config/$dir"
+  fi
+done
+
+## Symlink default applications 
+
+if [ ! -f "$HOME/.config/mimeapps.list" ]; then
+  echo "Default applications not found, symlinking ..."
+  ln -s "$UI_HOME/mimeapps.list" "$HOME/.config/mimeapps.list"
+fi
+
+## Symlink application configs
+
+if [ ! -d "$HOME/.local/share/applications" ]; then
+  echo "Applications not found, symlinking ..."
+  ln -s "$UI_HOME/applications" "$HOME/.local/share/applications"
+fi
+
+## Start services in background if not already running, decupled from shell
+
+if is_process_running "Xorg"; then
+  if ! is_process_running "dunst"; then 
+    echo "󰧨 Starting background process $(underline "dunst")"
+    nohup dunst > /dev/null 2>&1 &
+  fi
+fi

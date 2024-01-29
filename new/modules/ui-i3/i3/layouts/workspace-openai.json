@@ -1,0 +1,105 @@
+// vim:ts=4:sw=4:et
+{
+    "border": "pixel",
+    "current_border_width": 3,
+    "floating": "auto_off",
+    "geometry": {
+       "height": 600,
+       "width": 800,
+       "x": 0,
+       "y": 0
+    },
+    "marks": [],
+    "name": "NERD_tree_1 - (~/Work/asd14.zeroboot-stacks) - NVIM",
+    "percent": 0.59375,
+    "swallows": [
+       {
+       // "class": "^Alacritty$",
+       // "instance": "^Alacritty$",
+       // "machine": "^t440p$",
+       // "title": "^NERD_tree_1\\ \\-\\ \\(\\~\\/Work\\/asd14\\.zeroboot\\-stacks\\)\\ \\-\\ NVIM$"
+       }
+    ],
+    "type": "con"
+}
+
+{
+    // splitv split container with 2 children
+    "border": "pixel",
+    "floating": "auto_off",
+    "layout": "splitv",
+    "marks": [],
+    "percent": 0.40625,
+    "type": "con",
+    "nodes": [
+        {
+            // splitv split container with 1 children
+            "border": "pixel",
+            "floating": "auto_off",
+            "layout": "splitv",
+            "marks": [],
+            "percent": 0.573529411764706,
+            "type": "con",
+            "nodes": [
+                {
+                    "border": "pixel",
+                    "current_border_width": 3,
+                    "floating": "auto_off",
+                    "geometry": {
+                       "height": 600,
+                       "width": 800,
+                       "x": 0,
+                       "y": 0
+                    },
+                    "marks": [],
+                    "name": "Alacritty",
+                    "percent": 1,
+                    "swallows": [
+                       {
+                       // "class": "^Alacritty$",
+                       // "instance": "^Alacritty$",
+                       // "machine": "^t440p$",
+                       // "title": "^Alacritty$"
+                       }
+                    ],
+                    "type": "con"
+                }
+            ]
+        },
+        {
+            // splitv split container with 1 children
+            "border": "pixel",
+            "floating": "auto_off",
+            "layout": "splitv",
+            "marks": [],
+            "percent": 0.426470588235294,
+            "type": "con",
+            "nodes": [
+                {
+                    "border": "pixel",
+                    "current_border_width": 3,
+                    "floating": "auto_off",
+                    "geometry": {
+                       "height": 600,
+                       "width": 800,
+                       "x": 0,
+                       "y": 0
+                    },
+                    "marks": [],
+                    "name": "Alacritty",
+                    "percent": 1,
+                    "swallows": [
+                       {
+                       // "class": "^Alacritty$",
+                       // "instance": "^Alacritty$",
+                       // "machine": "^t440p$",
+                       // "title": "^Alacritty$"
+                       }
+                    ],
+                    "type": "con"
+                }
+            ]
+        }
+    ]
+}
+

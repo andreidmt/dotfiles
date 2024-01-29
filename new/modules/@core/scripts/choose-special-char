@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+
+# NAME
+#  choose-special-chars - Choose a special character from a list. 
+#
+# SYNOPSIS
+#  choose-special-chars
+#
+# DESCRIPTION
+#  Choose a special character, diacritic, money symbol, etc. from a
+#  list.
+#
+# SEE ALSO
+#   rofi(1), fzf(1)
+
+prompt="Yank special char:"
+chars="ă
+â
+î
+ș
+ț
+Ă
+Â
+Î
+Ș
+Ț
+€"
+
+# DISPLAY variable indicates a graphical environment
+if [ -n "$DISPLAY" ]; then
+  selected_char=$(echo "$chars" | rofi -dmenu \
+    -markup-rows \
+    -p "$prompt"
+  )
+else
+  selected_char=$(echo "$chars" | fzf --ansi \
+    --prompt "$prompt"
+  )
+fi
+
+echo "selected_char: $selected_char"
+
+if [ -n "$selected_char" ]; then
+  echo "$selected_char" | yank 
+fi

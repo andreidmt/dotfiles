@@ -1,6 +1,15 @@
 #!/usr/bin/env sh
 
-_dir="$(dirname "$0")"
+export BOOKMARKS_HOME="$(dirname "$0")"
+export BOOKMARKS_DATA="$BOOKMARKS_HOME/data"
+export BOOKMARKS_SCRIPTS="$BOOKMARKS_HOME/scripts"
 
-export PATH="$PATH:$_dir/scripts"
-export BOOKMARKS_HOME="$_dir/data"
+##
+## Main
+##
+
+export PATH="$BOOKMARKS_SCRIPTS:$PATH"
+
+if [ "$HMVC_DEBUG" = true ]; then
+  echo " $(underline "$(find "$BOOKMARKS_DATA" -type f | wc -l) bookmarks") available (mod+b)"
+fi

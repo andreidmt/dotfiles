@@ -1,0 +1,4 @@
+openssh, pacman, "SSH client and server"
+openvpn, pacman, "VPN client"
+rsync, pacman, "File transfer"
+gnupg, pacman, "GnuPG keyring management"

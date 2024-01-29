@@ -1,0 +1,2 @@
+luajit, pacman, "Just-In-Time Compiler for the Lua programming language"
+lua-language-server, pacman, "LSP server for Lua"

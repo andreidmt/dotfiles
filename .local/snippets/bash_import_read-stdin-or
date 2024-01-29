@@ -1,7 +1,0 @@
-```toml
-id=e5c47712-28b9-48ef-8798-7b314ec4d839
-```
-. "$LIBRARY_HOME/read-stdin-or.sh"
-
-# either piped data from stdin or first param
-var=$(readStdinOr "$1")

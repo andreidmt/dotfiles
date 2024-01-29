@@ -1,0 +1,3 @@
+zsh, pacman, "A very advanced and programmable command interpreter (shell) for UNIX"
+alacritty, pacman, "A cross-platform, GPU-accelerated terminal emulator"
+starship, pacman, "The minimal, blazing-fast, and infinitely customizable prompt for any shell!"

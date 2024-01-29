@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+
+export LUA_HOME="$(dirname "$0")"
+export LUA_LOCAL="$LUA_HOME/.local"
+export LUAROCKS_CONFIG="$LUA_HOME/config"
+export LUAROCKS_BIN="$LUA_LOCAL/luarocks"
+export LUAROCKS_TREE="$LUA_LOCAL/luarocks-tree"
+export PATH="$LUAROCKS_BIN/bin:$PATH"
+
+# Prepare necessary folders
+
+mkdir -p "$LUA_LOCAL" "$LUAROCKS_BIN" "$LUAROCKS_TREE" "$LUAROCKS_CONFIG"
+
+# Keep LuaRocks up to date
+
+if has-days-passed --name "lua_rocks-install" --count 1; then
+  git-download "luarocks/luarocks" "$LUA_LOCAL/luarocks-repo"
+
+  if ! command -v luarocks; then
+    cd "$LUA_LOCAL/luarocks-repo"
+
+    # Needs to work with LuaJIT since most of Lua code is in NVim configs
+    # and plugins. NVim is hard-coded to use LuaJIT.
+    ./configure \
+      --force-config \
+      --prefix="$LUAROCKS_BIN" \
+      --rocks-tree="$LUAROCKS_TREE" \
+      --sysconfdir="$LUAROCKS_CONFIG" \
+      --with-lua-interpreter=luajit
+
+    make
+    make install
+  fi
+fi
+
+## Keep rocks up to date
+
+if has-days-passed --name "lua_rocks-update" --count 1; then
+  luarocks install luafilesystem
+fi

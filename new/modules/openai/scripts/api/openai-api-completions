@@ -1,0 +1,114 @@
+#!/usr/bin/env sh
+
+# NAME
+#  openai-api-completions - Call POST: /chat/completions 
+#
+# SYNOPSIS
+#  openai-api-completions [...options] <query> 
+#
+# DESCRIPTION
+#  Low-level script that sends a query to OpenAI's chat endpoint and returns 
+#  the response.
+#
+#  See the OpenAI API reference for more details:
+#  https://platform.openai.com/docs/api-reference/chat
+#
+# ARGUMENTS
+#  <query>          The query to send to OpenAI
+#
+# OPTIONS
+#  -t|--temperature The temperature to use for the completion. (default: 0.7)
+#  -m|--model       The model to use for the completion.
+#  --no-stream      Disable streaming OpenAI's response. (default: true)
+#
+# ENVIRONMENT
+#  OPENAI_API_KEY   The API key used for authenticating with the OpenAI API. 
+# 
+# EXAMPLES
+#  openai-api-completions "What is the meaning of life?"
+#  openai-api-completions -t 0.3 "What is the meaning of life?"
+#  openai-api-completions -m davinci "What is the meaning of life?"
+# 
+# SEE ALSO
+#  curl(1), jq(1)
+
+if [ -z "$OPENAI_API_KEY" ]; then
+  echo "error: missing environment variable OPENAI_API_KEY." >&2
+  exit 1 
+fi
+
+# Default values
+temperature=0.7
+model=""
+should_stream=true
+
+# Parse arguments
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --no-stream)
+      should_stream=false
+    ;;
+    -m|--model)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        model=$2; shift
+      else
+        echo 'error: argument --model requires a value.' >&2
+        exit 1
+      fi
+    ;;
+    -t|--temperature)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        temperature=$2; shift
+      else
+        echo 'error: argument --temperature requires value.' >&2 
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) 
+      echo "error: unknown flag: $1" >&2
+      exit 1 
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$1" ]; then
+  echo "error: missing question, pass it as first parameter or pipe to stdin" >&2
+  exit 1 
+fi
+
+if [ -z "$model" ]; then
+  echo "error: missing model, pass it as --model or -m" >&2
+  exit 1 
+fi
+
+# If streaming, disable curl's buffering
+stream_curl_flags=""
+if [ $should_stream = true ]; then
+  stream_curl_flags="--no-buffer"
+fi
+
+json_payload=$(jq --compact-output --null-input \
+  --arg question "$1" \
+  --arg model "$model" \
+  --arg stream "$should_stream" \
+  --arg temperature "$temperature" \
+  '{
+    model: $model,
+    stream: ($stream | test("true")),
+    messages: [{role: "user", content: $question}],
+    temperature: ($temperature | tonumber)
+  }'
+)
+
+# Execute curl and write stdout to the pipe, stderr to a temp file
+curl --silent $stream_curl_flags \
+  --fail-with-body \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $OPENAI_API_KEY" \
+  --header "OpenAI-Organization: $OPENAI_ORG_ID" \
+  --data "$json_payload" \
+  https://api.openai.com/v1/chat/completions
+

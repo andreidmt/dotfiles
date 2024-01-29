@@ -1,0 +1,7 @@
+# npm
+alias npu="npm run update"
+alias nps="npm run setup"
+alias npb="npm run build"
+alias npl="npm run lint"
+alias npt="npm run test"
+alias npc="npm run lint && npm run test && npm run typecheck"

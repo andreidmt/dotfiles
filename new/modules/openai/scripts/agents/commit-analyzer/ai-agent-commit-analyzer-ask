@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+
+. "$CORE_LIBS/die"
+. "$CORE_LIBS/stdin-or"
+
+# NAME
+#  ai-ask - Get an answer from OpenAI /completions 
+#
+# SYNOPSIS
+#  ai-ask <query> [temperature]
+#
+# OPTIONS
+#  - query        The query to send to OpenAI
+#  - temperature  The temperature to use for the completion (default: 0.7)
+#  
+# SEE ALSO
+#  curl(1), jq(1)
+
+api_completions() {
+  curl -s https://api.openai.com/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -H "OpenAI-Organization: $OPENAI_ORG_ID" \
+    -d "$1"
+}
+
+query=$(stdin_or "$1")
+temperature=${2:-0.7}
+model=$(ai-model)
+json_payload=$(jq -cn \
+  --arg content "$query" \
+  --arg model "$model" \
+  '{
+  model: $model,
+  messages: [{role: "user", content: $content}],
+  temperature: '"$temperature"'
+}')
+
+answer=$(
+  api_completions "$json_payload" \
+    | jq --raw-output '.choices[0].message.content'
+)
+
+if [ -z "$answer" ]; then
+  die "No answer :("
+fi
+
+echo "$answer"

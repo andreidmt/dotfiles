@@ -1,0 +1,53 @@
+#!/usr/bin/env sh
+
+# -e: exit on error, -u: error on undefined variable
+set -eu 
+
+. "$CORE_LIBS/die"
+
+script_name=$(basename "$0")
+SCREENSHOT_HOME="$HOME/Pictures/Screenshots"
+now=$(date +"%Y-%B-%d-%A-%R:%S")
+
+mkdir -pv "$SCREENSHOT_HOME"
+
+case $1 in
+  pick-color)
+    colorpicker --short --one-shot --preview | xclip -selection clipboard
+  ;;
+
+  area)
+    selection=$(hacksaw -f "-i %i -g %g")
+    dimension=$(echo "$selection" | awk '{print $4}' | awk -F+ '{print $1}')
+    path="$SCREENSHOT_HOME/area_$now.png"
+
+    # dont quote, multiple params inside
+    shotgun $selection "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst --title "$script_name, area" --message "$dimension, $path"
+  ;;
+
+  window)
+    selection=$(slop -f "-g %g")
+    dimension=$(echo "$selection" | awk '{print $2}' | awk -F+ '{print $1}') 
+    path="$SCREENSHOT_HOME/window_$now.png"
+
+    # dont quote, multiple params inside
+    shotgun $selection "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst --title "$script_name window" --message "$dimension, $path"
+  ;;
+
+  all)
+    filename=${2:-"screen_$now.png"}
+    path="$SCREENSHOT_HOME/$filename"
+
+    shotgun "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst --title "$script_name - screen" "$path"
+  ;;
+
+  *)
+    die "Unknown command: $1"
+  ;;
+esac

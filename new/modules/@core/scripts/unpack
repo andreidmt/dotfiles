@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+
+# -e: exit on error
+set -e 
+
+. "$CORE_LIBS/die"
+
+parse_arguments() {
+  INPUT_ARCHIVE_FILE=$1
+
+  if [ -z "$INPUT_ARCHIVE_FILE" ]; then 
+    die "Usage: unpack <archive-file> [destination-folder]"
+  fi
+
+  if [ ! -f "$INPUT_ARCHIVE_FILE" ]; then
+    die "File not found: $INPUT_ARCHIVE_FILE"
+  fi
+
+  DESTINATION_FOLDER=${2-"unpacked-$INPUT_ARCHIVE_FILE"} 
+  mkdir -p "$DESTINATION_FOLDER"
+}
+
+##
+## Main
+##
+
+parse_arguments "$@"
+
+case "$INPUT_ARCHIVE_FILE" in
+  *.rar)
+    unrar e "$INPUT_ARCHIVE_FILE" "$DESTINATION_FOLDER"
+  ;;
+  *.zip)
+    unzip "$INPUT_ARCHIVE_FILE" -d "$DESTINATION_FOLDER"
+  ;;
+  *.tgz|*.tar.gz)
+    tar -xzf "$INPUT_ARCHIVE_FILE" -C "$DESTINATION_FOLDER"
+  ;;
+  *.gz)
+    gunzip "$INPUT_ARCHIVE_FILE"
+  ;;
+  *.tar.xz)
+    tar -xf "$INPUT_ARCHIVE_FILE" -c "$DESTINATION_FOLDER"
+  ;;
+  *)
+    die "Unknown archive format <u>$INPUT_ARCHIVE_FILE</u>"
+  ;;
+esac

@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+# NAME
+#  green - Write text in green to stdout
+
+printf "\x1b[32m%s\x1b[0m" "$@"

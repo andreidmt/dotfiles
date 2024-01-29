@@ -1,6 +1,6 @@
 #!/usr/bin/sh -eu
 
-. "$LIBRARY_HOME/die.sh"
+. "$LIBRARY_HOME/die"
 
 # nice()
 # Output current date in a human-readable format.

@@ -1,19 +1,31 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -e
+. "$CORE_LIBS/die"
+. "$CORE_LIBS/stdin-or"
 
-# Bookmarks are individual .toml files stored in $BOOKMARKS_HOME.
-# This script provides a CRUD interface for managing bookmarks.
+# NAME
+#  bookmarks - Manage bookmarks
 #
-# Author: Andrei Dumitrescu
-# Version: 1.0
-# License: MIT
+# SYNOPSIS
+#  bookmarks [COMMAND]
+#
+# DESCRIPTION
+#  Bookmarks are individual .toml files stored in $BOOKMARKS_DATA.
+#  This script provides a CRUD interface for managing bookmarks.
+#
+# COMMANDS
+# list
+#  List all bookmarks
+# open
+#  Open a bookmark in the default browser
+# upsert
+#  Create or edit a bookmark
+#
+# SEE ALSO
+#  
 
-. "$LIBRARY_HOME/die.sh"
-. "$LIBRARY_HOME/read-stdin-or.sh"
-
-_getTomlField() {
-  local input=$(readStdinOr "$1")
+get_toml_field() {
+  input=$(stdin_or "$1")
 
   if [ -p /dev/stdin ]; then
     field_name="$1"
@@ -23,17 +35,17 @@ _getTomlField() {
 
   echo "$input" \
     | grep "^$field_name=" \
-    | sed --regexp-extended "s/^${field_name}=\"(.*)\"$/\1/" \
-    | sed 's/\\\"/"/g' \
-    | sed "s/\\\'/\'/g"
+    | awk -F '=' '{ print $2 }' \
+    | sed 's/^"//g' \
+    | sed 's/"$//g'
 }
 
 list() {
-  for file in "$BOOKMARKS_HOME"/*.toml
+  for file in "$BOOKMARKS_DATA"/*.toml
   do
-    local content="$(cat "$file")"
-    local title="$(_getTomlField "$content" "title")"
-    local author="$(_getTomlField "$content" "author")"
+    content="$(cat "$file")"
+    title="$(get_toml_field "$content" "title")"
+    author="$(get_toml_field "$content" "author")"
 
     echo "$author - $title"
   done
@@ -41,11 +53,11 @@ list() {
 
 # Open Nvim with the bookmark file. If the file does not exist, create it 
 # applying a template.
-_openOrCreate() {
-  local path="$1"
+open_or_create() {
+  path="$1"
 
   if [ ! -f "$path" ]; then
-    path="$BOOKMARKS_HOME/$path.toml"
+    path="$BOOKMARKS_DATA/$path.toml"
 
     {
       echo "id=\"$(random uuid)\""
@@ -60,7 +72,7 @@ _openOrCreate() {
   fi
 
   # Set nvim's NerdTree file explorer to the snippets directory
-  cd "$BOOKMARKS_HOME"
+  cd "$BOOKMARKS_DATA"
 
   nvim \
     -c "norm zz" \
@@ -71,17 +83,17 @@ _openOrCreate() {
 
 # Choose a bookmark from the list of all bookmarks. If no bookmark is found 
 # for the user's query, return the query.
-chooseBookmark() {
-  local title="$1"
-  local delimiter_count=$(echo "$BOOKMARKS_HOME" \
+choose_bookmark() {
+  title="$1"
+  delimiter_count=$(echo "$BOOKMARKS_DATA" \
     | grep --only-matching "/" \
     | wc --lines
   ) 
-  local all_bookmarks=$(rg --files --glob '**/data/*' \
+  all_bookmarks=$(rg --files --glob '**/data/*' \
     --sortr modified \
-    "$BOOKMARKS_HOME"
+    "$BOOKMARKS_DATA"
   )
-  local choice=$(echo "$all_bookmarks" \
+  choice=$(echo "$all_bookmarks" \
     | fzf \
       --preview 'bat --color=always --style=numbers --line-range :500 {}' \
       --preview-window=right:85:wrap \
@@ -90,8 +102,8 @@ chooseBookmark() {
       --with-nth=$(( delimiter_count + 2 )) \
       --print-query
     )
-  local query=$(echo "$choice" | head -n 1)
-  local bookmark_path=$(echo "$choice" | tail -n 1)
+  query=$(echo "$choice" | head -n 1)
+  bookmark_path=$(echo "$choice" | tail -n 1)
 
   if [ -z "$bookmark_path" ]; then
     echo "$query"
@@ -100,20 +112,21 @@ chooseBookmark() {
   fi
 }
 
-case ${1:-copy} in
+case ${1:-list} in
   list) list ;;
   open)
-    path=$(chooseBookmark " open bookmark:")
+    path=$(choose_bookmark " open bookmark:")
+    echo "$path"
 
     if [ -f "$path" ]; then
-      bookmarkURL=$(cat "$path" | _getTomlField "url")
-      xdg-open "$bookmarkURL"
+      url=$(cat "$path" | get_toml_field "url")
+      xdg-open "$url"
     fi
   ;;
   upsert)
-    path=$(chooseBookmark " edit or create snippet:")
+    path=$(choose_bookmark "󱄀 edit or create bookmark:")
     echo "$path" 
-    _openOrCreate "$path"
+    open_or_create "$path"
   ;;
   *) die "Command \"$1\" not recognized" ;;
 esac

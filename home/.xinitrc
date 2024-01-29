@@ -23,17 +23,11 @@ nm-applet --indicator &
 # Bluetooth applet
 #blueman-applet &
 
-# USB watcher
-#udiskie &
-
 # Notification daemon
-dunst &
+# dunst &
 
 # Composite manager
-picom -b &
-
-# Redshift
-screen auto-temp &
+# picom -b &
 
 # Window manager
 exec i3

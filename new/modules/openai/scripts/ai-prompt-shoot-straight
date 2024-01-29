@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+
+. "$CORE_LIBS/die"
+. "$CORE_LIBS/stdin-or"
+
+build_query() {
+  cat <<EOF
+Give only the answer without elaborating, echoing the question or explaining
+unless explicitly asked. 
+
+For example if I ask "What is 2+2?", you will directly answer "4", not 
+"The sum of 2+2 equals 4".
+
+If you don't understand, you can point out what you don't understand about 
+the question.
+
+Here's my question:
+
+---
+
+$1
+
+---
+EOF
+}
+
+##
+## Main
+##
+
+if [ -z "$OPENAI_API_KEY" ]; then
+  die "OpenAI API key is not set. Set the OPENAI_API_KEY environment variable."
+fi
+
+question=$(stdin_or "$1")
+
+build_query "$question" | openai-api-completions

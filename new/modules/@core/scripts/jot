@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+
+# The path to store the last note's location
+LAST_NOTE_PATH_FILE="${HOME}/.jot/last_note_path"
+
+# Flag to determine if continuing from the last note
+SHOULD_CONTINUE=false
+
+# Create .jot own directory if it doesn't exist
+[ ! -d "${HOME}/.jot" ] && mkdir "${HOME}/.jot"
+
+# Parse arguments
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      man --pager cat "$(dirname "$0")/jot.1"
+      exit 0
+    ;;
+    -c|--continue)
+      SHOULD_CONTINUE=true
+      shift
+    ;;
+    --) shift; break ;;
+    -?*)
+      echo "error: unknown flag: $1" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+done
+
+# Determine the file to edit
+if [ "$SHOULD_CONTINUE" = true ] && [ -f "$LAST_NOTE_PATH_FILE" ]; then
+  tmp_file=$(cat "$LAST_NOTE_PATH_FILE" 2>/dev/null)
+fi
+
+if [ -z "$tmp_file" ]; then
+  tmp_file=$(mktemp /tmp/jot.XXXXXX)
+fi
+
+# Open the file in editor, in a centered terminal window
+alacritty --title layout-center \
+  --command nvim \
+    -c "setlocal syntax=markdown" \
+    -c "setlocal wrap" \
+    -c "setlocal spell" \
+    -c "startinsert" \
+    "$tmp_file"
+
+text=$(cat "$tmp_file")
+
+# If text was entered, print it and persist the file in case user wants to
+# continue editing it later
+if [ -n "$text" ]; then
+  printf "%s" "$text"
+  echo "$tmp_file" > "$LAST_NOTE_PATH_FILE" # Update the last note path
+else
+  echo "error: no text was entered" >&2
+  exit 1
+fi

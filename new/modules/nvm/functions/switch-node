@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+switch_node() {
+  nvmrc_file="${PWD}/.nvmrc"
+  current_version=$(nvm current)
+
+  if [ -f "$nvmrc_file" ]; then
+    nvmrc_version=$(cat "$nvmrc_file")
+    nvmrc_version_installed=$(nvm ls "$nvmrc_version" | grep -c "N/A")
+
+    echo " Found .nvmrc file with $(underline "$nvmrc_version") version"
+
+    if [ "$current_version" = "$nvmrc_version" ]; then
+      echo " Already using $(underline "$nvmrc_version") version"
+    elif [ "$nvmrc_version_installed" -eq 0 ]; then
+      echo " $nvmrc_version already installed, $(underline "switching")..."
+      nvm use "$nvmrc_version"
+    else
+      echo " $nvmrc_version is not installed, $(underline "installing")..."
+      nvm install "$nvmrc_version"
+    fi
+  else
+    if [ "$current_version" != "$(nvm version default)" ]; then
+      echo " No .nvmrc file found, switching to $(underline "default") version"
+      nvm use default
+    fi
+  fi
+}
+

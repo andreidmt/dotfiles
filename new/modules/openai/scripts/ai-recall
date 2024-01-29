@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+
+. "$CORE_LIBS/stdin-or"
+
+# NAME
+#  ai-resume - Set the current conversation as the active one and output the
+#  conversation messages 
+#
+# SYNOPSIS
+#  ai-resume <conversation_id>
+#
+# DESCRIPTION
+#  Preview a conversation by displaying all messages in the conversation, nicely
+#  formatted in markdown.
+#
+# ARGUMENTS
+#  <conversation_id>
+#   The ID of the conversation to preview.
+#
+# EXAMPLES
+#  ai-resume 42
+#
+# SEE ALSO
+#  ai-db-find-many(1), jq(1), bat(1) 
+
+conversation_id=$(stdin_or "$1")
+
+if [ -z "$conversation_id" ]; then
+  echo "error: missing argument <conversation_id>" >&2
+  exit 1
+fi
+
+ai-db-find-many \
+  --table Messages \
+  --where "conversations_id = $conversation_id" \
+  --include Users \
+  | jq --raw-output \
+    --arg ai_icon "$OPENAI_ICON" \
+    --arg human_icon "" \
+    '.[] | if .Users.is_ai == 1 then 
+      "## _\($ai_icon) \(.Users.name)_\n\(.content)\n" 
+    else 
+      "## \($human_icon) \(.Users.name)\n\(.content)\n"
+    end' \
+  | bat --language markdown --paging never --style numbers --color always 

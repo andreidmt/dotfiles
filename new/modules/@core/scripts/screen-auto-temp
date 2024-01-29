@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# -e: exit on error
+set -e 
+
+# NAME
+#  screen-auto-temp
+#
+# DESCRIPTION
+#  Start `redshift` with latitude and longitude from Mozilla Location Service
+#
+# SEE ALSO
+#  redshift(1)
+
+geo_location=$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue"\
+  | jq '.location.lat, .location.lng' \
+  | tr '\n' ':' \
+  | sed 's/:$//'
+)
+
+redshift -P -l "$geo_location"

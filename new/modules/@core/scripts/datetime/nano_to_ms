@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+# NAME
+#  nano_to_ms - Convert nanoseconds to milliseconds
+#
+# SYNOPSIS
+#  nano_to_ms <nanoseconds> [decimal_places]
+#
+# DESCRIPTION
+#   Converts a value from nanoseconds to milliseconds. If 'decimal_places'
+#   is not specified, it defaults to 2.
+#
+# ARGUMENTS
+#   <nanoseconds>      The number of nanoseconds to convert.
+#   [decimal_places]   Number of decimal places in the result (default: 2).
+#
+# SEE ALSO
+#  bc(1)
+
+nanoseconds=$1
+decimal_places=${2:-2}
+
+echo "scale=$decimal_places; $nanoseconds / 1000000" | bc -l
+

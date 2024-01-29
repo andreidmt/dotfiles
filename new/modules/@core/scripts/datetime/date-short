@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# NAME
+#  date-short - Print the current date in a short format 
+#
+# SYNOPSIS
+#  date-short
+#
+# SEE ALSO
+#  date(1)
+
+date +"%Y-%m-%d"
+

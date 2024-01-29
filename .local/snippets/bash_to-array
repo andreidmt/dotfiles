@@ -1,5 +1,0 @@
-```toml
-id=7f8182e0-4237-4c27-a871-349aad5ff26c
-```
-
-read -r -a var <<< "$var"

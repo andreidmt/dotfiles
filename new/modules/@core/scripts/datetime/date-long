@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# NAME
+#  date-long - Prints the current date in human readable format
+#
+# SYNOPSIS
+#  date-long
+#
+# SEE ALSO
+#  date(1)
+
+date +"%A, %B %d, %Y"
+

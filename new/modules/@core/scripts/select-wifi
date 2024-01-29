@@ -1,0 +1,71 @@
+#!/usr/bin/sh -e
+
+# Select a WiFi network from the list of visible networks
+# and connect to it.
+
+scriptName=$(basename "$0")
+
+wifiData=$(nmcli connection show | grep 'wifi')
+
+currentName=$(nmcli connection show --active \
+  | grep 'wifi' \
+  | awk '{
+    match($0, / [0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12} /); 
+    print substr($0, 1, RSTART-1)
+  }' \
+  | awk '{gsub(/^[[:space:]]+|[[:space:]]+$/, ""); print}' \
+)
+
+visibleWiFis=$(echo "$wifiData" \
+  | awk '{
+    match($0, / [0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12} /); 
+    print substr($0, 1, RSTART-1)
+  }' \
+  | awk '{gsub(/^[[:space:]]+|[[:space:]]+$/, ""); print}' \
+)
+
+name=$(printf "%s\n- Advanced via \"nmtui\"\n- Disconect from \"$currentName\"" "$visibleWiFis" | \
+  rofi -dmenu -p "Select WiFi")
+
+if [ -z "$name" ]; then
+  exit
+fi
+
+case $name in
+  '- Advanced via "nmtui"') nmtui ;;
+
+  "- Disconect from \"$currentName\"") 
+    currentId=$(echo "$wifiData" \
+      | awk '{
+        match($0, / ([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}){1} /); 
+        print substr($0, RSTART, RLENGTH);
+        exit
+      }' \
+      | awk '{gsub(/^[[:space:]]+|[[:space:]]+$/, ""); print}' \
+    )
+
+    echo "Current ID: $currentId"
+    
+    if nmcli connection down "$currentId"; then
+      doomst -t "$scriptName" -m "Disconnected from \"$currentName\" network."
+    else
+      doomst -t "$scriptName" -m "Failed to disconnect from \"$currentName\" network."
+    fi
+  ;;
+  
+  *)
+    doomst -t "$scriptName" -m "Connection to \"$name\" network..."
+
+    id=$(echo "$wifiData" \
+      | grep "$name" \
+      | awk '{
+        match($0, / ([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}){1} /); 
+        print substr($0, RSTART, RLENGTH);
+        exit
+      }' \
+      | awk '{gsub(/^[[:space:]]+|[[:space:]]+$/, ""); print}' \
+    )
+
+    nmcli connection up "$id"
+  ;;
+esac

@@ -1,0 +1,78 @@
+#!/usr/bin/env sh
+
+# NAME 
+#  ai-db-discribe - Discribe one or multiple table
+#
+# SYNOPSIS
+#  ai-db-discribe [-t table_name]
+#
+# DESCRIPTION
+#  Discribe a table. If no table is provided, discribe all tables.
+#  The output is a JSON object with the table name as the key and the table
+#  description as the value.
+#
+# OPTIONS
+#  -t, --table [table_name]
+#   The table to query.
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#
+# ENVIRONMENT
+#  OPENAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+tables=""
+
+# Parse flags
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -t|--table) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        tables="$tables $2"; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) 
+      echo "error: unknown flag $1" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# Functions
+get_all_table_names() {
+  sqlite3 "$OPENAI_DB_FILE" "SELECT name FROM sqlite_master WHERE type='table';"
+}
+
+describe_table() {
+  sqlite3 --json "$OPENAI_DB_FILE" "PRAGMA table_info($1);"
+}
+
+# Main
+if [ -z "$tables" ]; then
+  tables=$(get_all_table_names)
+fi
+
+# Form an object with the table name as the key and the table description as 
+# the value.
+result="{}"
+for table_name in $tables; do
+  result=$(echo "$result" \
+    | jq --raw-output --compact-output \
+      --arg table_name "$table_name" \
+      --argjson table_description "$(describe_table "$table_name")" \
+    '.[$table_name] = $table_description'
+  )
+done
+
+echo "$result"

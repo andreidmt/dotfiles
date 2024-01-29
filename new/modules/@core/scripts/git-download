@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+
+# -e: exit on error, -u: error on undefined variable
+set -eu 
+
+. "$CORE_LIBS/die"
+
+# NAME
+#  git-download - Download or update a git repository
+#
+# SYNOPSIS
+#  git-download <git_address> <install_path>
+#
+# DESCRIPTION
+#  Downloads a git repository to the given path. If the path already exists,
+#  updates the repository via "git pull".
+#
+# SEE ALSO
+#  git(1)
+
+if [ "$#" -ne 2 ]; then
+  die "Usage: git-download <git_address> <install_path>"
+fi
+
+git_address=$1
+path=$2
+
+if [ -d "$path" ]; then
+  echo " Updating $git_address ..."
+
+  cd "$path"
+  git pull
+else
+  echo " Cloning $git_address ..."
+
+  mkdir -p "$path"
+  git clone --depth 1 "https://github.com/$git_address" "$path"
+fi
+

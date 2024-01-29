@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+
+. "$CORE_LIBS/die"
+
+# NAME
+#  random - Generate random strings
+#
+# SYNOPSIS
+#  random <type> [length]
+#
+# COMMANDS
+#  <type>   The type of random string to generate.
+#
+# ARGUMENTS
+#  [length] The length of the random string to generate (default: 6)
+
+length=${2:-6}
+
+case ${1:-readable} in
+  readable)
+    first=$(tr -dc '[:lower:]' < /dev/urandom | fold -w "$(("$length"/2))" | head -n 1)
+    second=$(tr -dc '0-9' < /dev/urandom | fold -w 3 | head -n 1)
+
+    echo "$first-$second"
+  ;;
+
+  whatever)
+    tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w "$length" | head -n 1
+  ;;
+
+  uuid)
+    cat /proc/sys/kernel/random/uuid
+  ;;
+
+  *)
+    die "Command <u>$1</u> not recognized"
+  ;;
+esac

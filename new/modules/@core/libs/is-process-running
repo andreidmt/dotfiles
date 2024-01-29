@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# Predicate function checking if a process is running under the current user
+is_process_running() {
+  command=$1
+
+  if ! pgrep -f "$command" -u "$USER" > /dev/null; then
+    return 1
+  fi
+}

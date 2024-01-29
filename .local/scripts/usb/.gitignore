@@ -1,0 +1,2 @@
+sv/usb-automount/*
+!sv/usb-automount/run

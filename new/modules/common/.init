@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-_dir="$(dirname "$0")"
-
-export PATH="$PATH:$_dir/scripts"
-export LIBRARY_HOME="$_dir/libs"

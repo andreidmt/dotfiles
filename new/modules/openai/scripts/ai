@@ -1,0 +1,125 @@
+#!/usr/bin/env sh
+
+# NAME
+#  ai - Ask OpenAI a question
+#
+# SYNOPSIS
+#  ai [--dry-run] [--syntax-highlight] <query>
+#
+# DESCRIPTION
+#
+# OPTIONS
+#  --dry-run          Print the query instead of sending it to OpenAI.
+#  --syntax-highlight Syntax highlight the response using bat(1).
+#
+# ENVIRONMENT
+#  OPENAI_API_KEY     The API key used for authenticating with the OpenAI API.
+#
+# EXAMPLES
+#  echo "What is the meaning of life?" | ai
+#  ai "What is the meaning of life?"
+#  cat "42.js" | ai "Explain what this does:"
+#  
+# SEE ALSO
+#  openai-api-completions(1), ai-model(1), jq(1), bat(1)
+
+# Default values
+is_dry_run=false
+has_syntax_highlight=false
+
+# Parse arguments
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --dry-run) is_dry_run=true ;;
+    --syntax-highlight) has_syntax_highlight=true ;;
+    --) shift; break ;;
+    -?*) 
+      echo "error: unknown flag $1" >&2
+      echo "Usage: ai [--dry-run] [--syntax-highlight] <query>" >&2
+      exit 1 
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+read_input() {
+  if [ -n "$1" ] && [ -p /dev/stdin ]; then
+    # When both argument and pipe input are present, concatenate them.
+    printf "%s\n\n%s" "$1" "$(cat -)"
+  elif [ -n "$1" ]; then
+    # When only argument input is present.
+    printf "%s" "$1"
+  else
+    # When only pipe input is present.
+    cat -
+  fi
+}
+
+# Main
+query=$(read_input "$1")
+agent=$(ai-db-find-one -t Users -w "slug = 'assistant'")
+agent_id=$(echo "$agent" | jq --raw-output '.id')
+agent_model=$(echo "$agent" | jq --raw-output '.model')
+agent_temp=$(echo "$agent" | jq --raw-output '.temperature')
+response_tmp_file=$(mktemp /tmp/ai.XXXXXX)
+
+if [ "$is_dry_run" = true ]; then
+  printf "%b\n" "$query"
+  exit 0
+fi
+
+openai-api-completions \
+  --model "$agent_model" \
+  --temperature "$agent_temp" \
+  "$query" \
+  | sed --unbuffered '/^data: \[DONE\]$/d; s/^data: //g' \
+  | jq --unbuffered --raw-output --join-output \
+      'select(.choices[0].delta.content != null) | .choices[0].delta.content' \
+  | tee "$response_tmp_file" \
+  | if [ "$has_syntax_highlight" = true ]; then
+      bat --unbuffered --language markdown --paging never --style plain
+    else
+      cat
+    fi
+
+# Create a conversation and add the query and response as messages
+conversation_id=$(ai-db-create -t Conversations "{}" \
+  | jq --raw-output '.id'
+)
+user_id=$(ai-db-find-one -t Users -w "slug = '$(whoami)'" \
+  | jq --raw-output '.id'
+)
+
+jq --null-input --raw-output --compact-output \
+  --arg query "$query" \
+  --arg conversation_id "$conversation_id" \
+  --arg user_id "$user_id" \
+  '{
+    "conversations_id": $conversation_id | tonumber,
+    "users_id": $user_id | tonumber,
+    "content": $query
+  }' \
+  | ai-db-create -t Messages > /dev/null
+
+jq --null-input --raw-output --compact-output \
+  --arg conversation_id "$conversation_id" \
+  --arg agent_id "$agent_id" \
+  --arg agent_model "$agent_model" \
+  --arg agent_temp "$agent_temp" \
+  --rawfile content "$response_tmp_file" \
+  '{
+    "conversations_id": $conversation_id | tonumber,
+    "users_id": $agent_id | tonumber,
+    "content": $content,
+    "model": $agent_model,
+    "temperature": $agent_temp | tonumber
+  }' \
+  | ai-db-create -t Messages > /dev/null
+
+# Cleanup
+rm "$response_tmp_file"
+
+# Print a manual newline for clear separation
+echo ""
+

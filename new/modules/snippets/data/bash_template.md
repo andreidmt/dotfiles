@@ -1,32 +1,61 @@
 ```toml
 id="5d73f4e6-38e4-4746-8fd6-59263471e9a3"
 type="snippet"
-tags=["linux", "bash"]
-description="BASH script template with common practices"
+tags=["linux", "shell", "arguments", "template"]
+description="Shell script template with common practices"
+created_at="2023-12-22T23:01:58+01:00"
 ```
 
-```bash
+```sh
 #!/usr/bin/env sh
 
+# -e: exit on error, -u: error on undefined variable
 set -eu
-set -o pipefail
 
-. "$LIBRARY_HOME/die.sh"
+. "$CORE_LIBS/die"
 
-while :; do
-  case ${1+x} in
-    -e|--is-error)
-      icon="$HOME/doomguy-blood.png"
+print_help() {
+  command=$(basename "$0")
+
+  cat <<EOF
+NAME
+  ${command} - Command short description
+
+SYNOPSIS
+  $(basename "$0") [-h|--help]
+
+DESCRIPTION
+  Command long description
+
+OPTIONS
+  -h, --help            Print this help message and exit
+  -p, --prompt <prompt> Prompt to display before the options,
+                        default: "Select an option:"
+
+EXAMPLES
+  ${command} -h
+
+SEE ALSO
+  command1(1), command2(1)
+EOF
+}
+
+# Process command-line arguments
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -h|--help)
+      print_help
+      exit 0
     ;;
     -t|--title)
-      if [ "$2" ]; then
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
         title=$2; shift
       else
         die 'ERROR: "--title" requires a non-empty option argument.'
       fi
     ;;
     --) shift; break ;;
-    -?*) echo "WARN: Unknown flag (ignored): $1" >&2 ;;
+    -?*) print_help >&2; die "ERROR: Unknown option: $1" ;;
     *) break ;;
   esac
   shift
@@ -37,7 +66,11 @@ command() {
 }
 
 case "${1:-command}" in
-  command) command "${@:2}" ;;
-  *) die "Command \"$1\" not recognized" ;;
+  command) 
+    command "${@:2}" 
+  ;;
+  *) 
+    die "Command \"$1\" not recognized"
+  ;;
 esac
 ```

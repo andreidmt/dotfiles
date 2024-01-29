@@ -1,0 +1,103 @@
+#!/usr/bin/env sh
+
+. "$CORE_LIBS/die"
+
+print_help() {
+  cat <<EOF
+NAME
+  frontmatter - Extract and display frontmatter from files
+
+SYNOPSIS
+  frontmatter [options] <file>
+
+DESCRIPTION
+  Reads a YAML frontmatter from a specified file and prints its contents. 
+  Can filter specific fields using the --field option.
+
+OPTIONS
+  -h, --help            Print this help message and exit
+  -f, --field <field>   Extract and display only specified fields. 
+                        Can be used multiple times for multiple fields.
+                        If only one field is specified, the value is printed
+                        directly, without the label and wrapping quotes.
+
+EXAMPLES
+  frontmatter file.md
+  # "id": "1234"
+  # "title": "My title"
+  # "date": "2021-01-01"
+
+  frontmatter --field title --field date file.md
+  # "id": "1234"
+  # "title": "My title"
+
+  frontmatter file.md -f id
+  # 1234
+EOF
+}
+
+parse_args() {
+  while [ "$#" -gt 0 ]; do
+    case $1 in
+      -h|--help)
+        print_help
+        exit 0
+      ;;
+      -f|--field)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+          FIELDS="$FIELDS $2"; shift
+        else
+          die 'ERROR: "--field" requires a non-empty option argument.'
+        fi
+      ;;
+      --) shift; break ;;
+      -?*) print_help >&2; die "ERROR: Unknown option: $1" ;;
+      *) break ;;
+    esac
+    shift
+  done
+}
+
+# Extracts the frontmatter from a file. If $FIELDS is empty, prints the entire
+# frontmatter. Otherwise, prints only the specified fields.
+extract_frontmatter() {
+  file_contents=$(cat "$FILE")
+  frontmatter=$(echo "$file_contents" \
+    | sed -n '/^---$/,/^---$/p' \
+    | grep --invert-match '^---$'
+  )
+
+  if [ -z "$FIELDS" ]; then
+    echo "$frontmatter"
+    return
+  fi
+
+  for field_name in $FIELDS; do
+    field=$(echo "$frontmatter" \
+      | grep --only-matching "^$field_name:.*"
+    )
+
+    # If only one field, output the value directly, without the label and
+    # wrapping quotes
+    if [ "$(echo "$FIELDS" | wc -w)" -eq 1 ]; then
+      echo "$field" | sed 's/^.*: *"\(.*\)"/\1/'
+      return
+    fi
+    
+    echo "$field"
+  done
+}
+
+##
+## Main
+##
+
+if [ "$#" -lt 1 ]; then
+  die "ERROR: A file argument is required."
+fi
+
+FIELDS=""
+FILE=$1; shift
+
+parse_args "$@"
+extract_frontmatter

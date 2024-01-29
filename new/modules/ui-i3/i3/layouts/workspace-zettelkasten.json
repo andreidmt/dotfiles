@@ -1,0 +1,84 @@
+// vim:ts=4:sw=4:et
+{
+    "border": "pixel",
+    "current_border_width": 3,
+    "floating": "auto_off",
+    "geometry": {
+       "height": 984,
+       "width": 620,
+       "x": 650,
+       "y": 48
+    },
+    "marks": [],
+    "name": "9 - Smit Interview - Zettelkasten - Obsidian v1.1.16",
+    "percent": 0.6796875,
+    "swallows": [
+       {
+       // "class": "^obsidian$",
+       // "instance": "^obsidian$",
+       // "machine": "^t440p$",
+       // "title": "^9\\ \\-\\ Smit\\ Interview\\ \\-\\ Zettelkasten\\ \\-\\ Obsidian\\ v1\\.1\\.16$",
+       // "window_role": "^browser\\-window$"
+       }
+    ],
+    "type": "con"
+}
+
+{
+    // splitv split container with 2 children
+    "border": "pixel",
+    "floating": "auto_off",
+    "layout": "splitv",
+    "marks": [],
+    "percent": 0.3203125,
+    "type": "con",
+    "nodes": [
+        {
+            "border": "pixel",
+            "current_border_width": 3,
+            "floating": "auto_off",
+            "geometry": {
+               "height": 600,
+               "width": 800,
+               "x": 0,
+               "y": 0
+            },
+            "marks": [],
+            "name": "Alacritty",
+            "percent": 0.647058823529412,
+            "swallows": [
+               {
+               // "class": "^Alacritty$",
+               // "instance": "^Alacritty$",
+               // "machine": "^t440p$",
+               // "title": "^Alacritty$"
+               }
+            ],
+            "type": "con"
+        },
+        {
+            "border": "pixel",
+            "current_border_width": 3,
+            "floating": "auto_off",
+            "geometry": {
+               "height": 600,
+               "width": 800,
+               "x": 0,
+               "y": 0
+            },
+            "marks": [],
+            "name": "Alacritty",
+            "percent": 0.352941176470588,
+            "swallows": [
+               {
+               // "class": "^Alacritty$",
+               // "instance": "^Alacritty$",
+               // "machine": "^t440p$",
+               // "title": "^Alacritty$"
+               }
+            ],
+            "type": "con"
+        }
+    ]
+}
+

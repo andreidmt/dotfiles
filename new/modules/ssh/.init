@@ -1,0 +1,44 @@
+#!/usr/bin/env sh
+
+. "$CORE_LIBS/is-process-running"
+
+export SSHM_HOME="$(dirname "$0")"
+export SSHM_SCRIPTS="$SSHM_HOME/scripts"
+export SSHM_LOCAL="$SSHM_HOME/.local"
+
+export PATH="$SSHM_HOME/scripts:$PATH"
+export SSH_ASKPASS="${SSHM_SCRIPTS}/ssh-askpass"
+
+tmp_pid_file="$SSHM_LOCAL/ssh-agent.pid"
+tmp_sock_file="$SSHM_LOCAL/ssh-agent.sock"
+
+# Since this will be sourced every time a new shell is opened, we need to
+# check if an SSH agent is already running for the current user. If not, we
+# start one, add our SSH keys to it and persist the PID and socket path for
+# future terminals.
+if ! is_process_running ssh-agent; then
+  echo "󱕴 SSH agent not detected, $(underline "starting")..."
+  eval "$(ssh-agent -s)" > /dev/null
+
+  # Persist the SSH agent PID and socket path for future terminals
+  mkdir -p "$SSHM_LOCAL"
+  echo "$SSH_AGENT_PID" > "$tmp_pid_file"
+  echo "$SSH_AUTH_SOCK" > "$tmp_sock_file"
+
+  # Add the SSH keys to the agent. Sending the commands to the background
+  # since they will prompt for the passphrase and don't want to block the
+  # main loop loading modules.
+  ssh-add "$HOME/.ssh/t440p" > /dev/null 2>&1 
+  ssh-add "$HOME/.ssh/do.t440p" > /dev/null 2>&1
+  ssh-add "$HOME/.ssh/asd14__andreid" > /dev/null 2>&1
+  ssh-add "$HOME/.ssh/asd14__ci" > /dev/null 2>&1
+  ssh-add "$HOME/.ssh/abcam-gitlab.t440p" > /dev/null 2>&1
+
+  echo "󱕴 Added $(underline "$(ssh-add -l | wc -l) keys")"
+else
+  export SSH_AGENT_PID="$(cat "$tmp_pid_file")"
+  export SSH_AUTH_SOCK="$(cat "$tmp_sock_file")"
+
+  echo "󱕴 SSH agent already running with $(underline "$(ssh-add -l | wc -l) keys")"
+fi
+

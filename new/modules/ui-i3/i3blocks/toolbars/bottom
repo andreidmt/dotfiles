@@ -1,0 +1,34 @@
+[wifi-bandwidth]
+command=$I3BLOCKS_HOME/widgets/bandwidth
+interval=3
+INTERFACE=wlp3s0
+INLABEL= 
+OUTLABEL= 
+#TREAT_UNKNOWN_AS_UP=0
+
+[memmory]
+command=$I3BLOCKS_HOME/widgets/memory
+interval=2
+label=󰍛 
+
+[disk-/]
+command=$I3BLOCKS_HOME/widgets/disk
+LABEL= / 
+DIR=/
+#ALERT_LOW=10
+interval=30
+
+[disk-home]
+command=$I3BLOCKS_HOME/widgets/disk
+LABEL= ~ 
+#DIR=$HOME
+#ALERT_LOW=10
+interval=30
+
+[cpu-speeds]
+command=$I3BLOCKS_HOME/widgets//cpu-speed
+interval=2
+
+[cpu-temp]
+command=$I3BLOCKS_HOME/widgets/cpu-temp
+interval=2

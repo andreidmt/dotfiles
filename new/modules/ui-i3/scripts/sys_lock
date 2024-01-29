@@ -1,0 +1,31 @@
+#!/usr/bin/sh
+
+if [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
+  # Test out with email client open, increase until you cant read titles
+  blur="10x5"
+  wallpaper=/tmp/i3lock-wall.png
+
+  # take screenhot
+  shotgun $wallpaper
+
+  # apply blur
+  convert $wallpaper -blur $blur $wallpaper
+
+  # lock screen
+  i3lock -i $wallpaper
+
+  # cleanup
+  rm $wallpaper
+fi
+
+if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
+  # Turn screen off put it to background
+  swayidle \
+      timeout 10 'swaymsg "output * dpms off"' \
+      resume 'swaymsg "output * dpms on"' &
+  # Locks the screen immediately
+  swaylock -c 550000
+
+  # Kills last background task so idle timer doesn't keep running
+  kill %%
+fi

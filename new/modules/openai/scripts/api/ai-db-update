@@ -1,0 +1,111 @@
+#!/usr/bin/env sh
+
+. "$CORE_LIBS/stdin-or"
+
+# NAME
+#  ai-db-update - Update one or more records in a given table
+#
+# SYNOPSIS
+#  ai-db-update <-t table_name> <-w where_clause> <json_data>
+#
+# DESCRIPTION
+#  Updates one or more records in a specified table.
+#
+# ARGUMENTS
+#  <json_data>
+#   The JSON data to update the record(s) with. The keys of the JSON object 
+#   should match the column names of the table.
+#
+# OPTIONS
+#  -t, --table <table_name>
+#   The table to update the record(s) in
+#
+#  -w, --where <where_clause>
+#   The WHERE clause to use when updating the record(s)
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#  2 JSON parsing error
+#
+# ENVIRONMENT
+#  OPENAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1), jq(1)
+
+# Parse flags
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -t|--table)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        table=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    -w|--where)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        where=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# Input validation
+if [ -z "$table" ]; then
+  echo "error: missing required flag -t|--table" >&2
+  exit 1
+fi
+
+if [ -z "$where" ]; then
+  echo "error: missing required flag -w|--where" >&2
+  exit 1
+fi
+
+json_data=$(stdin_or "$1")
+if [ -z "$json_data" ]; then
+  echo "error: missing required argument [json_data]" >&2
+  exit 1
+fi
+
+# Main
+update_statement=$(echo "$json_data" \
+  | jq --raw-output \
+    --arg table "$table" \
+  "# Function to escape string for SQLite
+  def sqlite_escape:
+    if type == \"string\" then
+      \"'\" + gsub(\"'\"; \"''\") + \"'\"
+    else
+      tostring
+    end;
+
+  # Extract keys and process values in a consistent order
+  to_entries | 
+    map(.key) as \$keys |
+    map(.value | sqlite_escape) as \$values |
+
+  # Build SQL update statement
+  \"UPDATE \(\$table) SET \" +
+    (\$keys | map(\"\(. | sqlite_escape) = ?\") | join(\", \")) +
+  \" WHERE $where;\""
+)
+
+if [ $? -ne 0 ]; then
+  echo "error: Invalid JSON input" >&2
+  exit 2
+fi
+
+data=$(sqlite3 --json "$OPENAI_DB_FILE" "$update_statement")
+
+echo "$data" | jq --raw-output --compact-output --monochrome-output '.[0]'

@@ -1,9 +1,0 @@
-#!/bin/sh -eu
-
-if [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
-  startx
-fi
-
-if [ "$XDG_CURRENT_DESKTOP" = "sway" ]; then
-  dbus-run-session sway
-fi

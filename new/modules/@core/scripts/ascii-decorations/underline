@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# NAME
+#  underline - print underlined text
+#
+# SYNOPSIS
+#  underline [TEXT]...
+
+printf "\x1b[4m%b\x1b[0m" "$@"
+
