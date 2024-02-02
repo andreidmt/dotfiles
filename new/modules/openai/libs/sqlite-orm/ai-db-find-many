@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME 
 #  ai-db-find-many - Find all or multiple records for a given table
@@ -26,6 +26,12 @@
 #   A comma separated list of related tables to include in the query.
 #   All fields from the related tables will be included in the result.
 #
+#  -s, --sort [sort_clause]
+#   The sort clause to use when querying the database. Defaults to "id ASC".
+#
+#  -m, --mode [mode="json"] 
+#   The display mode. Get's passed to sqlite3.
+#
 # ERROR CODES
 #  1 Input error: unknown flag provided, missing value for flag or missing
 #    required flag
@@ -47,55 +53,6 @@
 # SEE ALSO
 #  sqlite3(1)
 
-FILTER="*"
-WHERE=""
-MAIN_TABLE=""
-RELATED=""
-
-validate_flag() {
-  if [ -z "$2" ] || [ "${2#-}" != "$2" ]; then
-    echo "error: argument $1 requires a value" >&2
-    exit 1
-  fi
-}
-
-parse_flags() {
-  while [ "$#" -gt 0 ]; do
-    case $1 in
-      -f|--filter)
-        validate_flag "$1" "$2"
-        FILTER=$2; shift
-        ;;
-      -w|--where)
-        validate_flag "$1" "$2"
-        WHERE=$2; shift
-        ;;
-      -t|--table)
-        validate_flag "$1" "$2"
-        MAIN_TABLE=$2; shift
-        ;;
-      -i|--include)
-        validate_flag "$1" "$2"
-        RELATED=$2; shift
-        ;;
-      --) shift; break ;;
-      -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
-      *) break ;;
-    esac
-    shift
-  done
-}
-
-query_database() {
-  query="SELECT $FILTER FROM $MAIN_TABLE"
-  
-  if [ -n "$WHERE" ] ; then
-    query="$query WHERE $WHERE"
-  fi
-
-  sqlite3 --json "$OPENAI_DB_FILE" "$query"
-}
-
 # 1:1 or N:1 relationships
 attach_direct_relationships() {
   related_table="$1"
@@ -110,7 +67,7 @@ attach_direct_relationships() {
   )
 
   # Attach related items, only those matching the ids from the main items
-  MAIN_ITEMS=$(jq --null-input --compact-output \
+  MAIN_ITEMS=$(jq --null-input \
     --argjson main_items "$MAIN_ITEMS" \
     --argjson related_items "$related_items" \
     '$main_items | map((. as $item | . + { 
@@ -133,7 +90,7 @@ attach_inverse_relationships() {
   )
 
   # Attach related items, only those matching the ids from the main items
-  MAIN_ITEMS=$(jq --null-input --compact-output \
+  MAIN_ITEMS=$(jq --null-input \
     --argjson main_items "$MAIN_ITEMS" \
     --argjson related_items "$related_items" \
     '$main_items | map((. as $item | . + { 
@@ -145,8 +102,8 @@ attach_inverse_relationships() {
 }
 
 attach_related_models() {
-  main_items_ids=$(echo "$MAIN_ITEMS" | jq '.[].id' | tr '\n' ',' | sed 's/,$//')
-  main_table_lower=$(echo "$MAIN_TABLE" | tr '[:upper:]' '[:lower:]')
+  main_items_ids=$(printf "%s" "$MAIN_ITEMS" | jq '.[].id' | tr '\n' ',' | sed 's/,$//')
+  main_table_lower=$(printf "%s" "$MAIN_TABLE" | tr '[:upper:]' '[:lower:]')
 
   # For each related table, query the database and add the related items to the 
   # main items using the related table name as the key.
@@ -169,26 +126,80 @@ attach_related_models() {
   done
 }
 
-# Main
-parse_flags "$@"
+# ╭───┤ Input validation
+# ╰─
+
+validate_flag() {
+  if [ -z "$2" ] || [ "${2#-}" != "$2" ]; then
+    echo "error: argument $1 requires a value" >&2
+    exit 1
+  fi
+}
+
+parse_args() {
+  while [ "$#" -gt 0 ]; do
+    case $1 in
+      -f|--filter)
+        validate_flag "$1" "$2"
+        FILTER=$2; shift
+      ;;
+      -w|--where)
+        validate_flag "$1" "$2"
+        WHERE=$2; shift
+      ;;
+      -t|--table)
+        validate_flag "$1" "$2"
+        MAIN_TABLE=$2; shift
+      ;;
+      -i|--include)
+        validate_flag "$1" "$2"
+        RELATED=$2; shift
+      ;;
+      -s|--sort)
+        validate_flag "$1" "$2"
+        SORT=$2; shift
+      ;;
+      -m|--mode)
+        validate_flag "$1" "$2"
+        MODE=$2; shift
+      ;;
+      --) shift; break ;;
+      -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
+      *) break ;;
+    esac
+    shift
+  done
+}
+
+parse_args "$@"
 
 if [ -z "$MAIN_TABLE" ]; then
   echo "error: missing required flag -t|--table" >&2
   exit 1
 fi
 
-MAIN_ITEMS=$(query_database)
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
 
-if [ -z "$MAIN_ITEMS" ]; then
-  echo "[]"
-  exit 0
+query="SELECT ${FILTER:-*} FROM $MAIN_TABLE"
+
+if [ -n "$WHERE" ]; then
+  query="$query WHERE $WHERE"
 fi
 
-if [ -z "$RELATED" ]; then
-  echo "$MAIN_ITEMS"
-  exit 0
+if [ -n "$SORT" ]; then
+  query="$query ORDER BY $SORT"
 fi
 
-attach_related_models
+MAIN_ITEMS=$(sqlite3 "$OPENAI_DB_FILE" \
+  "$(echo "-${MODE:-json}")" \
+  "$query"
+)
 
-echo "$MAIN_ITEMS"
+if [ -n "$RELATED" ]; then
+  attach_related_models
+fi
+
+printf "%s\n" "$MAIN_ITEMS"
+

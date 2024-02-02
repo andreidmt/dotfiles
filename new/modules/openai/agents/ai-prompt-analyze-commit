@@ -1,7 +1,5 @@
 #!/usr/bin/env sh
 
-. "$CORE_LIBS/die"
-
 # NAME
 #  ai-prompt-commit-analyzer - Analyze files staged for commit
 #
@@ -89,13 +87,15 @@ EOF
 ##
 
 if [ -z "$OPENAI_API_KEY" ]; then
-  die "OpenAI API key is not set. Set the OPENAI_API_KEY environment variable."
+  echo "OpenAI API key is not set. Set the OPENAI_API_KEY environment variable." >&2
+  exit 1
 fi
 
 file_changes=$(git --no-pager diff --cached)
 
 if [ -z "$file_changes" ]; then
-  die "No files staged for commit, nothing to analyze."
+  echo "No files staged for commit, nothing to analyze." >&2
+  exit 1
 fi
 
 query=$(build_query "$file_changes")

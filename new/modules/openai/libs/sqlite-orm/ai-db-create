@@ -1,6 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-. "$CORE_LIBS/stdin-or"
+. "$CORE_FUNCTIONS/stdin-or"
 
 # NAME
 #  ai-db-create - Create a new record in a given table
@@ -34,7 +34,8 @@
 # SEE ALSO
 #  sqlite3(1), jq(1)
 
-# Parse flags
+# ╭───┤ Input validation 
+# ╰─
 while [ "$#" -gt 0 ]; do
   case $1 in
     -t|--table)
@@ -46,28 +47,27 @@ while [ "$#" -gt 0 ]; do
       fi
     ;;
     --) shift; break ;;
-    -?*)
-      echo "error: unknown flag $1" >&2
-      exit 1
-    ;;
+    -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
     *) break ;;
   esac
   shift
 done
 
-# Input validation
 if [ -z "$table" ]; then
   echo "error: missing required flag -t|--table" >&2
   exit 1
 fi
 
-# Main
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
 json_data=$(stdin_or "$1")
 
 if [ -z "$json_data" ] || [ "$json_data" = "{}" ]; then
   insert_statement="INSERT INTO $table DEFAULT VALUES;"
 else
-  insert_statement=$(echo "$json_data" \
+  insert_statement=$(printf "%s" "$json_data" \
     | jq --raw-output --arg table "$table" \
     "# Function to escape string for SQLite
     def sqlite_escape:
@@ -104,4 +104,4 @@ COMMIT;
 EOF
 )
 
-echo "$data" | jq --raw-output --compact-output --monochrome-output '.[0]'
+printf "%s" "$data" | jq '.[0]'

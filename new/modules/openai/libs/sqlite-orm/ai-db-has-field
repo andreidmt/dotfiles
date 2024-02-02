@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME 
 #  ai-db-has-field - Check if a table has a given field
@@ -7,8 +7,8 @@
 #  ai-db-has-field <-t table_name> <-f field_name>
 #
 # DESCRIPTION
-#  Check if a table has a given field. Returns 0 if the field exists, 1 if it
-#  does not.
+#  Check if a table has a given field. 
+#  Returns 0 if the field exists, 1 if it does not.
 #
 # OPTIONS
 #  -t, --table <table_name>
@@ -30,7 +30,20 @@
 # SEE ALSO
 #  sqlite3(1)
 
-# Parse flags
+does_table_exist() {
+  sqlite3 "$OPENAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table'" \
+  | grep -c "$1" > /dev/null
+}
+
+does_field_exist() {
+  sqlite3 --json "$OPENAI_DB_FILE" "PRAGMA table_info($1)" \
+  | jq -r '.[].name' \
+  | grep -c "$2" > /dev/null
+}
+
+# ╭───┤ Input validation
+# ╰─
 while [ "$#" -gt 0 ]; do
   case $1 in
     -t|--table) 
@@ -50,16 +63,12 @@ while [ "$#" -gt 0 ]; do
       fi
     ;;
     --) shift; break ;;
-    -?*) 
-      echo "error: unknown flag $1" >&2
-      exit 1
-    ;;
+    -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
     *) break ;;
   esac
   shift
 done
 
-# Input validation
 if [ -z "$table" ]; then
   echo "error: missing required flag -t|--table" >&2
   exit 1
@@ -70,21 +79,15 @@ if [ -z "$field" ]; then
   exit 1
 fi
 
-# Functions
-get_all_table_names() {
-  sqlite3 "$OPENAI_DB_FILE" "SELECT name FROM sqlite_master WHERE type='table';"
-}
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
 
-get_field_names() {
-  sqlite3 --json "$OPENAI_DB_FILE" "PRAGMA table_info($1);" | jq -r '.[].name'
-}
-
-# Main
-if ! get_all_table_names | grep -c "$table" > /dev/null; then
+if ! does_table_exist "$table"; then
   echo "error: table $table does not exist" >&2
   exit 2
 fi
 
-if ! get_field_names "$table" | grep -c "$field" > /dev/null; then
+if ! does_field_exist "$table" "$field"; then
   exit 3
 fi

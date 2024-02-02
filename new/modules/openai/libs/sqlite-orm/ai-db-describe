@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME 
 #  ai-db-discribe - Discribe one or multiple table
@@ -26,9 +26,16 @@
 # SEE ALSO
 #  sqlite3(1)
 
-tables=""
+get_all_table_names() {
+  sqlite3 "$OPENAI_DB_FILE" "SELECT name FROM sqlite_master WHERE type='table';"
+}
 
-# Parse flags
+describe_table() {
+  sqlite3 --json "$OPENAI_DB_FILE" "PRAGMA table_info($1);"
+}
+
+# ╭───┤ Parse flags
+# ╰─
 while [ "$#" -gt 0 ]; do
   case $1 in
     -t|--table) 
@@ -49,16 +56,10 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
-# Functions
-get_all_table_names() {
-  sqlite3 "$OPENAI_DB_FILE" "SELECT name FROM sqlite_master WHERE type='table';"
-}
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
 
-describe_table() {
-  sqlite3 --json "$OPENAI_DB_FILE" "PRAGMA table_info($1);"
-}
-
-# Main
 if [ -z "$tables" ]; then
   tables=$(get_all_table_names)
 fi
@@ -66,13 +67,14 @@ fi
 # Form an object with the table name as the key and the table description as 
 # the value.
 result="{}"
+
 for table_name in $tables; do
-  result=$(echo "$result" \
-    | jq --raw-output --compact-output \
+  result=$(printf "%s" "$result" \
+    | jq \
       --arg table_name "$table_name" \
       --argjson table_description "$(describe_table "$table_name")" \
     '.[$table_name] = $table_description'
   )
 done
 
-echo "$result"
+printf "%s\n" "$result"

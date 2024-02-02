@@ -1,51 +1,51 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-# Entry point for the OpenAI shell module. 
-# Automaticly loaded by the shell in .zshrc.
+# ╭──────────────────────
+# │ Entry point for the OpenAI shell module.
+# ╰────────
 
 export OPENAI_HOME="$(dirname "$0")"
-export OPENAI_MODEL_PATH="$OPENAI_HOME/.cache/current-model"
 export OPENAI_ICON="󱚥"
+
+# ╭───┤ Prepare module directories
+# ╰─
 export OPENAI_LOCAL="$OPENAI_HOME/.local"
 export OPENAI_CACHE="$OPENAI_HOME/.cache"
 
-################## Prepare module directories
-
 mkdir -p "$OPENAI_CACHE" "$OPENAI_LOCAL"
 
-################## Expose scripts and libs
-
+# ╭───┤ Expose scripts and libs
+# ╰─
 export OPENAI_LIBS="$OPENAI_HOME/libs"
 export OPENAI_SCRIPTS="$OPENAI_HOME/scripts"
 
-add_to_path "$OPENAI_SCRIPTS"
+add_to_path "$OPENAI_SCRIPTS" "$OPENAI_LIBS"
 
 if [ "$HMVC_DEBUG" = true ]; then
-  lib_files="$(find "$OPENAI_LIBS" -type f)"
-  script_files="$(find "$OPENAI_SCRIPTS" -type f)"
+  lib_count="$(find "$OPENAI_LIBS" -type f | wc -l)"
+  script_count="$(find "$UII3_SCRIPTS" -type f | wc -l)"
 
-  echo "$OPENAI_ICON $(underline "$(echo "$script_files" | wc -l) scripts") added to \$PATH"
-  echo "$OPENAI_ICON $(underline "$(echo "$lib_files" | wc -l) libs") available under \$OPENAI_LIBS"
+  echo "$OPENAI_ICON $(underline "$script_count scripts") added to \$PATH"
+  echo "$OPENAI_ICON $(underline "$lib_count libs") added to \$PATH"
 fi
 
-################## Local/private env vars, not tracked by git
-
+# ╭───┤ Source private env vars, secrets, API keys, etc. Not tracked by git.
+# ╰─
 . "$OPENAI_HOME/.env"
 
-################## SQLite database
-
+# ╭───┤ Setup SQLite database
+# ╰─
 export OPENAI_DB_FILE="$OPENAI_LOCAL/ai.db"
 
 if [ ! -f "$OPENAI_DB_FILE" ]; then
   cat \
-    "$OPENAI_SCRIPTS/settings/schema.sql" \
-    "$OPENAI_SCRIPTS/users/schema.sql" \
-    "$OPENAI_SCRIPTS/conversations/schema.sql" \
-    "$OPENAI_SCRIPTS/messages/schema.sql" \
+    "$OPENAI_HOME/schemas/settings.sql" \
+    "$OPENAI_HOME/schemas/users.sql" \
+    "$OPENAI_HOME/schemas/conversations.sql" \
+    "$OPENAI_HOME/schemas/messages.sql" \
     | sqlite3 "$OPENAI_DB_FILE"
 
   echo "$OPENAI_ICON SQLite database created at \$OPENAI_DB_FILE"
 else
   echo "$OPENAI_ICON SQLite database exists at \$OPENAI_DB_FILE"
-  ai-db-count | sed 's/^/   /'
 fi

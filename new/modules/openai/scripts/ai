@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME
 #  ai - Ask OpenAI a question
@@ -69,7 +69,7 @@ if [ "$is_dry_run" = true ]; then
   exit 0
 fi
 
-openai-api-completions \
+ai-openai-completions \
   --model "$agent_model" \
   --temperature "$agent_temp" \
   "$query" \
@@ -91,7 +91,7 @@ user_id=$(ai-db-find-one -t Users -w "slug = '$(whoami)'" \
   | jq --raw-output '.id'
 )
 
-jq --null-input --raw-output --compact-output \
+jq --null-input \
   --arg query "$query" \
   --arg conversation_id "$conversation_id" \
   --arg user_id "$user_id" \
@@ -102,7 +102,7 @@ jq --null-input --raw-output --compact-output \
   }' \
   | ai-db-create -t Messages > /dev/null
 
-jq --null-input --raw-output --compact-output \
+jq --null-input \
   --arg conversation_id "$conversation_id" \
   --arg agent_id "$agent_id" \
   --arg agent_model "$agent_model" \

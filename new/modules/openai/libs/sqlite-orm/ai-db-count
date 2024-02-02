@@ -1,0 +1,115 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-count - Count records
+#
+# SYNOPSIS
+#  ai-db-count [-t table_name] [-w where_clause]
+#
+# DESCRIPTION
+#  Count records in a table. By default all records are counted.
+#  Use the WHERE clause to count a subset of records.
+#
+# OPTIONS
+#  -t, --table [table_name="*"]
+#   Table name or comma separated list of table names to count. 
+#   If omitted, all tables are counted.
+#
+#  -w, --where [where_clause]
+#   The WHERE clause to use when querying the database.
+#
+#  -m, --mode [mode="box"] 
+#   The display mode. Get's passed to sqlite3.
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#
+# ENVIRONMENT
+#  OPENAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+get_all_tables() {
+  sqlite3 --csv "$OPENAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table';" \
+    | tr '\n' ',' \
+    | sed 's/,$//'
+}
+
+table_exists() {
+  sqlite3 "$OPENAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table' AND name='$1';" \
+  | grep -q "$1"
+}
+
+# ╭───┤ Input validation 
+# ╰─
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -w|--where) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        where=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    -t|--table) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        table=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    -m|--mode) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        mode=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) 
+      echo "error: unknown flag $1" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$table" ] && [ -n "$where" ]; then
+  echo "error: -w|--where requires -t|--table" >&2 
+  exit 1
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+if [ -z "$table" ]; then
+  table=$(get_all_tables)
+fi
+
+for table_name in $(echo "$table" | tr ',' '\n'); do
+  if ! table_exists "$table_name"; then
+    echo "error: table '$table_name' does not exist" >&2
+    exit 1
+  fi
+
+  if [ -z "$query" ]; then
+    query="SELECT '$table_name' AS table_name, COUNT(*) AS row_count FROM $table_name"
+  else
+    query="$query UNION ALL SELECT '$table_name', COUNT(*) FROM $table_name"
+  fi
+done
+
+sqlite3 "$OPENAI_DB_FILE" \
+  "$(echo "-${mode:-json}")" \
+  "SELECT table_name, row_count FROM ($query)"
+

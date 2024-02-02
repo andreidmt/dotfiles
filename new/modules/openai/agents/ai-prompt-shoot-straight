@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 
-. "$CORE_LIBS/die"
-. "$CORE_LIBS/stdin-or"
+. "$CORE_FUNCTIONS/stdin-or"
 
 build_query() {
   cat <<EOF
@@ -29,7 +28,8 @@ EOF
 ##
 
 if [ -z "$OPENAI_API_KEY" ]; then
-  die "OpenAI API key is not set. Set the OPENAI_API_KEY environment variable."
+  echo "OpenAI API key is not set. Set the OPENAI_API_KEY environment variable." >&2
+  exit 1
 fi
 
 question=$(stdin_or "$1")

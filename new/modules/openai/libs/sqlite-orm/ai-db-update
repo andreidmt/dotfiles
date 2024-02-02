@@ -1,6 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-. "$CORE_LIBS/stdin-or"
+. "$CORE_FUNCTIONS/stdin-or"
 
 # NAME
 #  ai-db-update - Update one or more records in a given table
@@ -35,7 +35,8 @@
 # SEE ALSO
 #  sqlite3(1), jq(1)
 
-# Parse flags
+# ╭───┤ Input validation
+# ╰─
 while [ "$#" -gt 0 ]; do
   case $1 in
     -t|--table)
@@ -61,7 +62,6 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
-# Input validation
 if [ -z "$table" ]; then
   echo "error: missing required flag -t|--table" >&2
   exit 1
@@ -73,15 +73,19 @@ if [ -z "$where" ]; then
 fi
 
 json_data=$(stdin_or "$1")
-if [ -z "$json_data" ]; then
-  echo "error: missing required argument [json_data]" >&2
+if [ -z "$json_data" ] || [ "$json_data" = "{}" ]; then
+  echo "error: missing or empty required argument json_data" >&2
   exit 1
 fi
 
-# Main
-update_statement=$(echo "$json_data" \
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+update_statement=$(printf "%s" "$json_data" \
   | jq --raw-output \
     --arg table "$table" \
+    --arg where "$where" \
   "# Function to escape string for SQLite
   def sqlite_escape:
     if type == \"string\" then
@@ -90,15 +94,10 @@ update_statement=$(echo "$json_data" \
       tostring
     end;
 
-  # Extract keys and process values in a consistent order
-  to_entries | 
-    map(.key) as \$keys |
-    map(.value | sqlite_escape) as \$values |
-
-  # Build SQL update statement
+  # Build SQL update statement by setting each key to its corresponding value
   \"UPDATE \(\$table) SET \" +
-    (\$keys | map(\"\(. | sqlite_escape) = ?\") | join(\", \")) +
-  \" WHERE $where;\""
+    (to_entries | map(\"\(.key)='\" + (.value | sqlite_escape) + \"'\") | join(\", \")) +
+  \" WHERE \(\$where);\""
 )
 
 if [ $? -ne 0 ]; then
@@ -106,6 +105,4 @@ if [ $? -ne 0 ]; then
   exit 2
 fi
 
-data=$(sqlite3 --json "$OPENAI_DB_FILE" "$update_statement")
-
-echo "$data" | jq --raw-output --compact-output --monochrome-output '.[0]'
+sqlite3 --json "$OPENAI_DB_FILE" "$update_statement"

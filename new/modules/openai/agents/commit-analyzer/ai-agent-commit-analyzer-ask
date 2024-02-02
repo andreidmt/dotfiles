@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 
-. "$CORE_LIBS/die"
-. "$CORE_LIBS/stdin-or"
+. "$CORE_FUNCTIONS/stdin-or"
 
 # NAME
 #  ai-ask - Get an answer from OpenAI /completions 
@@ -42,7 +41,8 @@ answer=$(
 )
 
 if [ -z "$answer" ]; then
-  die "No answer :("
+  echo "No answer :(" >&2
+  exit 1
 fi
 
 echo "$answer"

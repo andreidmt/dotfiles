@@ -1,7 +1,5 @@
 #!/usr/bin/env sh
 
-. "$CORE_LIBS/die"
-
 # NAME
 #  pinger - Rudimentary load testing tool for HTTP servers
 #
@@ -25,21 +23,24 @@ parse_args() {
     case $1 in
       -u|--url)
         if [ "$2" ] && [ "${2#-}" = "$2" ]; then URL=$2; shift; else
-          die 'ERROR: "--url" requires a non-empty option argument.'
+          echo 'ERROR: "--url" requires a non-empty option argument.' >&2
+          exit 1
         fi
       ;;
       -s|--sleep)
         if [ "$2" ] && [ "${2#-}" = "$2" ]; then SLEEP=$2; shift; else
-          die 'ERROR: "--sleep" requires a non-empty option argument.'
+          echo 'ERROR: "--sleep" requires a non-empty option argument.' >&2
+          exit 1
         fi
       ;;
       -c|--concurrency)
         if [ "$2" ] && [ "${2#-}" = "$2" ]; then CONCURRENCY=$2; shift; else 
-          die 'ERROR: "--concurrency" requires a non-empty option argument.'
+          echo 'ERROR: "--concurrency" requires a non-empty option argument.' >&2
+          exit 1
         fi
       ;;
       --) shift; break ;;
-      -?*) die "ERROR: Unknown option: $1" ;;
+      -?*) echo "ERROR: Unknown option: $1" >&2; exit 1 ;;
       *) break ;;
     esac
     shift
@@ -48,11 +49,13 @@ parse_args() {
 
 validate_args() {
   if [ -z "$URL" ]; then
-    die "ERROR: URL is required."
+    echo "ERROR: URL is required." >&2
+    exit 1
   fi
 
   if [ "$SLEEP" -lt 0 ]; then
-    die "ERROR: Sleep must be a positive integer, got $SLEEP."
+    echo "ERROR: Sleep must be a positive integer, got $SLEEP." >&2
+    exit 1
   fi
 }
 

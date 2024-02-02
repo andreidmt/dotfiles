@@ -1,0 +1,90 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-clear - Remove all records from a table
+#
+# SYNOPSIS
+#  ai-db-clear [-t table_name]
+#
+# DESCRIPTION
+#  Remove all the records in a table. If none is provided, all tables are
+#  cleared.
+#
+# OPTIONS
+#  -t, --table [table_name="*"]
+#   Table name or comma separated list of table names to clear
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#
+# ENVIRONMENT
+#  OPENAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+get_all_tables() {
+  sqlite3 --csv "$OPENAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table';" \
+    | tr '\n' ',' \
+    | sed 's/,$//'
+}
+
+truncate_table() {
+  # remove all records from the table
+  sqlite3 "$OPENAI_DB_FILE" "DELETE FROM $1;"
+
+  # reset the autoincrement counter
+  sqlite3 "$OPENAI_DB_FILE" "DELETE FROM sqlite_sequence WHERE name='$1';"
+}
+
+confirm() {
+  echo "Are you sure you want to delete all records from the following tables: $(bold "$table")? [y/N]"
+  read -r answer
+
+  if ! echo "$answer" | grep -iq "y"; then
+    echo "Aborting."
+    exit 0
+  fi
+}
+
+# ╭───┤ Parse flags
+# ╰─
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -t|--table) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        table=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) 
+      echo "error: unknown flag $1" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+if [ -z "$table" ]; then
+  table=$(get_all_tables)
+fi
+
+ai-db-count -t "$table"
+confirm
+
+for table_name in $(echo "$table" | tr ',' '\n'); do
+  truncate_table "$table_name"
+  echo "Cleared table $table_name"
+done
+

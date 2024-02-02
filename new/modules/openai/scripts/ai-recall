@@ -1,45 +1,106 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-. "$CORE_LIBS/stdin-or"
+set -e
 
 # NAME
-#  ai-resume - Set the current conversation as the active one and output the
-#  conversation messages 
+#  ai-recall - Set the active conversation
 #
 # SYNOPSIS
-#  ai-resume <conversation_id>
+#  ai-recall [choose | view <conversation_id>] 
 #
 # DESCRIPTION
 #  Preview a conversation by displaying all messages in the conversation, nicely
 #  formatted in markdown.
 #
-# ARGUMENTS
-#  <conversation_id>
-#   The ID of the conversation to preview.
+#  If no conversation_id argument is provided, a list of conversations is
+#  displayed and the user can select one.
+#
+#  Upon selecting the conversation, it is set as the active conversation and
+#  subsequent messages to `ai` will be added to this conversation.
+# 
+# COMMANDS
+#  choose
+#   Display a list of conversations and let the user select one.
+#
+#  view <conversation_id>
+#   Display the conversation with the given ID.
 #
 # EXAMPLES
-#  ai-resume 42
+#  ai-recall view 42
 #
 # SEE ALSO
-#  ai-db-find-many(1), jq(1), bat(1) 
+#  ai-db-find-many(1), jq(1), fzf(1), bat(1)
 
-conversation_id=$(stdin_or "$1")
+choose_conversation() {
+  delimiter="::"
 
-if [ -z "$conversation_id" ]; then
-  echo "error: missing argument <conversation_id>" >&2
-  exit 1
-fi
-
-ai-db-find-many \
-  --table Messages \
-  --where "conversations_id = $conversation_id" \
-  --include Users \
+  ai-db-find-many --table Conversations \
+    --filter "id, title, messages_count" \
+    --sort "updated_at DESC" \
   | jq --raw-output \
-    --arg ai_icon "$OPENAI_ICON" \
-    --arg human_icon "" \
-    '.[] | if .Users.is_ai == 1 then 
-      "## _\($ai_icon) \(.Users.name)_\n\(.content)\n" 
-    else 
-      "## \($human_icon) \(.Users.name)\n\(.content)\n"
-    end' \
-  | bat --language markdown --paging never --style numbers --color always 
+    --arg delimiter "$delimiter" \
+    '.[] | (.id|tostring) + $delimiter + .title + " (" + (.messages_count|tostring) + ")"' \
+  | fzf \
+    --delimiter "$delimiter" \
+    --with-nth "2" \
+    --print-query \
+    --header "$OPENAI_ICON Select a conversation to resume:" \
+    --preview 'ai-recall view {1}' \
+    --preview-window 'right:60%:wrap' \
+  | awk -F "$delimiter" '{print $1}' \
+  | tr -d '\n'
+}
+
+pretty_print_conversation() {
+  ai-db-find-many \
+    --table Messages \
+    --where "conversations_id = $CID" \
+    --include Users \
+    | jq --raw-output \
+      --arg ai_icon "$OPENAI_ICON" \
+      --arg human_icon "" \
+      '.[] | if .Users.is_ai == 1 then
+        "╭───────\n│ _\($ai_icon) \(.Users.name)_\n╰─────\n\(.content)\n"
+      else
+        "╭───────\n│ **\($human_icon) \(.Users.name)**\n╰─────\n\(.content)\n"
+      end' \
+    | bat --language markdown \
+      --paging never \
+      --style plain \
+      --color always
+}
+
+# ╭──────────────────────
+# │ Main 
+# ╰────────
+
+case "${1:-choose}" in
+  choose) 
+    CID=$(choose_conversation)
+
+    if [ -z "$CID" ]; then
+      echo "error: no conversation selected" >&2
+      exit 1
+    fi
+
+    ai-db-update \
+      --table Settings \
+      --where "key='active-conversation-id'" \
+      "{\"value\":$CID}"
+
+    clear
+    pretty_print_conversation
+  ;;
+  view)
+    CID="$2"
+    
+    if [ -z "$CID" ]; then
+      echo "error: missing required argument <conversation_id>" >&2
+      exit 1
+    fi
+
+    pretty_print_conversation
+  ;;
+  *) echo "Command \"$1\" not recognized" >&2; exit 1 ;;
+esac
+
