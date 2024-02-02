@@ -1,0 +1,11 @@
+#!/usr/bin/env dash
+
+# DESCRIPTION
+#  Show a calendar for the current and next month as a dunst notification.
+#  This script is meant to be used with `polybar`.
+
+cal2Months=$(cal --color=always -n 2 \
+  | sed "s/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/" \
+)
+
+doomst --title " Calendar" --message "$cal2Months"

@@ -1,0 +1,29 @@
+#!/usr/bin/env dash
+
+. "$CORE_FUNCTIONS/is-process-running"
+
+# DESCRIPTION
+#  Start `redshift` with latitude and longitude from Mozilla Location Service
+#
+# ERROR CODES
+#  1 Xorg is not running
+#
+# SEE ALSO
+#  redshift(1)
+
+if ! is_process_running "Xorg"; then
+  echo "Xorg is not running, not starting redshift" >&2
+  exit 1
+fi
+
+if is_process_running "redshift"; then
+  exit 0
+fi
+
+geo_location=$(curl -s "https://location.services.mozilla.com/v1/geolocate?key=geoclue"\
+  | jq '.location.lat, .location.lng' \
+  | tr '\n' ':' \
+  | sed 's/:$//'
+)
+
+redshift -P -l "$geo_location" &

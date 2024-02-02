@@ -38,26 +38,13 @@ for_window [title="such-important"] resize set width 1000px, resize set height 9
 for_window [title="^layout-center-right *"] floating enable, resize set width 40ppt, resize set height 80ppt, move position center, move right 25ppt
 for_window [title="^layout-center-left *"] floating enable, resize set width 40ppt, resize set height 80ppt, move position center, move left 25ppt
 for_window [title="^layout-center *"] floating enable, resize set width 65ppt, resize set height 70ppt, move position center
+for_window [class="center-float"] floating enable, resize set width 65ppt, resize set height 70ppt, move position center
 for_window [title="^layout-center-wide *"] floating enable, resize set width 90ppt, resize set height 80ppt, move position center
 
 for_window [title="Steam - Update News"] floating enable
 for_window [window_role="messages"] floating enable
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
-
-##
-## Startup
-##
-
-exec --no-startup-id syncthing -no-browser -no-restart
-
-exec --no-startup-id wallpaper reload
-
-# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
-# screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- sys_lock --nofork
-
-bindsym $mod+x exec --no-startup-id sys_lock
 
 ##
 ## Application menus
@@ -227,6 +214,22 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 ##
+## Startup applications
+##
+
+exec_always --no-startup-id $UII3_HOME/polybar/launch
+exec_always --no-startup-id $UII3_HOME/picom/launch
+exec_always --no-startup-id $UII3_HOME/redshift/launch
+exec_always --no-startup-id $UI_HOME/dunst/launch
+exec_always --no-startup-id wallpaper reload
+exec --no-startup-id syncthing -no-browser -no-restart
+
+# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
+# screen before suspend. Use loginctl lock-session to lock your screen.
+exec --no-startup-id xss-lock --transfer-sleep-lock -- sys_lock --nofork
+bindsym $mod+x exec --no-startup-id sys_lock
+
+##
 ## Xresources colors
 ##
 
@@ -256,52 +259,3 @@ client.unfocused        $transparent  $blue    $white    $darkblue      $darkbla
 client.focused_inactive $transparent  $blue    $white    $darkblue      $darkblack
 client.urgent           $darkred      $darkred $black    $darkred       $darkred
 client.background       $black
-
-##
-## i3blocks
-##
-
-bar {
-  status_command i3blocks -c $I3BLOCKS_HOME/toolbars/top
-  tray_output none
- 
-  # transparent color support
-  i3bar_command i3bar -t
-  
-  font pango:mono 12
-  tray_padding 5
-  position top
-  height 30
-  separator_symbol " :: "
-
-  colors {
-		background $barBackground
-    statusline $white
-    separator $white
-    focused_workspace  $cyan          $darkcyan    $white
-    inactive_workspace $barBackground $barBackground $white
-    urgent_workspace   $red           $darkred     $white
-  }
-}
-
-bar {
-  status_command i3blocks -c $I3BLOCKS_HOME/toolbars/bottom
-
-  # transparent color support
-  i3bar_command i3bar -t
-
-  workspace_buttons no
-  font pango:mono 11
-  position bottom
-  height 30
-  separator_symbol " :: "
-
-  colors {
-		background $barBackground
-    statusline $white
-    separator $white
-    focused_workspace  $cyan          $darkcyan    $white
-    inactive_workspace $barBackground $barBackground $white
-    urgent_workspace   $red           $darkred     $white
-  }
-}

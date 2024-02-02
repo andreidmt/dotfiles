@@ -1,19 +1,30 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
+
+# ╭──────────────────────
+# │ Entry point for the UI-I3 shell module.
+# ╰────────
 
 export UII3_HOME="$(dirname "$0")"
-export UII3_SCRIPTS="$UII3_HOME/scripts"
+export UII3_ICON=""
 export I3BLOCKS_HOME="$UII3_HOME/i3blocks"
 
-##
-## Main
-##
+# ╭───┤ Expose scripts and libs
+# ╰─
+export UII3_SCRIPTS="$UII3_HOME/scripts"
 
-export PATH="$UII3_SCRIPTS:$PATH"
+add_to_path "$UII3_SCRIPTS"
 
-## Symlink application configs
+if [ "$HMVC_DEBUG" = true ]; then
+  script_count="$(find "$UII3_SCRIPTS" -type f | wc -l)"
 
+  echo "$UII3_ICON $(underline "$script_count scripts") added to \$PATH"
+fi
+
+# ╭───┤ Symlink application config
+# ╰─
 config_dirs="picom
 redshift
+polybar
 i3
 rofi
 newsboat
@@ -26,17 +37,21 @@ echo "$config_dirs" | while IFS="" read -r dir; do
   fi
 done
 
-## Start services in background if not already running, decupled from shell
+# ╭──────────────────────
+# │ Packages are listed in .packages files in the module root. It is a comma
+# │ separated list of packages, for example:
+# │
+# │  i3,      pacman, "Window manager"
+# │  polybar, pacman, "Status bar"
+# │  ─┬─      ─┬─     ─┬─
+# │   │        │       ╰─ Description of the package
+# │   │        ╰─ Package manager
+# │   ╰─ Package name
+# ╰─────
+pacman_package_names=$(cat "$UII3_HOME/.packages" \
+  | grep -v "^#" | grep "pacman" \
+  | cut -d, -f1 \
+  | tr '\n' ' '
+)
 
-if is_process_running "Xorg"; then
-  if ! is_process_running "redshift"; then
-    echo " Starting background process $(underline "redshift")" 
-    nohup screen-auto-temp > /dev/null 2>&1 &
-  fi
-
-  if ! is_process_running "picom"; then
-    echo " Starting background process $(underline "picom")" 
-    nohup picom -b > /dev/null 2>&1 &
-  fi
-fi
-
+echo "$UII3_ICON $(underline "packages"): $pacman_package_names"

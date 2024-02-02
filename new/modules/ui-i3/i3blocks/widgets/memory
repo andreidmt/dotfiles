@@ -1,7 +1,0 @@
-#!/usr/bin/sh
-
-FREE=$(free -h)
-MEMORY=$(echo "$FREE" | awk '/^Mem:/ {print $3 "/" $2}')
-SWAP=$(echo "$FREE" | awk '/^Swap:/ {print $3 "/" $2}')
-
-echo "$MEMORY || $SWAP"

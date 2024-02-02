@@ -1,0 +1,59 @@
+#!/usr/bin/env dash
+
+# DESCRIPTION
+#  Interact with the microphone.
+#  This script is meant to be used with `polybar`.
+
+disabled() {
+  disable_color=$(xrdb -query | awk '/color8/ {print $2}')
+  echo "%{F$disable_color}$1%{F-}"
+}
+
+orange() {
+  orange_color=$(xrdb -query | awk '/color3/ {print $2}')
+  echo "%{F$orange_color}$1%{F-}"
+}
+
+get_mic_status() {
+  default_src=$(pactl info | awk '/Default Source:/ {print $3}')
+  is_muted=$(pactl get-source-mute "$default_src" | awk '{print $2}')
+  volume=$(pactl get-source-volume "$default_src" | awk '{print $5}')
+
+  case "$is_muted" in
+    "yes")
+      echo "$(orange "") $(disabled "$volume")" 
+    ;;
+    "no")
+      echo "$(orange "") $volume"
+    ;;
+  esac
+}
+
+# ╭──────────────────────
+# │ Main 
+# ╰────────
+
+case "$1" in
+  status) 
+    get_mic_status
+
+    # ╭─┤ Needs tail=true in the polybar module
+    # ╰
+    LANG=EN; pactl subscribe | while read -r event; do
+      if printf "%s\n" "${event}" | grep -qE '(source|server)'; then
+        get_mic_status
+      fi
+    done
+  ;;
+  toggle)
+    pactl set-source-mute @DEFAULT_SOURCE@ toggle
+  ;;
+  up)
+    pactl set-source-volume @DEFAULT_SOURCE@ +5%
+  ;;
+  down)
+    pactl set-source-volume @DEFAULT_SOURCE@ -5%
+  ;;
+  *) echo "Command \"$1\" not recognized" >&2; exit 1 ;;
+esac
+

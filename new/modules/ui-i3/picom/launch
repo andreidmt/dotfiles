@@ -1,0 +1,21 @@
+#!/usr/bin/env dash
+
+. "$CORE_FUNCTIONS/is-process-running"
+
+# DESCRIPTION
+#  Start `picom` if it is not already running.
+# 
+# ERROR CODES
+#  1 Xorg is not running
+#
+# SEE ALSO
+#  polybar(1)
+
+if ! is_process_running "Xorg"; then
+  exit 1
+fi
+
+if ! is_process_running "picom"; then
+  picom &
+fi
+
