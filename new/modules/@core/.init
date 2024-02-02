@@ -1,29 +1,38 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
+
+# ╭──────────────────────
+# │ Entry point for the Core shell module.
+# ╰────────
 
 export CORE_HOME="$(dirname "$0")"
-export CORE_LIBS="$CORE_HOME/libs"
-export CORE_SCRIPTS="$CORE_HOME/scripts"
-export CORE_TMP="$CORE_HOME/.tmp"
+export CORE_ICON=""
 
-##
-## Main
-##
+# ╭───┤ Prepare module directories
+# ╰─
+export CORE_TMP="$CORE_HOME/.tmp"
 
 mkdir -p "$CORE_TMP"
 
-# Source all libs in $CORE_LIBS
-find "$CORE_LIBS" -type f | while IFS= read -r lib_file; do 
+# ╭───┤ Load Xresources (colors, fonts, etc.)
+# ╰─
+xrdb -merge ~/.Xresources
+
+# ╭───┤ Expose scripts and libs
+# ╰─
+export CORE_SCRIPTS="$CORE_HOME/scripts"
+export CORE_FUNCTIONS="$CORE_HOME/functions"
+
+find "$CORE_FUNCTIONS" -type f | while IFS= read -r lib_file; do 
   . "$lib_file"
 done
 
-# Expose all dirs in $CORE_SCRIPTS to PATH
 add_to_path "$CORE_SCRIPTS"
 
 if [ "$HMVC_DEBUG" = true ]; then
-  lib_files="$(find "$CORE_LIBS" -type f)"
-  script_files="$(find "$CORE_SCRIPTS" -type f)"
+  functions_count="$(find "$CORE_FUNCTIONS" -type f | wc -l)"
+  scripts_count="$(find "$CORE_SCRIPTS" -type f | wc -l)"
 
-  echo " $(underline "$(echo "$script_files" | wc -l) scripts") added to \$PATH"
-  echo " $(underline "$(echo "$lib_files" | wc -l) libs") available under \$CORE_LIBS"
+  echo "$CORE_ICON $(underline "$scripts_count scripts") added to \$PATH"
+  echo "$CORE_ICON $(underline "$functions_count functions") available under \$CORE_FUNCTIONS"
 fi
 

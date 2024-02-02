@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME
 #  die - Function to print an error message and exit with a non-zero code

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 export AWSM_HOME="$(dirname "$0")"
 export AWSM_TMP="$AWSM_HOME/.tmp"

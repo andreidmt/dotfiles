@@ -1,6 +1,4 @@
-#!/usr/bin/env sh
-
-. "$CORE_LIBS/die"
+#!/usr/bin/env dash
 
 # NAME
 #  random - Generate random strings
@@ -32,7 +30,5 @@ case ${1:-readable} in
     cat /proc/sys/kernel/random/uuid
   ;;
 
-  *)
-    die "Command <u>$1</u> not recognized"
-  ;;
+  *) echo "Command $1 not recognized" >&2; exit 1 ;;
 esac

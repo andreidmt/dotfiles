@@ -1,0 +1,24 @@
+```toml
+id="3ace6473-c0b8-4ff1-afba-70a6f9900fdf"
+type="snippet"
+description=""
+tags=["sh", "comment"]
+created_at="2024-01-30T16:10:02+01:00"
+```
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+# ╭───┤ Section 
+# ╰─
+
+# ╭──────────────────────
+# │ Complex ASCII drawing flexing 
+# │
+# │  some, thing, "or another"
+# │  ─┬─   ─┬─     ─┬─
+# │   │     │       ╰─ description 
+# │   │     ╰─ description 
+# │   ╰─ description
+# ╰─────

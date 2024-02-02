@@ -14,6 +14,7 @@ return {
         "hcl", -- Terraform
         "html",
         "javascript",
+        "jq",
         "jsdoc",
         "json",
         "latex",

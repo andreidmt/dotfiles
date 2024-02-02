@@ -1,9 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # -e: exit on error
 set -e 
-
-. "$CORE_LIBS/die"
 
 parse_arguments() {
   INPUT_ARCHIVE_FILE=$1
@@ -43,6 +41,7 @@ case "$INPUT_ARCHIVE_FILE" in
     tar -xf "$INPUT_ARCHIVE_FILE" -c "$DESTINATION_FOLDER"
   ;;
   *)
-    die "Unknown archive format <u>$INPUT_ARCHIVE_FILE</u>"
+    echo "Unknown archive format $INPUT_ARCHIVE_FILE" >&2
+    exit 1
   ;;
 esac

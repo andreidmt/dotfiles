@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME
 #  stdin_or - Function to read from stdin or use passed arguments as fallback

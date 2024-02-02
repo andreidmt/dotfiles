@@ -1,6 +1,4 @@
-#!/usr/bin/env sh
-
-. "$CORE_LIBS/die"
+#!/usr/bin/env dash
 
 print_help() {
   cat <<EOF
@@ -47,11 +45,12 @@ parse_args() {
         if [ "$2" ] && [ "${2#-}" = "$2" ]; then
           FIELDS="$FIELDS $2"; shift
         else
-          die 'ERROR: "--field" requires a non-empty option argument.'
+          echo 'ERROR: "--field" requires a non-empty option argument.' >&2
+          exit 1
         fi
       ;;
       --) shift; break ;;
-      -?*) print_help >&2; die "ERROR: Unknown option: $1" ;;
+      -?*) print_help >&2; echo "ERROR: Unknown option: $1" >&2; exit 1 ;;
       *) break ;;
     esac
     shift
@@ -93,7 +92,8 @@ extract_frontmatter() {
 ##
 
 if [ "$#" -lt 1 ]; then
-  die "ERROR: A file argument is required."
+  echo "ERROR: A file argument is required." >&2
+  exit 1
 fi
 
 FIELDS=""

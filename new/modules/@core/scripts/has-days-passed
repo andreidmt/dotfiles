@@ -1,9 +1,9 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # -e: exit on error
 set -e 
 
-. "$CORE_LIBS/die"
+. "$CORE_FUNCTIONS/die"
 
 # NAME
 #  has-days-passed - Checks if the current time is older than the last time 

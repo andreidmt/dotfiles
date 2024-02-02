@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # Predicate function checking if a command exists
 does_command_exist() {

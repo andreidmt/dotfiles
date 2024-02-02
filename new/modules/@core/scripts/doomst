@@ -1,7 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-. "$CORE_LIBS/stdin-or"
-. "$CORE_LIBS/is-process-running"
+. "$CORE_FUNCTIONS/stdin-or"
+. "$CORE_FUNCTIONS/is-process-running"
 
 # NAME
 #   doomst - Doomguy themed dunst notification script

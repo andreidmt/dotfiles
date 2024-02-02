@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME
 #  date-iso - Prints the current date in ISO 8601 format 

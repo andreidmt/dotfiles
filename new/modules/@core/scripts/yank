@@ -1,8 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-. "$CORE_LIBS/die"
-. "$CORE_LIBS/stdin-or"
-. "$CORE_LIBS/does-command-exist"
+. "$CORE_FUNCTIONS/stdin-or"
+. "$CORE_FUNCTIONS/does-command-exist"
 
 # NAME
 #  yank - Display manager aware copy to clipboard, yank, script
@@ -37,5 +36,6 @@ if does_command_exist "xsel" -eq 0; then
   exit
 fi
 
-die "Neither <u>wl-copy</u> nor <u>xsel</u> is available."
+echo "Neither wl-copy nor xsel is available." >&2
+exit 1
 

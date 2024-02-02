@@ -1,9 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # -e: exit on error, -u: error on undefined variable
 set -eu 
-
-. "$CORE_LIBS/die"
 
 script_name=$(basename "$0")
 SCREENSHOT_HOME="$HOME/Pictures/Screenshots"
@@ -47,7 +45,5 @@ case $1 in
     doomst --title "$script_name - screen" "$path"
   ;;
 
-  *)
-    die "Unknown command: $1"
-  ;;
+  *) echo "Unknown command: $1" >&2; exit 1 ;;
 esac

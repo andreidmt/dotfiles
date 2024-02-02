@@ -1,7 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-. "$CORE_LIBS/die"
-. "$CORE_LIBS/stdin-or"
+. "$CORE_FUNCTIONS/stdin-or"
 
 # NAME
 #  bookmarks - Manage bookmarks
@@ -128,5 +127,5 @@ case ${1:-list} in
     echo "$path" 
     open_or_create "$path"
   ;;
-  *) die "Command \"$1\" not recognized" ;;
+  *) echo "Command \"$1\" not recognized" >&2; exit 1 ;;
 esac

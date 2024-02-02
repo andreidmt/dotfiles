@@ -12,7 +12,7 @@ created_at="2023-12-22T23:01:58+01:00"
 # -e: exit on error, -u: error on undefined variable
 set -eu
 
-. "$CORE_LIBS/die"
+. "$CORE_FUNCTIONS/die"
 
 print_help() {
   command=$(basename "$0")

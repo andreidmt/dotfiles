@@ -1,9 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # -e: exit on error, -u: error on undefined variable
 set -eu 
-
-. "$CORE_LIBS/die"
 
 # NAME
 #  md-syntax - Determine markdown syntax for a file
@@ -63,7 +61,8 @@ get_syntax() {
 ##
 
 if [ ! -f "$1" ]; then
-  die "File does not exist \"$1\""
+  echo "File does not exist \"$1\"" >&2
+  exit 1
 fi
 
 get_syntax "$1"

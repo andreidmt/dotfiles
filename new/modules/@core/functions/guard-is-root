@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # Checks if the current user is root, and exits if not
 guardIsRoot() {

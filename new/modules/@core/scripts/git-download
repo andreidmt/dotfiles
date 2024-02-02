@@ -1,9 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # -e: exit on error, -u: error on undefined variable
 set -eu 
-
-. "$CORE_LIBS/die"
 
 # NAME
 #  git-download - Download or update a git repository
@@ -19,7 +17,8 @@ set -eu
 #  git(1)
 
 if [ "$#" -ne 2 ]; then
-  die "Usage: git-download <git_address> <install_path>"
+  echo "Usage: git-download <git_address> <install_path>" >&2
+  exit 1
 fi
 
 git_address=$1

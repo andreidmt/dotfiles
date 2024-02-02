@@ -1,10 +1,14 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
 # NAME
 #  date-long - Prints the current date in human readable format
 #
 # SYNOPSIS
 #  date-long
+# 
+# EXAMPLES
+#  date-long
+#  # => Tuesday, January 30, 2024
 #
 # SEE ALSO
 #  date(1)

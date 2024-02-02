@@ -1,6 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-. "$CORE_LIBS/die"
+. "$CORE_FUNCTIONS/die"
 
 # NAME
 #  nvim-config - Get and set NVim config
@@ -16,7 +16,7 @@
 #  Switch between NVim configs. The configs are stored in $NVIM_CONFIG.
 #
 # SEE ALSO
-#  choose(1), die(1)
+#  choose(1)
 
 get_config_name() {
   if [ ! -L "$HOME/.config/nvim" ]; then

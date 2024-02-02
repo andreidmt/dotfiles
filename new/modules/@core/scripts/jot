@@ -1,15 +1,12 @@
-#!/usr/bin/env sh
+#!/usr/bin/env dash
 
-# The path to store the last note's location
-LAST_NOTE_PATH_FILE="${HOME}/.jot/last_note_path"
+# ╭───┤ Input variables
+# ╰─
+prev_note_path="${HOME}/.jot/last_note_path"
+should_continue=false
 
-# Flag to determine if continuing from the last note
-SHOULD_CONTINUE=false
-
-# Create .jot own directory if it doesn't exist
-[ ! -d "${HOME}/.jot" ] && mkdir "${HOME}/.jot"
-
-# Parse arguments
+# ╭───┤ Parse flags 
+# ╰─
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -h|--help)
@@ -17,29 +14,36 @@ while [ "$#" -gt 0 ]; do
       exit 0
     ;;
     -c|--continue)
-      SHOULD_CONTINUE=true
+      should_continue=true
       shift
     ;;
     --) shift; break ;;
-    -?*)
-      echo "error: unknown flag: $1" >&2
-      exit 1
-    ;;
+    -?*) echo "error: unknown flag: $1" >&2; exit 1 ;;
     *) break ;;
   esac
 done
 
-# Determine the file to edit
-if [ "$SHOULD_CONTINUE" = true ] && [ -f "$LAST_NOTE_PATH_FILE" ]; then
-  tmp_file=$(cat "$LAST_NOTE_PATH_FILE" 2>/dev/null)
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+[ ! -d "${HOME}/.jot" ] && mkdir "${HOME}/.jot"
+
+# Decide on the tmp file to edit.
+# Either the last one, from a previous jot, or create a new one.
+if [ "$should_continue" = true ] && [ -f "$prev_note_path" ]; then
+  tmp_file=$(cat "$prev_note_path" 2>/dev/null)
 fi
 
 if [ -z "$tmp_file" ]; then
   tmp_file=$(mktemp /tmp/jot.XXXXXX)
 fi
 
-# Open the file in editor, in a centered terminal window
-alacritty --title layout-center \
+# Open Nvim, in edit mode, inside a alacritty terminal window. The class is
+# used to center the window on the screen and is configured by the window
+# manager, i3 in this case.
+alacritty --title "Jot It Down - $tmp_file" \
+  --class "center-float" \
   --command nvim \
     -c "setlocal syntax=markdown" \
     -c "setlocal wrap" \
@@ -47,13 +51,11 @@ alacritty --title layout-center \
     -c "startinsert" \
     "$tmp_file"
 
+# Persist the note for next time
 text=$(cat "$tmp_file")
-
-# If text was entered, print it and persist the file in case user wants to
-# continue editing it later
 if [ -n "$text" ]; then
   printf "%s" "$text"
-  echo "$tmp_file" > "$LAST_NOTE_PATH_FILE" # Update the last note path
+  echo "$tmp_file" > "$prev_note_path"
 else
   echo "error: no text was entered" >&2
   exit 1
