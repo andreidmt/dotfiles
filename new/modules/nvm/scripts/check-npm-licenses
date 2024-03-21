@@ -8,13 +8,13 @@
 #
 # DESCRIPTION
 #  Check the licenses of the dependencies and devDependencies in the
-#  package.json file of a Node.js project. 
+#  package.json file of a Node.js package. 
 #
 # ERROR CODES
 #  1: Missing Operating System dependency
 #  2: Missing/invalid argument
 #  3: Non OpenSource licenses found in the project dependencies
-#  4: Dependency package package.json file not found
+#  4: Dependency package's package.json file not found
 
 ALLOWED_LICENSES="MIT
 Unlicense
