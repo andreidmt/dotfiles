@@ -54,7 +54,7 @@ find_package_json() {
   dir="$1"
   name="$2"
 
-  while [ -n "$dir" ]; do
+  while [ "$dir" != "/" ]; do
     package_json="$dir/node_modules/$name/package.json"
     if [ -f "$package_json" ]; then
       echo "$package_json"
