@@ -1,0 +1,109 @@
+#!/usr/bin/env sh
+
+# NAME
+#  check-npm-licenses - Detect non Open Source licenses
+#
+# SYNOPSIS
+#  check-npm-licenses [base_dir]
+#
+# DESCRIPTION
+#  Check the licenses of the dependencies and devDependencies in the
+#  package.json file of a Node.js project. 
+#
+# ERROR CODES
+#  1: Missing Operating System dependency
+#  2: Missing/invalid argument
+#  3: Non OpenSource licenses found in the project dependencies
+#  4: Dependency package package.json file not found
+
+ALLOWED_LICENSES="MIT
+Unlicense
+Apache-2.0
+BSD-2-Clause
+BSD-3-Clause
+CC0-1.0
+ISC"
+FOUND_NON_OS_LICENSES=""
+BASE_DIR="${1:-$(pwd)}"
+
+# Check if the package license is one of the allowed licenses
+#
+# SYNOPSIS
+#  check_license <license> <package_name>
+check_license() {
+  license="$1"
+  package_name="$2"
+
+  if printf '%s' "$ALLOWED_LICENSES" | grep -q "$license"; then
+    echo "✔ $package_name: $license"
+  else
+    FOUND_NON_OS_LICENSES="true"
+    echo "✖ $package_name: $license"
+  fi
+}
+
+# Find a package package.json in the node_modules directory, if not found
+# continue walking up the tree
+#
+# SYNOPSIS
+#  find_package_json <base_dir> <package_name>
+#
+# RETURNS
+#  package.json file path if found, otherwise an empty string
+find_package_json() {
+  dir="$1"
+  name="$2"
+
+  while [ -n "$dir" ]; do
+    package_json="$dir/node_modules/$name/package.json"
+    if [ -f "$package_json" ]; then
+      echo "$package_json"
+      return 0
+    fi
+
+    dir=$(dirname "$dir")
+  done
+}
+
+# Check licenses of the dependencies in package.json and exit with an error if
+# a non-OS license is found
+#
+# SYNOPSIS
+#  check_licenses <dependency_type>
+check_licenses() {
+  dependency_type="$1"
+  echo "-- Checking $dependency_type..."
+
+  dep_packages=$(jq -r ".${dependency_type} // {} | keys[]" "$BASE_DIR/package.json")
+  if [ -z "$dep_packages" ]; then
+    echo "No $dependency_type found in package.json"
+    return 0
+  fi
+
+  for package_name in $dep_packages; do
+    package_json=$(find_package_json "$BASE_DIR" "$package_name")
+
+    if [ -z "$package_json" ]; then
+      echo "✖ $package_name: package.json not found. Make sure packages are installed before running this script." >&2
+      exit 4
+    fi
+
+    license=$(jq -r '.license // "Unlicense"' "$package_json")
+    check_license "$license" "$package_name"
+  done
+}
+
+# Main
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "✖ jq is not installed" >&2
+  exit 1
+fi
+
+echo "📝 Checking licenses for $(jq -r '.name' "$BASE_DIR/package.json")..."
+check_licenses "dependencies"
+check_licenses "devDependencies"
+
+if [ -n "$FOUND_NON_OS_LICENSES" ]; then
+  exit 3
+fi
