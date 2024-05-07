@@ -28,6 +28,7 @@ st.termname: st-256color
 
 /* !! gruvbox dark */
 *.background: #1d2021
+*.background-alpha: #aa1d2021
 *.foreground: #ebdbb2 
 *.cursorColor: #8ec07c
 

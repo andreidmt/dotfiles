@@ -24,10 +24,7 @@ nm-applet --indicator &
 #blueman-applet &
 
 # Notification daemon
-# dunst &
-
-# Composite manager
-# picom -b &
+dunst &
 
 # Window manager
-exec i3
+i3
