@@ -1,0 +1,146 @@
+#!/usr/bin/env dash
+
+. "$CORE_FUNCTIONS/stdin-or"
+
+# NAME
+#  ai-db-create - Create a new record in a given table
+#
+# SYNOPSIS
+#  ai-db-create <-t|--table> <table_name> [json_data]
+#
+# DESCRIPTION
+#  Inserts a new record into a specified table. The data for the new record
+#  should be provided as a JSON string, or omitted to use default values.
+#
+# ARGUMENTS
+#  [json_data]
+#   The JSON data to insert into the table. The keys of the JSON object should
+#   match the column names of the table. If omitted, the script attempts to insert a record
+#   using the default values for the table columns.
+#
+# OPTIONS
+#  -t, --table <table_name>
+#   The table to insert the new record into.
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#  2 JSON parsing error
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1), jq(1)
+
+# ╭───┤ Global variables
+# ╰─
+
+CMD_NAME="ai-db-create"
+
+# ╭───┤ Functions
+# ╰─
+
+get_table_pk_field_name() {
+  # the 6th column of the table_info pragma is 1 for primary key columns
+  sqlite3 -noheader -csv "$SHELLAI_DB_FILE" \
+    "PRAGMA table_info($1)" \
+    | awk -F, '$6 == 1 {print $2}'
+}
+
+# ╭───┤ Input validation 
+# ╰─
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -t|--table)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        table=$2; shift
+      else
+        print-error "Flag -t|--table requires a value" "$CMD_NAME" >&2
+        exit 1
+      fi
+    ;;
+    -f|--filter)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        filter=$2; shift
+      else
+        print-error "Flag -f|--filter requires a value" "$CMD_NAME" >&2
+        exit 1
+      fi
+    ;;
+    -m|--mode)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        mode=$2; shift
+      else
+        print-error "Flag -m|--mode requires a value" "$CMD_NAME" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) print-error "Unknown flag $1" "$CMD_NAME" >&2; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$table" ]; then
+  print-error "Flag -t|--table is required" "$CMD_NAME" >&2
+  exit 1
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+json_data=$(stdin_or "${1:-{}}")
+
+if [ -z "$json_data" ] || [ "$json_data" = "{}" ]; then
+  insert_statement="INSERT INTO $table DEFAULT VALUES;"
+else
+  insert_statement=$(printf "%s" "$json_data" \
+    | jq --raw-output --arg table "$table" \
+    "# Function to escape string for SQLite
+    def sqlite_escape:
+      if type == \"string\" then
+        \"'\" + gsub(\"'\"; \"''\") + \"'\"
+      else
+        tostring
+      end;
+
+    # Extract keys and process values in a consistent order
+    to_entries | 
+      map(.key) as \$keys |
+      map(.value | sqlite_escape) as \$values |
+
+    # Build SQL insert statement
+    \"INSERT INTO \(\$table) (\" +
+      (\$keys | join(\", \")) +
+    \") VALUES (\" +
+      (\$values | join(\", \")) +
+    \");\""
+  )
+  
+  if [ $? -ne 0 ]; then
+    echo "error: Invalid JSON input" >&2
+    exit 2
+  fi
+fi
+
+mode=${mode:-json}
+pk=$(ai-db-table "$table" pk)
+data=$(sqlite3 "-$mode" "$SHELLAI_DB_FILE" <<EOF
+BEGIN TRANSACTION;
+  $insert_statement
+  SELECT ${filter:-*} from $table WHERE $pk = last_insert_rowid();
+COMMIT;
+EOF
+)
+
+if [ "$mode" = "json" ]; then
+  printf "%s" "$data" | jq '.[0]'
+else
+  printf "%s\n" "$data"
+fi
+

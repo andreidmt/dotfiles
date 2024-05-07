@@ -1,0 +1,175 @@
+#!/usr/bin/env dash
+
+. "$CORE_FUNCTIONS/stdin-or"
+
+# NAME
+#  ai-query-builder - Build a provider agnostic JSON message array.
+#
+# SYNOPSIS
+#  ai-query-builder -p|--prompt <value> 
+#   [-v|--var <name> <value>] 
+#
+# DESCRIPTION
+#  Build a provider agnostic JSON message array. These messages can be persisted
+#  internaly or converted to a provider specific format.
+#
+# OPTIONS
+#  -p|--prompt <value>
+#   Text used as template on which to build on, in order to generate the final
+#   prompt. The value can reference context variables using {{ key }}.
+#
+#  -v|--var <key> <value>
+#   Additional context info to send together with the prompt. It needs to be a
+#   key-value pair where the key can be referenced and interpolated in the
+#   prompt.
+#   
+#   If a key is not used in the prompt, the value will be appended to the
+#   prompt as a separate section in text mode, or as a separate 'system'
+#   message in JSON mode.
+#
+# EXAMPLES 
+#  $ prompt="what is the meaning of life?"
+#  $ ai-query-builder --prompt "$prompt"
+#  [{ 
+#    "role": "prompt", 
+#    "content":"what is the meaning of life?"
+#  }]
+#
+#  $ prompt="{{ name }}, what is the meaning of life?"
+#  $ ai-query-builder --prompt "$prompt" --var name "John"
+#  [{
+#    "role": "prompt",
+#    "content":"John, what is the meaning of life?"
+#  }]
+#  
+# SEE ALSO
+#  jq(1)
+
+# ╭───┤ Global variables
+# ╰─
+
+CMD_NAME="ai-prompt-builder"
+PROMPT=""
+CONTEXT="[]"
+
+# ╭───┤ Functions
+# ╰─
+
+print_error() { print-error "$@" "$CMD_NAME" >&2; }
+print_warning() { print-warning "$@" "$CMD_NAME" >&2; }
+print_info() { print-info "$@" "$CMD_NAME" >&2; }
+
+# Replace a template key, {{ key }}, with a given value.
+#
+# SYNOPSYS 
+#  interpolate <source> <key> <value>
+#
+# ENVIRONMENT
+#  PROMPT
+#   The source string to perform the replacement on.
+#
+# ERROR CODES
+#  3 variable not found in source string
+interpolate_prompt() {
+  # Escape the key for use in an awk regex, handling keys that may contain
+  # special characters.
+  escaped_key=$(printf '%s' "$1" | sed "s/[.[\*^$()]/\\&/g")
+
+  # Check for the presence of the key in the template.
+  if ! printf '%s' "$PROMPT" | grep -Eq "\{\{\s*$escaped_key\s*\}\}"; then
+    exit 3
+  fi
+
+  # Perform the replacement.
+  PROMPT=$(
+    printf '%s' "$PROMPT" \
+      | awk -v key="$escaped_key" -v val="$2" '{
+          gsub(/\{\{\s*'"$escaped_key"'\s*\}\}/, val);
+          print
+        }'
+  )
+}
+
+# Append/Push a message JSON object to the CONTEXT array
+#
+# SYNOPSYS
+#  push_message <role> <content>
+#
+# ENVIRONMENT 
+#  CONTEXT
+#   The JSON array to add the message to.
+push_message() {
+  CONTEXT=$(
+    jq --null-input \
+      --argjson context "$CONTEXT" \
+      --arg role "$1" --arg content "$2" \
+      '$context + [{ "role": $role, "content": $content }]'
+  )
+}
+
+# ╭───┤ Argument parsing
+# ╰─
+
+PROMPT=$(stdin_or "$1")
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -f|--file)
+      if [ -z "$PROMPT" ]; then
+        print_error "-f|--file flags must be provided after --prompt"
+        exit 1
+      fi
+
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        file_path="$2"; shift
+      else
+        print_error "-f|--file flag requires a value"
+        exit 1
+      fi
+
+      push_message "context" "$(cat-with-details "$file_path")"
+    ;;
+    -v|--var)
+      if [ -z "$PROMPT" ]; then
+        print_error "--var flags must be provided after --prompt"
+        exit 1
+      fi
+
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        key=$2; shift
+      else
+        print_error "--var flag requires a key"
+        exit 1
+      fi
+
+      if [ "${2#-}" = "$2" ]; then
+        value="$2"; shift
+      fi
+
+      interpolate_prompt "$key" "$value"
+      
+      # Key not found in prompt, adding data as separate message
+      if [ $? -eq 3 ]; then
+        push_message "context" "$key: $value"
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) print_error "unknown flag $1"; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$PROMPT" ]; then
+  print_error "Missing required argument --prompt"
+  exit 1
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+push_message "prompt" "$PROMPT"
+
+printf '%s' "$CONTEXT"
+

@@ -1,0 +1,90 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-clear - Remove all records from a table
+#
+# SYNOPSIS
+#  ai-db-clear [-t table_name]
+#
+# DESCRIPTION
+#  Remove all the records in a table. If none is provided, all tables are
+#  cleared.
+#
+# OPTIONS
+#  -t, --table [table_name="*"]
+#   Table name or comma separated list of table names to clear
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+# List the tables with their record count
+print_table_info() {
+  echo "$1" | tr ',' '\n' | while read -r table_name; do
+    count=$(sqlite3 --csv "$SHELLAI_DB_FILE" "SELECT COUNT(*) FROM $table_name;")
+    print-info --no-border "Table $(bold "$table_name") has $(bold "$count") records."
+  done
+}
+
+# Get a comma separated list of all tables in the database
+get_all_tables() {
+  sqlite3 --csv "$SHELLAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table';" \
+    | tr '\n' ',' \
+    | sed 's/,$//'
+}
+
+# Remove all records from a table and reset the autoincrement counter
+truncate_table() {
+  sqlite3 "$SHELLAI_DB_FILE" "DELETE FROM $1;"
+  sqlite3 "$SHELLAI_DB_FILE" "DELETE FROM sqlite_sequence WHERE name='$1';"
+}
+
+# ╭───┤ Parse flags
+# ╰─
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -t|--table) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        table=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) 
+      echo "error: unknown flag $1" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+if [ -z "$table" ]; then
+  table=$(get_all_tables)
+fi
+
+print_table_info "$table"
+
+if ! confirm "Are you sure? (y/N):" "Emptying table(s) $(bold "$table") ..."; then
+  exit 3
+fi
+
+for table_name in $(echo "$table" | tr ',' '\n'); do
+  truncate_table "$table_name"
+  print-success --no-border "Cleared table $(bold "$table_name")"
+done
+

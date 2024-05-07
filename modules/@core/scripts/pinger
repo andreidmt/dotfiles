@@ -1,0 +1,188 @@
+#!/usr/bin/env sh
+
+set -e
+
+# NAME
+#  pinger - Rudimentary load testing tool for HTTP servers
+#
+# SYNOPSIS
+#  pinger <options> 
+#
+# OPTIONS
+#  -u, --url <URL>            URL to ping
+#  -s, --sleep [SECONDS]      Sleep between batches (default: 0)
+#  -c, --concurrency [COUNT]  Number of concurrent requests (default: 3)
+#
+# DESCRIPTION
+#  Ping a URL every second with a specified number of concurrent requests.
+#  Useful for testing server load and connection handling.
+#
+# SEE ALSO
+#  curl(1)
+
+parse_args() {
+  while [ "$#" -gt 0 ]; do
+    case $1 in
+      -u|--url)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then URL=$2; shift; else
+          echo 'error: "--url" requires a non-empty option argument.' >&2
+          exit 1
+        fi
+      ;;
+      -s|--sleep)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then SLEEP=$2; shift; else
+          echo 'error: "--sleep" requires a non-empty option argument.' >&2
+          exit 1
+        fi
+      ;;
+      -c|--concurrency)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then CONCURRENCY=$2; shift; else 
+          echo 'error: "--concurrency" requires a non-empty option argument.' >&2
+          exit 1
+        fi
+      ;;
+      --) shift; break ;;
+      -?*) echo "error: Unknown option: $1" >&2; exit 1 ;;
+      *) break ;;
+    esac
+    shift
+  done
+}
+
+validate_args() {
+  if [ -z "$URL" ]; then
+    echo "error: URL is required." >&2
+    exit 1
+  fi
+
+  if [ "$SLEEP" -lt 0 ]; then
+    echo "error: Sleep must be a positive integer, got $SLEEP." >&2
+    exit 1
+  fi
+}
+
+# Send a single HTTP request to the specified URL. 
+# Returns the HTTP status code.
+send_http_request() {
+  curl --write-out "%{http_code} " \
+  --max-time 1 \
+  --silent \
+  --output /dev/null \
+  --http1.1 \
+  --location \
+  --user-agent "$USER_AGENT" "$URL"
+}
+
+send_concurrent_requests() {
+  temp_file=$(mktemp --tmpdir pinger.XXXXXX)
+
+  # Runn all requests in parallel
+  for i in $(seq 1 "$CONCURRENCY"); do
+    (send_http_request >> "$temp_file") &
+  done
+  wait
+
+  # Analyze response http codes
+  for status_code in $(cat "$temp_file"); do
+    if [ "$status_code" -eq 200 ]; then
+      REQ_SUCCESS_COUNT=$((REQ_SUCCESS_COUNT + 1))
+      green "$status_code "
+    else
+      REQ_FAIL_COUNT=$((REQ_FAIL_COUNT + 1))
+      red "$status_code "
+    fi
+  done
+
+  rm "$temp_file"
+}
+
+update_min_duration() {
+  if [ "$MIN_DURATION" -eq -1 ] || [ "$1" -lt "$MIN_DURATION" ]; then
+    MIN_DURATION="$1"
+  fi
+}
+
+update_max_duration() {
+  if [ "$1" -gt "$MAX_DURATION" ]; then
+    MAX_DURATION="$1"
+  fi
+}
+
+update_stats() {
+  duration=$1
+  SUM_DURATION=$((SUM_DURATION + duration))
+  BATCH_COUNT=$((BATCH_COUNT + 1))
+
+  update_min_duration "$duration"
+  update_max_duration "$duration"
+}
+
+print_stats() {
+  if [ "$BATCH_COUNT" -eq 0 ]; then
+    echo "No data to calculate statistics."
+    return
+  fi
+
+  echo ""
+  echo "--- Batch statistics ---"
+
+  req_count=$((REQ_SUCCESS_COUNT + REQ_FAIL_COUNT))
+  req_fail_rate=$(echo "scale=2; $REQ_FAIL_COUNT / $req_count * 100" | bc)
+  min_duration=$(nano_to_ms "$MIN_DURATION")
+  max_duration=$(nano_to_ms "$MAX_DURATION")
+  avg_duration=$(nano_to_ms "$((SUM_DURATION / BATCH_COUNT))")
+  total_duration=$(nano_to_s "$SUM_DURATION")
+
+  {
+    echo "Count Size Req_200 Req_ERR ERR_rate Min(ms) Max(ms) Avg(ms) Total(ms)"
+    echo "$BATCH_COUNT $CONCURRENCY $REQ_SUCCESS_COUNT $REQ_FAIL_COUNT $req_fail_rate $min_duration $max_duration $avg_duration $total_duration"
+  } | column -t
+}
+
+cleanup() {
+  print_stats
+  exit 0
+}
+
+##
+## Defaults 
+##
+
+URL=""
+SLEEP=0
+CONCURRENCY=3
+USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"
+
+REQ_SUCCESS_COUNT=0
+REQ_FAIL_COUNT=0
+BATCH_COUNT=0
+MIN_DURATION=-1
+MAX_DURATION=0
+SUM_DURATION=0
+
+##
+## Setup
+##
+
+parse_args "$@"
+validate_args
+trap cleanup INT
+
+##
+## Main
+##
+
+cowthink -f tux "Pinging $URL, every $SLEEP seconds, with $CONCURRENCY concurrent requests."
+
+while true; do
+  start_time=$(date +%s%N)
+  printf "Batch %s " "$BATCH_COUNT"
+  send_concurrent_requests
+  end_time=$(date +%s%N)
+
+  duration=$((end_time - start_time))
+  printf "in %sms\n" "$(nano_to_ms "$duration")"
+  update_stats "$duration"
+
+  sleep "$SLEEP"
+done

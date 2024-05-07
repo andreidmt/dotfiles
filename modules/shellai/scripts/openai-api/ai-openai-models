@@ -1,0 +1,73 @@
+#!/usr/bin/env sh
+
+# NAME
+#  ai-model - Get and set the in use OpenAI model
+#
+# SYNOPSIS
+#  ai-model <command>
+#
+# COMMANDS
+#  - get     Get the current model
+#  - change  Change the current model
+
+get_current_model() {
+  current_model=$(cat "$SHELLAI_MODEL_PATH" 2> /dev/null)
+
+  if [ -z "$current_model" ]; then
+    current_model="gpt-4-1106-preview"
+  fi
+
+  echo "$current_model"
+}
+
+get_all_models() {
+  cache_path="$SHELLAI_CACHE/models.json"
+
+  # Invalidate cache if older than 1 day 
+  if [ -f "$cache_path" ]; then
+    is_old=$(find "$cache_path" -mtime +1 -print)
+
+    if [ -n "$is_old" ]; then
+      rm "$cache_path"
+    fi
+  fi
+
+  # Get models from cache
+  models=$(cat "$cache_path" 2>/dev/null)
+
+  # If cache is empty, get models from API
+  if [ -z "$models" ]; then
+    models=$(curl -s https://api.openai.com/v1/models \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "OpenAI-Organization: $OPENAI_ORG_ID"
+    )
+
+    echo "$models" > "$cache_path"
+  fi
+  
+  echo "$models" \
+    | jq --raw-output '.data[].id' \
+    | sort -u
+}
+
+##
+## Main
+##
+
+case "${1:-get}" in
+  get) 
+    get_current_model
+  ;;
+
+  change)
+    get_all_models \
+      | choose -p "$OPENAI_ICON Change OpenAI model:" \
+      | tee "$SHELLAI_MODEL_PATH"
+
+    # update i3blocks widgets with signal 10
+    pkill -SIGRTMIN+10 i3blocks
+  ;;
+
+  *) die "Command \"$1\" not recognized" ;;
+esac

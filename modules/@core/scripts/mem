@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+# NAME 
+#  mem - Measure memory usage of a command
+#
+# DESCRIPTION
+#  Measure memory usage of a command using pmap. Sister command to time.
+#
+# SYNOPSIS
+#  mem <command>
+#
+# SEE ALSO
+#  pmap(1)
+
+"$@" &
+pid=$!
+
+pmap -x "$pid"
+wait $pid
+
+echo "PID: $pid"

@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+
+. "$CORE_FUNCTIONS/stdin-or"
+
+# NAME
+#  ai-prompt-to-openai - Turn an array of shallai messages into an OpenAI prompt 
+#
+# DESCRIPTION
+#  Turn ShellAI messages into the OpenAI format.
+#
+#  ShellAI message JSON schema:
+#  {
+#    role: {
+#      type: "string",
+#      enum: ["context", "prompt", "system_main-agent-mission", "system_main-user-mission"]
+#    },
+#    content: {
+#      type: "string"
+#    }
+#  }
+#
+#  OpenAI message schema:
+#  {
+#    role: "system" | "user",
+#    content: string
+#  }
+#
+#  Roles with "context" and "system_" values are converted to "system", 
+#  all others to "user".
+#
+# SYNOPSIS
+#  ai-prompt-to-openai <messages> 
+
+stdin_or "$1" \
+  | jq \
+    'def toOpenAIRole:
+      if . == "context" or (. | test("^system_"))
+      then "system"
+      else "user"
+    end;
+
+    . | map(
+      {
+        role: .role | toOpenAIRole,
+        content: .content
+      }
+    )'

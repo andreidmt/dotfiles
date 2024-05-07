@@ -1,0 +1,108 @@
+#!/usr/bin/env sh
+
+# NAME
+#  ai-prompt-commit-analyzer - Analyze files staged for commit
+#
+# SYNOPSIS
+#  ai-prompt-commit-analyzer
+#
+# DESCRIPTION
+#  Analyze commit messages using OpenAI's GPT-4 model. 
+#   - If no files are added to the commit, staged files will be analyzed
+#   - If no files are staged, no files will be analyzed
+#
+#   For context, the prompt will include:
+#   - .commitlintrc file if present
+#   - package.json file if present
+#   - lerna.json file if present
+#
+# SEE ALSO
+#   curl(1), jq(1)
+
+build_query() {
+  cat <<EOF
+Suggest a commit message that best describes the following diff:
+
+\`\`\`diff
+$1
+\`\`\`
+
+$(if [ -f package.json ]; then
+  echo "For context, the main \`package.json\`:"
+  echo ""
+  echo "\`\`\`json"
+  cat package.json
+  echo "\`\`\`"
+fi) 
+
+$(if [ -f lerna.json ]; then
+  echo "For context, the project's \`lerna.json\`:" 
+  echo ""
+  echo "\`\`\`json"
+  cat lerna.json
+  echo "\`\`\`"
+fi) 
+
+General rules for writing the commit messages:
+
+- Use the imperative mood in the subject line
+- Follow conventional commits format: 
+ \`\`\`
+ <type>(<scope>): <subject>
+ <BLANK LINE>
+ <body>
+ <BLANK LINE>
+ \`\`\`
+- Use tick marks for names: \`name\`
+- Limit the subject line to 80 characters
+- Add a ! after the type for breaking changes
+- Do not end the subject line with a period
+- Describe the overall change in the main message, implementation details in
+the body
+
+$(if [ -f .commitlintrc ]; then
+  echo "Commitlint rules:"
+  echo ""
+  echo "\`\`\`json"
+  cat .commitlintrc
+  echo "\`\`\`"
+  echo ""
+  echo "If nothing fits the 'scope-enum' rule, leave it out."
+fi)
+
+Examples:
+
+- fix(authentication): issue with forgot_password parameter not being sent
+- feat(storage): add support for S3
+- docs: update instalation instructions
+- feat: update dependencies
+
+Follow George Orwell's rules for writing prose and only output the commit
+message and body, no other information, nor wrapped in tags or ticks.
+EOF
+}
+
+##
+## Main
+##
+
+if [ -z "$OPENAI_API_KEY" ]; then
+  echo "OpenAI API key is not set. Set the OPENAI_API_KEY environment variable." >&2
+  exit 1
+fi
+
+file_changes=$(git --no-pager diff --cached)
+
+if [ -z "$file_changes" ]; then
+  echo "No files staged for commit, nothing to analyze." >&2
+  exit 1
+fi
+
+query=$(build_query "$file_changes")
+temperature=0.7
+answer=$(openai-api-completions "$query" "$temperature")
+
+echo "$answer"
+
+# ai-conversation create "$query" "$answer" "$temperature"
+

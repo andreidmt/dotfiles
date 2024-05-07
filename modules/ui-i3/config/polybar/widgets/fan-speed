@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# DESCRIPTION
+#  Get the fan speed from `sensors`.
+#  This script is meant to be used with `polybar`.
+
+speed=$(sensors | grep fan1 | awk '{print $2}')
+
+if [ -n "$speed" ]; then 
+  printf "%.1f" "$(echo "$speed/1000" | bc -l)"
+fi

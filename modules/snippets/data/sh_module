@@ -1,0 +1,30 @@
+```toml
+id="f43b84df-4846-423c-986c-e6a47a39fc5a"
+type="snippet"
+description=""
+tags=[]
+created_at="2024-02-05T12:16:22+01:00"
+```
+
+```sh
+#!/usr/bin/env sh
+
+# ╭──────────────────────
+# │ Entry point for the Screen shell module. 
+# ╰────────
+
+export SCREEN_HOME="$(dirname "$0")"
+export SCREEN_ICON=""
+
+# ╭───┤ Expose scripts and libs
+# ╰─
+export SCREEN_SCRIPTS="$SCREEN_HOME/scripts"
+
+add_to_path "$SCREEN_SCRIPTS"
+
+if [ "$HMVC_DEBUG" = true ]; then
+  script_count="$(find "$SCREEN_SCRIPTS" -type f | wc -l)"
+
+  echo "$SCREEN_ICON $(underline "$script_count scripts") added to \$PATH"
+fi
+```

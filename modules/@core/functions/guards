@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+guard_is_sourced() {
+  if [ "${0##*/}" = "sh" ] || [ "${0##*/}" = "bash" ]; then
+    echo "This script should be sourced, not executed."
+    exit 1
+  fi
+}
+
+guard_is_executed() {
+  if [ "${0##*/}" != "sh" ] && [ "${0##*/}" != "bash" ]; then
+    echo "This script should be executed, not sourced."
+    exit 1
+  fi
+}
+
+guard_is_root() {
+  if [ "$(id -u)" != 0 ]; then
+    echo "You must be root to run this program" >&2
+    exit 1
+  fi
+}

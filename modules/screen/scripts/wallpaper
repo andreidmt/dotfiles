@@ -1,0 +1,68 @@
+#!/usr/bin/env sh
+
+# -e: exit on error, -u: error on undefined variable
+set -eu
+
+SCRIPT_NAME=$(basename "$0")
+
+print_help() {
+  cat << EOF
+NAME
+  ${SCRIPT_NAME}
+
+SYNOPSIS
+  ${SCRIPT_NAME} reload | set [IMAGE_PATH]
+
+DESCRIPTION
+  Set image as wallpaper. Handles scaling and cropping based on the main
+  screen resolution (DP-1).
+
+COMMANDS
+  reload
+    Reload the wallpaper from the last set image.
+
+  set [IMAGE_PATH]
+    Set the wallpaper to the image at IMAGE_PATH. Handles scaling and cropping 
+    based on the main screen resolution.
+
+EXAMPLES
+  wallpaper set ~/Pictures/wallpapers/cool-wallpaper.png
+  wallpaper reload
+
+SEE ALSO
+  feh(1), xrandr(1), imagemagick(1), doomst(1)
+EOF
+}
+
+get_main_screen_resolution() {
+  xrandr \
+    | grep '^DP-1 connected' \
+    | awk '{print $3}' \
+    | awk -F '+' '{print $1}'
+}
+
+reload_existing_wallpaper() {
+  feh --no-fehbg --bg-center "$HOME/wall.png"
+}
+
+set_new_wallpaper() {
+  resolution=$(get_main_screen_resolution)
+  image_path=$1
+  
+  doomst --title "$SCRIPT_NAME" --message "Converting image to $resolution\n$image_path"
+
+  convert "$image_path" \
+    -resize "$resolution^" \
+    -gravity center \
+    -crop "$resolution+0+0" ~/wall.png
+
+  feh --no-fehbg --bg-center "$HOME/wall.png"
+
+  doomst --type success --title "$SCRIPT_NAME" --message "Wallpaper changed"
+}
+
+case $1 in
+  reload) reload_existing_wallpaper ;;
+  set) set_new_wallpaper "$2" ;;
+  *) echo "Command not recognized \"wallpaper $1\"" >&2; exit 1 ;;
+esac

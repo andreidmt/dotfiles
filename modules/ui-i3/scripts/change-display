@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# NAME
+#  change-display - Change display configuration
+#
+# DESCRIPTION
+#  Change display configuration using arandr. 
+#  After user selection:
+#   - wallpaper is refreshed
+#   - $DISPLAY_PRIMARY and $DISPLAY_SECONDARY are updated
+#   - restart polybar
+#
+# SEE ALSO
+#  arandr(1), xrandr(1), wallpaper(1)
+
+arandr
+wallpaper reload
+
+$UII3_HOME/config/polybar/launch

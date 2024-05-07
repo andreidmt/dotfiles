@@ -1,0 +1,171 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-migrate - Run database migrations on the AI SQLite database
+#
+# SYNOPSIS
+#  ai-db-migrate [up|down]
+#
+# DESCRIPTION
+#  Run database migrations on the AI SQLite database. 
+#
+#  Migration files are sorted alphabetically and the status of each migration
+#  is stored in the `migrations` table in the database.
+#  
+# COMMANDS
+#  up
+#   Run the next migration.
+#
+#  down
+#   Rollback the last migration.
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+#  SHELLAI_MIGRATIONS_DIR
+#   The directory containing the migration files.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+# ╭───┤ Global variables
+# ╰─
+
+CMD_NAME="ai-db-migrate"
+MIGRATIONS_TABLE="_migrations"
+STATUS_APPLIED="applied"
+STATUS_PENDING="pending"
+
+# ╭───┤ Functions
+# ╰─
+
+print_info() { log -t info "$@" "$CMD_NAME"; }
+print_success() { log -t success "$@" "$CMD_NAME"; }
+print_error() { log -t error "$@" "$CMD_NAME"; }
+
+# Get the status of a migration from the database. 
+# Returns "applied", "pending" or an empty string.
+status() {
+  sqlite3 --csv "$SHELLAI_DB_FILE" \
+    "SELECT status FROM $MIGRATIONS_TABLE WHERE name = '$1'"
+}
+
+# Get the name of the last migration that was applied.
+previous() {
+  sqlite3 --csv "$SHELLAI_DB_FILE" \
+    "SELECT name FROM $MIGRATIONS_TABLE ORDER BY name DESC LIMIT 1"
+}
+
+# Go through the migration dirs and find the the next migration which has not
+# been applied yet.
+# Returns the name of the migration file.
+next() {
+  dirs=$(find "$SHELLAI_MIGRATIONS_DIR" -mindepth 1 -maxdepth 1 -type d | sort)
+  
+  echo "$dirs" | while read -r dir; do
+    migration_name=$(basename "$dir")
+    status=$(status "$migration_name")
+
+    if [ "$status" != "$STATUS_APPLIED" ]; then
+      echo "$migration_name"
+      break
+    fi
+  done
+}
+
+# Run a migration and add it to the _migrations table.
+#
+# $1: The name of the migration
+#
+# RETURNS
+#   0 if the migration was successful, 1 otherwise
+run() {
+  # Mark current migration as pending to "lock" it from being run again
+  jq --null-input --arg name "$1" --arg status "$STATUS_PENDING" \
+    '{ "name": $name, "status": $status }' \
+    | ai-db-create --table _migrations
+
+  if [ ! -f "$SHELLAI_MIGRATIONS_DIR/$1/up.sql" ]; then
+    print-error "Migration $(stylize underline "$1") does not have an up.sql file" "$CMD_NAME" >&2
+    exit 1
+  fi
+
+  if ! sqlite3 "$SHELLAI_DB_FILE" < "$SHELLAI_MIGRATIONS_DIR/$1/up.sql"; then
+    print-error "Migration $(stylize underline "$1") up script failed" "$CMD_NAME" >&2
+    ai-db-delete --no-confirm --table _migrations --where "name='$1'"
+    exit 1
+  fi
+
+  # Mark current migration as finished
+  jq --null-input --arg status "$STATUS_APPLIED" \
+    '{ "status": $status }' \
+    | ai-db-update --table _migrations --where "name='$1'"
+}
+
+# Rollback a migration file and update the status in the _migrations table.
+# $1: The name of the migration file to rollback
+# Returns 0 if the rollback was successful, 1 otherwise
+rollback() {
+  if [ ! -f "$SHELLAI_MIGRATIONS_DIR/$1/down.sql" ]; then
+    print-error "Migration $(stylize underline "$1") does not have a down.sql file" "$CMD_NAME" >&2 
+    exit 1
+  fi
+
+  if ! sqlite3 "$SHELLAI_DB_FILE" < "$SHELLAI_MIGRATIONS_DIR/$1/down.sql"; then
+    print-error "Migration $(stylize underline "$1") down script failed" "$CMD_NAME" >&2
+    exit 1
+  fi
+
+  ai-db-delete --no-confirm --table _migrations --where "name='$1'"
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+case "$1" in
+  up)
+    name=$(next)
+
+    if [ -z "$name" ]; then
+      print_info "No pending migrations"
+      exit 0
+    fi
+
+    status=$(status "$name")
+    if [ "$status" = "$STATUS_PENDING" ]; then
+      print_info "Migration already pending: $name"
+      exit 0
+    fi
+
+    print_info --no-border "Running migration: $name"
+    run "$name"
+    print_success --no-border "Done"
+  ;;
+  down)
+    name=$(previous)
+    if [ -z "$name" ]; then
+      print_info "No migrations to rollback"
+      exit 0
+    fi
+
+    status=$(status "$name")
+    if [ "$status" = "$STATUS_PENDING" ]; then
+      print_error "Migration already pending: $name"
+      exit 1
+    fi
+
+    print_info --no-border "Rolling back migration: $name"
+    rollback "$name"
+    print_success --no-border "Done"
+  ;;
+  status)
+    ai-db-find-many --mode box --table _migrations
+  ;;
+  *) print_error "Unknown command: $1"; exit 1 ;;
+esac

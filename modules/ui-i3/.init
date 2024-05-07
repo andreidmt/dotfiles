@@ -1,0 +1,68 @@
+#!/usr/bin/env sh
+
+# ╭──────────────────────
+# │ Entry point for the UI-I3 shell module.
+# ╰────────
+
+export UII3_HOME="$(dirname "$0")"
+export UII3_ICON=""
+export UII3_TMP="$UII3_HOME/.tmp"
+
+mkdir -p "$UII3_TMP"
+
+# ╭───┤ Expose scripts and libs
+# ╰─
+
+export UII3_SCRIPTS="$UII3_HOME/scripts"
+export UII3_FUNCTIONS="$UII3_HOME/functions"
+
+add_to_path "$UII3_SCRIPTS" "$UII3_FUNCTIONS"
+
+if [ "$HMVC_DEBUG" = true ]; then
+  script_count="$(find "$UII3_SCRIPTS" -type f | wc -l)"
+  functions_count="$(find "$UII3_FUNCTIONS" -type f | wc -l)"
+
+  echo "$UII3_ICON $(stylize underline "$script_count scripts") added to \$PATH"
+  echo "$UII3_ICON $(stylize underline "$functions_count functions") added to \$PATH"
+fi
+
+# ╭───┤ Symlink application config
+# ╰─
+
+export UII3_CONFIG="$UII3_HOME/config"
+
+config_dirs="picom
+redshift
+polybar
+i3
+rofi
+newsboat
+sxiv"
+
+echo "$config_dirs" | while IFS="" read -r dir; do
+  if [ ! -d "$HOME/.config/$dir" ]; then
+    echo "Config for $(red "$dir not found"), symlinking ..."
+    rm -f "$HOME/.config/$dir"
+    ln -s "$UII3_CONFIG/$dir" "$HOME/.config/$dir"
+  fi
+done
+
+# ╭──────────────────────
+# │ Packages are listed in .packages files in the module root. It is a comma
+# │ separated list of packages, for example:
+# │
+# │  i3,      pacman, "Window manager"
+# │  polybar, pacman, "Status bar"
+# │  ─┬─      ─┬─     ─┬─
+# │   │        │       ╰─ Description of the package
+# │   │        ╰─ Package manager
+# │   ╰─ Package name
+# ╰─────
+
+pacman_package_names=$(cat "$UII3_HOME/.packages" \
+  | grep -v "^#" | grep "pacman" \
+  | cut -d, -f1 \
+  | tr '\n' ' '
+)
+
+echo "$UII3_ICON $(stylize underline "packages"): $pacman_package_names"

@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+. "$CORE_FUNCTIONS/die"
+
+# NAME
+#  record-camera - Record video from a camera
+#
+# SYNOPSIS
+#  record-camera <file>
+
+save_to="$1"
+
+if [ -z "$save_to" ]; then
+  die "No file specified to save the recording to"
+fi
+
+device="/dev/video0"
+
+ffmpeg -f v4l2 -video_size 1280x720 \
+  -input_format mjpeg \
+  -framerate 30 \
+  -i "$device" \
+  -c:v libx264 \
+  -preset faster \
+  -crf 23 \
+  "$save_to"

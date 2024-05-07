@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+
+while read -r file
+do
+  case "$1" in
+  "w")
+    # Set as wallpaper
+    wallpaper set "$(readlink -f "$file")" &
+  ;;  
+  "r")
+    # Rotate 90deg
+    convert -rotate 90 "$file" "$file" 
+  ;;
+  "y")
+    # Copy image to clipboard
+    filePath=$(readlink -f "$file")
+    # fileType=$(file -b --mime-type "$file")
+
+    # If I pass the real file type, pasting in Teams or Signal doesn't work
+    xclip -t "image/png" -selection clipboard < "$filePath"
+
+    doomst --type success --title "sxiv" \
+      --message "File contents copied to clipboard.\n\n$(readlink -f "$file")" &
+  ;;
+  "d")
+    # Delete file via rofi confirm
+    filename=$(basename "$file")
+    should_delete=$(printf "No\\nYes" | rofi -dmenu -p "Delete image $filename?")
+
+    if [ "$should_delete" = "Yes" ]; then
+      rm "$file"
+      doomst --type success --title "sxiv" --message "File deleted.\n\n$file" &
+    fi
+  ;;
+  "g")
+    # Open with Gimp
+    gimp "$file" & 
+  ;;
+  esac
+done

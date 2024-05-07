@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+ticker=$1
+
+curl -s "https://query1.finance.yahoo.com/v8/finance/chart/$ticker" \
+  | grep -o '"regularMarketPrice":[0-9]*\.[0-9]*' \
+  | cut -d':' -f2

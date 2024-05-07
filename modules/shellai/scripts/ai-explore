@@ -1,0 +1,112 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai-explore - Preview all conversations or a specific conversation
+#
+# SYNOPSIS
+#  ai-explore [conversation_id]
+#
+# DESCRIPTION
+#  Preview a conversation by displaying all messages in the conversation, nicely
+#  formatted in markdown.
+#
+#  If no [conversation_id] argument is provided, a list of conversations is
+#  displayed and the user can select one.
+#
+# ENVIRONMENT
+#  SHELLAI_ICON
+#   The icon to use for the AI user.
+# 
+# SEE ALSO
+#  ai-db-find-many(1), ai-db-find-one(1), ai-db-exists(1), jq(1), fzf(1), bat(1)
+
+# ╭───┤ Global variables
+# ╰─
+
+CMD_NAME="ai-explore"
+FIELD_DELIMITER="::"
+
+# ╭───┤ Functions
+# ╰─
+
+# List all conversations, sorted by the most recently updated. 
+# The list has the conversation title and the number of messages in the
+# conversation. 
+# The preview window shows the full conversation, nicely formatted in markdown.
+choose_conversation() {
+  ai-db-find-many --table Conversations \
+    --filter "id, title, messages_count" \
+    --sort "updated_at DESC" \
+  | jq --raw-output \
+    --arg delimiter "$FIELD_DELIMITER" \
+    '.[] | (.id|tostring) + $delimiter + .title + " (" + (.messages_count|tostring) + ")"' \
+  | fzf \
+    --delimiter "$FIELD_DELIMITER" \
+    --with-nth "2" \
+    --print-query \
+    --header "Conversations: [Enter:View messages]" \
+    --preview 'ai-view --meta-position top conversation {1}' \
+    --preview-window 'right:60%:wrap:follow:border-none:~6' \
+  | awk -F "$FIELD_DELIMITER" '{print $1}' \
+  | tr -d '\n'
+}
+
+# List all messages from a conversation, newest at the bottom. 
+# The list items has the first 60 characters of the message content and the
+# specific icon for the user, either human or AI. 
+# The preview window shows the full message, nicely formatted in markdown.
+choose_message() {
+  cid=$1
+  icon_ai=$(red "$SHELLAI_ICON")
+  icon_human=$(orange "")
+
+  ai-db-find-many --table Messages \
+    --filter "id, content, users_id" \
+    --include Users \
+    --where "conversations_id=$cid" \
+    --sort "created_at DESC" \
+  | jq --raw-output \
+    --arg delimiter "$FIELD_DELIMITER" \
+    --arg icon_ai "$icon_ai" \
+    --arg icon_human "$icon_human" \
+    '.[] 
+      | {
+        id_str: (.id|tostring),
+        content: .content[:60] | gsub("\n\\s*"; " ") | gsub("\\s+"; " "),
+        user_icon: (if .Users.is_ai == 1 then $icon_ai else $icon_human end)
+      }
+      | .id_str + $delimiter + .user_icon + " " + .content' \
+  | fzf --ansi \
+    --delimiter "$FIELD_DELIMITER" \
+    --with-nth "2" \
+    --print-query \
+    --header "Messages [C+e:edit, C+y:copy]" \
+    --bind "ctrl-e:execute-silent(alacritty --class center-float -e nvim -c 'set ft=markdown' <(ai-db-find-one --table Messages --where id={1} | jq --raw-output .content))" \
+    --bind "ctrl-y:execute-silent(ai-db-find-one --table Messages --where id={1} --filter content --mode ascii | xclip -selection clipboard)" \
+    --preview 'ai-view --meta-position top message {1}' \
+    --preview-window 'right:60%:wrap:border-none:~6' \
+  | awk -F "$FIELD_DELIMITER" '{print $1}' \
+  | tr -d '\n'
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+# Main loop to choose a message from a conversation.
+# If no message is chosen, it will return to choose a conversation.
+while true; do
+  cid=$(choose_conversation)
+  if [ -z "$cid" ]; then
+    exit 0
+  fi
+
+  mid=$(choose_message "$cid")
+  if [ -z "$mid" ]; then
+    # Return Conversation selection 
+    continue
+  else
+    exit 0
+  fi
+done
+

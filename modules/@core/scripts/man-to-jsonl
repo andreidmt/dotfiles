@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+# Check if input file was provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <groff-file>"
+    exit 1
+fi
+
+input_file=$1
+input_plain_text=$(groff -mandoc -Tutf8 "$input_file" | col -bx)
+output_filename=$(basename "${input_file%.*}.jsonl")
+
+printf "%s\n" "$input_plain_text" | while IFS= read -r line; do
+  # check first for empty lines
+  if [ -z "$line" ]; then
+    continue
+  fi
+
+  printf "%s" "$line" | jq --raw-input --slurp --compact-output '{text: .}'
+done > "$output_filename"
+
+echo "Conversion completed: $output_filename"

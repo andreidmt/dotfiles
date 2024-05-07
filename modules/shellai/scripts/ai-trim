@@ -1,0 +1,58 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai-trim - Navigate, preview and select conversations for deletion
+#
+# SYNOPSIS
+#  ai-trim
+#
+# DESCRIPTION
+#  Preview a conversation by displaying all messages in the conversation,
+#  nicely formatted in markdown.
+#
+#  Upon selecting one or more conversations, a confirmation dialog is displayed
+#  and the user can choose to delete the conversation or cancel.
+#
+# SEE ALSO
+#  ai-db-find-many(1), jq(1), fzf(1), bat(2), sqlite3(2)
+
+choose_conversations() {
+  delimiter="::"
+
+  ai-db-find-many --table Conversations \
+    --filter "id, title, messages_count" \
+    --sort "updated_at DESC" \
+  | jq --raw-output \
+    --arg delimiter "$delimiter" \
+    '.[] | (.id|tostring) + $delimiter + .title + " (" + (.messages_count|tostring) + ")"' \
+  | fzf \
+    --delimiter "$delimiter" \
+    --multi \
+    --with-nth "2" \
+    --print-query \
+    --header "$AI_ICON Resume a conversation:" \
+    --preview 'ai-recall view {1}' \
+    --preview-window 'right:60%:wrap:follow' \
+    --bind "ctrl-d:execute(ai-db-delete --table Conversations --where \"id = {1}\")+abort" \
+  | awk -F "$delimiter" '{print $1}' \
+  | sed '/^$/d' \
+  | tr '\n' ',' \
+  | sed 's/,$//g'
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+set -e
+
+cid=$(choose_conversations)
+
+if [ -z "$cid" ]; then
+  print-error "No conversation selected" >&2
+  exit 1
+fi
+
+ai-db-delete --table Conversations --where "id IN ($cid)" 
+ai-db-delete --no-confirm --table Messages --where "conversations_id IN ($cid)"
+

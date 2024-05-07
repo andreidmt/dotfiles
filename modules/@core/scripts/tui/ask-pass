@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+# NAME
+#  ask-pass - Ask user for a password in a secure way
+#
+# DESCRIPTION
+#  Use either with ssh or sudo to ask for a password in a secure way.
+#
+#  If DISPLAY is not set, ask-pass will read the password from stdin, otherwise
+#  rofi is used for nicer user interaction.
+#
+# SEE ALSO
+#  rofi(1)
+
+ask_process=$(ps -o comm= -p $PPID)
+ask_label="[$ask_process] asks for a password:"
+
+if [ -z "$DISPLAY" ]; then
+  echo "$ask_label" >&2
+  read -r password
+else
+  password=$(rofi -dmenu -password \
+    -case-insensitive -no-fixed-num-lines \
+    -p "$ask_label")
+fi
+
+printf "%s" "$password" | tr -d "\n"

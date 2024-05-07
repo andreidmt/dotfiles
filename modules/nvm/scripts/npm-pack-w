@@ -1,0 +1,107 @@
+#!/usr/bin/env sh
+
+# Custom script to build a package achive, meant for AWS Lambda deployment, for
+# a project inside an npm workspace without installing any extra dependencies.
+# Be aware of the following issues:
+#
+# 1. Cannot include packages from inside the monorepo: Since we're extracting
+# the package to a temporary directory, we cannot include packages from inside
+# the monorepo.
+#
+# 2. Non-deterministic Builds: Since `npm install` does not respect the
+# monorepo's `package-lock.json` file, it can result in non-deterministic
+# builds.
+#
+# Note: Will try a webpack approch in the future to solve the above issues.
+
+# Fail on first error, undefined variable or error in a pipe
+set -eu
+
+PACKAGE_NAME_SLUG=$(\
+  jq -r '.name + "-" + .version' "package.json" \
+  | sed -e 's/[^A-Za-z0-9_-]/-/g' -e 's/^-//'
+)
+TMP_BUILD_DIR="/tmp/lambda-package-$PACKAGE_NAME_SLUG"
+INCLUDES="package.json
+src
+node_modules"
+
+parse_arguments() {
+  while (( "$#" )); do
+    echo "Parsing arguments..."
+    case "$1" in
+      --include)
+        shift
+        if [ "$1" ]; then
+          echo "Including extra file $1..."
+          INCLUDES+=("$1")
+          shift
+        else
+          echo 'ERROR: "--include" requires a non-empty option argument.'
+          exit 1
+        fi
+      ;;
+      --) shift; break ;;
+      -?*) echo "WARN: Unknown flag (ignored): $1" >&2; shift ;;
+      *) break ;;
+    esac
+  done
+}
+
+prepare() {
+  echo "Packaging $PACKAGE_NAME_SLUG..."
+
+  rm -rf "$TMP_BUILD_DIR"
+  mkdir -p "$TMP_BUILD_DIR"
+}
+
+copy_files_to_tmp_dir() {
+  echo "Copying source files to temporary build folder..."
+
+  for file in "${INCLUDES[@]}"; do
+    echo "Including file/folder $file..."
+    cp -r "$file" "$TMP_BUILD_DIR/"
+  done
+}
+
+install_dependencies() {
+  echo "Installing production dependencies..."
+
+  ln -s "$(pwd)/../.npm" "$TMP_BUILD_DIR/.npm"
+  cd "$TMP_BUILD_DIR"
+  npm install --omit=dev --no-audit --no-progress --prefer-offline
+}
+
+create_archive() {
+  echo "Archiving application..."
+
+  zip -q -r "$PACKAGE_NAME_SLUG".zip "${INCLUDES[@]}"
+}
+
+move_package() {
+  echo "Moving package to final location..."
+
+  from="$1"
+  to="$2"
+
+  rm -rf "$to"
+  mkdir -p "$to"
+  mv "$from" "$to"
+}
+
+main() {
+  dist_dir="$(pwd)/dist"
+  package_zip_file="$PACKAGE_NAME_SLUG.zip"
+
+  parse_arguments "$@"
+  prepare
+  copy_files_to_tmp_dir
+  install_dependencies
+  create_archive
+  move_package "$TMP_BUILD_DIR/$package_zip_file" "$dist_dir"
+
+  printf "\nDone:"
+  echo "$dist_dir/$package_zip_file"
+}
+
+main "$@"

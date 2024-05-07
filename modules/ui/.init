@@ -1,0 +1,56 @@
+#!/usr/bin/env dash
+
+export UI_HOME="$(dirname "$0")"
+
+##
+## Main
+##
+
+## Symlink application configs
+
+config_dirs="fontconfig
+dunst
+gtk-3.0"
+
+echo "$config_dirs" | while IFS="" read -r dir; do
+  if is_symlink_broken "$HOME/.config/$dir"; then
+    log --type warn "Removing broken config symlink" "$dir"
+    rm "$HOME/.config/$dir"
+  fi
+
+  if [ ! -d "$HOME/.config/$dir" ]; then
+    log --type info "Creating config symlink" "$dir"
+    ln -s "$UI_HOME/$dir" "$HOME/.config/$dir"
+  fi
+done
+
+## Symlink default applications 
+
+mimeapps_list="$HOME/.config/mimeapps.list"
+if is_symlink_broken "$mimeapps_list"; then
+  log --type warn "Removing broken config symlink" "mimeapps.list"
+  rm "$mimeapps_list"
+fi
+if [ ! -e "$mimeapps_list" ]; then
+  echo "Default applications not found, symlinking ..."
+  ln -s "$UI_HOME/mimeapps.list" "$mimeapps_list"
+fi
+
+## Symlink application configs
+
+applications_dir="$HOME/.local/share/applications"
+if is_symlink_broken "$applications_dir"; then
+  log --type warn "Removing broken config symlink" "applications"
+  rm "$applications_dir"
+fi
+if [ ! -d "$applications_dir" ]; then
+  log --type info "Creating config symlink" "applications"
+  ln -s "$UI_HOME/applications" "$applications_dir" 
+fi
+
+## Start services in background if not already running, decupled from shell
+
+if is_process_running "Xorg" && ! is_process_running "dunst"; then 
+  log --type info "Starting background process" "dunst"
+  nohup dunst > /dev/null 2>&1 &
+fi

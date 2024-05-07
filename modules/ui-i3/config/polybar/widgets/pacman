@@ -1,0 +1,23 @@
+#!/usr/bin/env dash
+
+# DESCRIPTION
+#  Show the number of pacman packages that can be upgraded.
+#  This script is meant to be used with `polybar`.
+
+orange() {
+  orange_color=$(xrdb -query | awk '/color3:/ {print $2}')
+  echo "%{F$orange_color}$1%{F-}"
+}
+
+red() {
+  red_color=$(xrdb -query | awk '/color1:/ {print $2}')
+  echo "%{F$red_color}$1%{F-}"
+}
+
+package_count=$(pacman -Qu | wc -l)
+
+if [ "$package_count" -gt 10 ]; then
+  red " $package_count packages"
+else
+  echo "$(orange " ") $package_count packages"
+fi

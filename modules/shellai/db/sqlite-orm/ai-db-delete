@@ -1,0 +1,108 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai-db-delete - Delete records from a table 
+#
+# SYNOPSIS
+#  ai-db-delete <-t table_name> <-w where_clause>
+#
+# DESCRIPTION
+#  Delete one or more records from a table in the AI SQLite database. 
+#  The records to delete are determined by the WHERE clause provided.
+#
+# OPTIONS
+#  -t, --table <table_name>
+#   The table to update the record(s) in
+#
+#  -w, --where <where_clause>
+#   The WHERE clause to use when updating the record(s)
+#
+#  --no-confirm
+#   Do not ask for confirmation before deleting the records
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#  2 No records found in table with WHERE clause
+#  3 User aborted the confirmation prompt
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# EXAMPLES
+#  ai-db-delete -t users -w "id = 1"
+#
+# SEE ALSO
+#  sqlite3(1), jq(1)
+
+CMD_NAME="ai-db-delete"
+
+# ╭───┤ Input validation
+# ╰─
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -t|--table)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        table=$2; shift
+      else
+        print-error "Flag -t|--table requires a value" "$CMD_NAME" >&2
+        exit 1
+      fi
+    ;;
+    -w|--where)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        where=$2; shift
+      else
+        print-error "Flag -w|--where requires a value" "$CMD_NAME" >&2
+        exit 1
+      fi
+    ;;
+    --no-confirm) no_confirm=true ;; 
+    --) shift; break ;;
+    -?*) print-error "Unknown flag $1" "$CMD_NAME" >&2; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$table" ]; then
+  print-error "Flag -t|--table is required" "$CMD_NAME" >&2
+  exit 1
+fi
+
+if [ -z "$where" ]; then
+  print-error "Flag -w|--where is required" "$CMD_NAME" >&2
+  exit 1
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+delete_count=$(sqlite3 "$SHELLAI_DB_FILE" \
+  "SELECT COUNT(*) FROM $table WHERE $where")
+
+if [ $? -ne 0 ]; then
+  print-error "$delete_count" "$CMD_NAME > sqlite3" >&2
+  exit 1
+fi
+
+if [ "$delete_count" -eq 0 ]; then
+  print-error "No records in $(bold "$table") found where $(bold "$where")" "$CMD_NAME" >&2
+  exit 2
+fi
+
+if [ "$no_confirm" != "true" ]; then
+  if ! confirm "Delete $delete_count record(s) from $(underline "$table") table, where $(underline "$where")?" "$CMD_NAME"; then
+    exit 3
+  fi
+fi
+
+result=$(sqlite3 "$SHELLAI_DB_FILE" \
+  "DELETE FROM $table WHERE $where; SELECT changes() AS changes")
+
+if [ $? -ne 0 ]; then
+  print-error "$result" "$CMD_NAME > sqlite3" >&2
+  exit 1
+fi

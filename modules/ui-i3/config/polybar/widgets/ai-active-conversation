@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+# DESCRIPTION
+#  Show the id of the ai active conversation.
+#  This script is meant to be used with `polybar`.
+
+gray_for_polybar() {
+  color=$(xrdb -query | grep '\*.color8' | awk '{print $2}')
+
+  printf "%s" "%{F$color}$1%{F-}"
+}
+
+cid=$(ai-db-find-one --mode csv --table Settings \
+  --where "key='active-conversation-id'" \
+  --filter "value")
+conversation=$(ai-db-find-one --table Conversations \
+  --where "id=$cid" \
+  --filter "id, title" 2>/dev/null)
+
+if [ $? -eq 2 ]; then
+  gray_for_polybar "#$cid not found"
+  exit 0
+fi
+
+printf "%s" "$conversation" \
+  | jq --raw-output '"#" + (.id | tostring) + " " + .title'
+

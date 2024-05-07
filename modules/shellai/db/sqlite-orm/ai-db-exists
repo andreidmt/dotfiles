@@ -1,0 +1,84 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai-db-exists - Check if a record exists in a table
+#
+# SYNOPSIS
+#  ai-db-exists <table_name> -w <where_clause>
+#
+# DESCRIPTION
+#  Check if a record exists in a table by providing a sqlite WHERE clause.
+#
+# OPTIONS
+#  -w, --where <where_clause>
+#   The sqlite WHERE clause to use when querying the database.
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#  2 No items found in table with WHERE clause
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# EXAMPLES
+#  ai-db-exists users -w "id=1"
+#
+# SEE ALSO
+#  sqlite3(1)
+
+# ╭───┤ Global variables 
+# ╰─
+
+CMD_NAME="ai-db-exists"
+
+# ╭───┤ Input validation 
+# ╰─
+
+table="$1"; shift
+
+if [ -z "$table" ]; then
+  print-error "Missing <table_name> argument" "$CMD_NAME" >&2
+  exit 1
+fi
+
+if ! ai-db-table "$table" exists; then
+  exit 1
+fi
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -w|--where) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        where=$2; shift
+      else
+        print-error "-w|--where flag requires a value" "$CMD_NAME" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -*)
+      print-error "Unknown flag $1" "$CMD_NAME" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$where" ]; then
+  print-error "Flag -w|--where is required" "$CMD_NAME" >&2
+  exit 1
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+count=$(sqlite3 "$SHELLAI_DB_FILE" \
+  "SELECT COUNT(*) FROM $table WHERE $where")
+
+if [ "$count" -eq 0 ]; then
+  exit 2
+fi

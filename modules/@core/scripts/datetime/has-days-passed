@@ -1,0 +1,85 @@
+#!/usr/bin/env sh
+
+# -e: exit on error
+set -e 
+
+. "$CORE_FUNCTIONS/die"
+
+# NAME
+#  has-days-passed - Checks if the current time is older than the last time 
+#                    this script was called.
+#
+# SYNOPSIS
+#  has-days-passed [OPTIONS] [NAME] [COUNT]
+#
+# DESCRIPTION
+#  Checks if the current time is older than the last time this script was
+#  called. If it is, the current time is saved and the script exits with a
+#  exit code of 0. If it is not, the script exits with a exit code of 1.
+#
+#  This script is useful for running a script only once a day. For example, a
+#  update script.
+#
+#  OPTIONS
+#   -n, --name NAME    Name to save the last time this script was called and
+#                      compare against. If not provided, the first argument is
+#                      used.
+#   -c, --count COUNT  Number of days compared against. If not provided, 1 is
+#                      used.
+#
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -n|--name)
+      if [ "$2" ]; then
+        name=$2; shift
+      else
+        die '"--name" requires a non-empty option argument.'
+      fi
+    ;;
+    -c|--count)
+      if [ "$2" ]; then
+        count=$2; shift
+      else
+        die '"--count" requires a non-empty option argument.'
+      fi
+    ;;
+    --)
+      shift
+      break 
+    ;;
+    -?*)
+      die "Unknown option: $1"
+    ;;
+    *) 
+      break
+    ;;
+  esac
+  shift
+done
+
+##
+## Main
+##
+
+name="${name:-$1}"
+count="${count:-$2}"
+
+if [ -z "$name" ]; then
+  die '"--name" is required.'
+fi
+
+if [ -z "$count" ] || [ "$count" -lt 1 ]; then 
+  count=1
+fi
+
+past_value_file="$CORE_TMP/hdp_$name"
+past_value=$(cat "$past_value_file" 2> /dev/null || echo 0)
+now_in_seconds=$(date +%s)
+seconds_in_a_day=86400
+
+if [ $((now_in_seconds - past_value)) -lt $((count * seconds_in_a_day)) ]; then 
+  exit 1
+fi
+
+echo "$now_in_seconds" > "$past_value_file"

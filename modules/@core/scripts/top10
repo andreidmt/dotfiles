@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+
+# NAME
+#  top10 - List the top 10 process by memory usage or CPU usage.
+#
+# SYNOPSIS
+#  top10 [command=memory]
+#
+# COMMANDS
+#  memory | mem
+#   List the top 10 processes by memory usage.
+# 
+#  cpu
+#   List the top 10 processes by CPU usage.
+#
+# DESCRIPTION
+#  List the top 10 processes by memory usage or CPU usage.
+#
+# EXAMPLES
+#  top10 memory
+#  top10 cpu
+#
+# SEE ALSO
+#  ps(1), awk(1), sort(1), head(1), column(1)
+
+case ${1:-memory} in
+  memory|mem)
+    ps -eo pid,vsz,rss,comm,args --sort=-rss \
+      | awk '
+          NR==1 {
+            print; next
+          } {
+            vsz_mb = int($2/1024);
+            vsz_fmt = vsz_mb<1024 ? sprintf("%.2fM", vsz_mb) : sprintf("%.2fG", vsz_mb/1024);
+
+            rss_mb = int($3/1024);
+            rss_fmt = rss_mb<1024 ? sprintf("%.2fM", rss_mb) : sprintf("%.2fG", rss_mb/1024);
+
+            command = "";
+            for (i=4; i<=NF; i++) {
+              command = command $i " ";
+            }
+
+            print $1, vsz_fmt, rss_fmt, command
+          }
+        ' \
+      | head -n 11 \
+      | column -t -l 5
+  ;;
+  cpu)
+    ps -eo pid,%cpu,comm --sort=-%cpu \
+      | head -n 11 \
+      | column -t -l 3
+  ;;
+  *)
+    echo "Usage: top10 <memory|cpu>" >&2
+    exit 1
+  ;;
+esac

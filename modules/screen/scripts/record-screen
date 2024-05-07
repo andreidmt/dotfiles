@@ -1,0 +1,52 @@
+#!/usr/bin/env sh
+
+. "$CORE_FUNCTIONS/die"
+
+# NAME
+#  record-screen - Record video from the screen 
+#
+# SYNOPSIS
+#  record-screen <file>
+#
+# DESCRIPTION
+#  Allow user to select a region of the screen or window to record.
+#
+# SEE ALSO
+#  ffmpeg(1), slop(1)
+
+select_region() {
+  slop --format "%x %y %w %h" --color=0.5,0.5,0.5,0.5 --highlight > /tmp/slop
+  read -r OFFSET_X OFFSET_Y WIDTH HEIGHT < /tmp/slop
+  rm /tmp/slop
+
+  # WIDTH and HEIGHT must be even numbers (codec requirement)
+  if [ $((WIDTH % 2)) -ne 0 ]; then WIDTH=$((WIDTH + 1)); fi
+  if [ $((HEIGHT % 2)) -ne 0 ]; then HEIGHT=$((HEIGHT + 1)); fi
+}
+
+record() {
+  # Input flags, video_size, input_format, framerate etc, must be placed before
+  # the input flag
+  ffmpeg -f x11grab -video_size "$1" \
+    -framerate 30 \
+    -i ":0.0+$2" \
+    -c:v libx264 \
+    -pix_fmt yuv420p \
+    -preset faster \
+    -crf 23 \
+    "$save_to"
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+save_to=$1
+
+if [ -z "$save_to" ]; then
+  die "No file specified to save the recording to"
+fi
+
+select_region
+record "${WIDTH}x${HEIGHT}" "${OFFSET_X},${OFFSET_Y}"
+

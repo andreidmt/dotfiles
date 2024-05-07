@@ -1,0 +1,71 @@
+#!/usr/bin/env zsh
+
+export NVMM_HOME=$(dirname "$0")
+export NVMM_LOCAL="$NVMM_HOME/.local"
+export NVMM_FUNCTIONS="$NVMM_HOME/functions"
+export NVMM_CONFIG="$NVMM_HOME/config"
+export NVMM_SCRIPTS="$NVMM_HOME/scripts"
+
+mkdir -p "$NVMM_LOCAL"
+
+## Upgrade dependencies. Coordinated by the HMVC system via global 
+## $HMVC_SHOULD_UPGRADE variable.
+
+if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
+  git-download nvm-sh/nvm "$NVMM_LOCAL/nvm"
+  git-download lukechilds/zsh-better-npm-completion "$NVMM_LOCAL/zsh-better-npm-completion"
+fi
+
+## Main
+
+export NVM_COMPLETION=true
+export NVM_DIR="$NVMM_LOCAL/nvm"
+
+# Load nvm/npm plugins
+source "$NVMM_LOCAL/nvm/nvm.sh"
+source "$NVMM_LOCAL/zsh-better-npm-completion/zsh-better-npm-completion.plugin.zsh"
+
+# Expose all module functions to the shell environment
+
+functions_files=$(find "$NVMM_FUNCTIONS" -type f)
+config_files=$(find "$NVMM_CONFIG" -type f)
+
+echo "$functions_files\n$config_files" | while read -r file; do
+  source "$file"
+done
+
+# Auto switch node version when changing directories
+add-zsh-hook chpwd switch_node
+
+export NVMM_DEFAULT_VERSION=$(nvm version default)
+
+# Install or upgrade global npm packages
+
+if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
+  echo " Installing global npm packages..."
+
+  npm install -g --prefer-offline --no-progress --no-audit \
+    npm \
+    yarn \
+    bash-language-server \
+    dockerfile-language-server-nodejs \
+    graphql-language-service-cli \
+    markdownlint-cli \
+    npm-check-updates \
+    prettier \
+    remark \
+    remark-cli \
+    remark-parse \
+    remark-stringify \
+    remark-language-server \
+    stylelint \
+    stylelint-lsp \
+    typescript \
+    typescript-language-server \
+    vscode-langservers-extracted \
+    yaml-language-server
+fi
+
+if [ "$HMVC_DEBUG" = true ]; then
+  echo " Using node $(stylize underline "$(node --version)")"
+fi

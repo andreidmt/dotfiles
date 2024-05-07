@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# NAME
+#  toggle-main-window - Toggle the focused window floating & centered mode
+#
+# SYNOPSIS
+#  toggle-main-window
+
+is_marked=$(i3-msg -t get_marks | grep -o "center-mark")
+
+if [ -n "$is_marked" ]; then
+  i3-msg "[con_id=__focused__] mark --toggle center-mark"
+  i3-msg "[con_id=__focused__] floating disable"
+else
+  i3-msg "[con_id=__focused__] mark --add center-mark"
+  i3-msg "[con_id=__focused__] floating enable, resize set width 65ppt, resize set height 70ppt, move position center, padding 50px" 
+fi

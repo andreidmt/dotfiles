@@ -1,0 +1,91 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-count - Count records from a table
+#
+# SYNOPSIS
+#  ai-db-count [-w|--where where_clause] [-m|--mode mode] <table_name> 
+#
+# DESCRIPTION
+#  Count records in a table. By default all records are counted. Use the WHERE
+#  clause to count a subset of records.
+#
+# OPTIONS
+#  -w, --where [where_clause]
+#   The WHERE clause to use when querying the database.
+#
+#  -m, --mode [mode="json"] 
+#   The display mode. Get's passed to sqlite3. 
+#
+# ARGUMENTS
+#  <table_name>
+#   The name of the table to count records from.
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1), jq(1)
+
+# ╭───┤ Input validation 
+# ╰─
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -w|--where) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        where=$2; shift
+      else
+        print-error "argument $1 requires a value" "ai-db-count" >&2
+        exit 1
+      fi
+    ;;
+    -m|--mode) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        mode=$2; shift
+      else
+        print-error "argument $1 requires a value" "ai-db-count" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) 
+      print-error "Unknown flag $1" "ai-db-count" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+table=$1
+
+if [ -z "$table" ]; then
+  print-error "Missing required argument <table_name>" "ai-db-count" >&2
+  exit 1
+fi
+
+if ! ai-db-table "$table" exists; then
+  print-error "Table $(bold -f "$table") does not exist" "ai-db-count" >&2
+  exit 1
+fi
+
+mode=${mode:-json}
+counts=$(sqlite3 "$SHELLAI_DB_FILE" "-$mode" \
+  "SELECT COUNT(*) as count FROM $table ${where:+WHERE $where};")
+
+if [ "$mode" = "json" ]; then
+  printf "%s" "$counts" | jq ".[0]"
+else  
+  printf "%s\n" "$counts"
+fi
+

@@ -1,3 +1,0 @@
-#!/usr/bin/env dash
-
-printf "\x1b[3m%s\x1b[0m" "$@"

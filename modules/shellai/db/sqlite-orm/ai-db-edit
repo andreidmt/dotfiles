@@ -1,0 +1,323 @@
+#!/usr/bin/env dash
+
+. "$CORE_FUNCTIONS/stdin-or"
+
+# NAME
+#  ai-db-edit - Create, Update, Duplicate or Delete a record
+#
+# SYNOPSIS
+#  ai-db-edit [table_name]
+#
+# DESCRIPTION
+#  Create, Update, Duplicate, or Delete a record in a specified table.
+#  
+#  1. Upon selecting a table and record, an editor will open with the record's
+#  data in JSON format. 
+#  2. The user can then edit the data and save the file.
+#  3. The record will then be updated in the database.
+#
+# ARGUMENTS
+#  [table_name] 
+#   The table to edit a record in
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#  2 JSON parsing error
+#
+# SEE ALSO
+#  ai-db-find-one(1), ai-db-create(1), ai-db-update(1), jq(1), md5sum(1), 
+#  fzf(1), sqlite3(2)
+
+CMD_NAME="ai-db-edit"
+FZF_DELIMITER="::"
+FZF_HEIGHT=15
+
+# Allow user to choose a table. 
+# Remove sqlite internal tables and tables with a leading underscore, which
+# are considered internal to the application.
+#
+# RETURNS
+#  The name of the table
+choose_table() {
+  ai-db-info table-names \
+    | grep -v "sqlite_sequence" \
+    | fzf \
+      --height "$FZF_HEIGHT" \
+      --header "Choose a table" \
+      --preview "ai-db-table {1} describe" \
+      --preview-window 'right:60%'
+}
+
+# Allow user to choose records from a given table together with a predefined
+# action: create, update, duplicate or delete
+#
+# ARGUMENTS
+#  $1 - The table to choose a record from
+#  $2 - The primary key field name of the table
+#
+# RETURNS
+#  The first line will always be the action (create, update, duplicate or
+#  delete), followed by the ids of the selected record(s), each on a new line
+choose_records() {
+  table="$1"
+  pk="$2"
+
+  case "$table" in
+    Conversations) label_field="title" ;;
+    Users) label_field="name" ;;
+    Messages) label_field="content" ;;
+    Settings) label_field="key" ;;
+  esac
+
+  if [ -n "$label_field" ]; then
+    fields="$pk, $label_field"
+  else
+    fields="$pk"
+  fi
+
+  ai-db-find-many --table "$table" \
+    --filter "$fields" --sort "$pk DESC" \
+    | jq --raw-output \
+      ".[] | (.$pk|tostring) + \"$FZF_DELIMITER\" + (.$label_field|tostring)" \
+    | fzf -i \
+      --height "$FZF_HEIGHT" \
+      --delimiter "$FZF_DELIMITER" \
+      --multi \
+      --with-nth "2" \
+      --header "$table [C create] [󰌑 update] [D duplicate] [C+d delete]" \
+      --preview "ai-db-find-one --table $table --where \"$pk={1}\" | bat --language json --paging never --style plain --color always " \
+      --preview-window 'right:60%' \
+      --bind "ctrl-a:select-all" \
+      --expect C,enter,D,ctrl-d
+}
+
+# Get a list of all field names of the specified table, excluding the primary 
+# key.
+#
+# ARGUMENTS
+#  $1 - The table to get the fields from
+#  $2 - The primary key field name of the table
+#
+# RETURNS
+#  Field names, each on a new line
+get_all_fields() {
+  table="$1"
+  pk="$2"
+
+  ai-db-table "$table" describe --mode json \
+    | jq --raw-output '.[] | .name'
+    # | grep -v "$pk"
+}
+
+# Allow user to choose a subset of fields from the given table
+#
+# ARGUMENTS
+#  $1 - The table to choose fields from
+#  $2 - The primary key field name of the table
+#
+# RETURNS
+#  Field names, comma separated (e.g. "name, email, phone")
+choose_fields() {
+  table="$1"
+  pk="$2"
+
+  get_all_fields "$table" "$pk" \
+    | fzf \
+      --height "$FZF_HEIGHT" \
+      --multi \
+      --header "Choose field(s)" \
+      --preview "ai-db-table $table describe | bat --language json --paging never --style plain --color always" \
+      --preview-window 'right:60%' \
+      --bind "ctrl-a:select-all" \
+    | tr '\n' ',' \
+    | sed 's/,$//g'
+}
+
+edit_in_editor() {
+  data=$(stdin_or "$1")
+  editor_syntax="${2:-json}"
+
+  # Generate temporary files to store the current and updated record
+  tmp_prev=$(mktemp "/tmp/${CMD_NAME}_${pk}_XXXXXXXX")
+  tmp_next=$(mktemp "/tmp/${CMD_NAME}_${pk}_XXXXXXXX")
+
+  printf "%s" "$data" > "$tmp_prev"
+  printf "%s" "$data" > "$tmp_next"
+
+  # Prompt the user to edit the record
+  terminal-center nvim -c "set ft=${editor_syntax}" "$tmp_next" 
+
+  # Compare the hashes and check for changes
+  prev_hash=$(md5sum "$tmp_prev" | awk '{print $1}')
+  next_hash=$(md5sum "$tmp_next" | awk '{print $1}')
+
+  if [ "$prev_hash" = "$next_hash" ]; then
+    return 0
+  fi
+
+  # Inform the user the changes to be committed and prompt for a double check
+  diff --color=always --unified "$tmp_prev" "$tmp_next" >&2
+
+  # Return the updated value
+  printf "%s" "$(cat "$tmp_next")"
+
+  # Clean up
+  rm "$tmp_prev" "$tmp_next"
+}
+
+# Interactively update a record in a table
+#
+# An editor will open with the record's data in JSON format. The user can then
+# edit the data and save the file. The record will then be updated in the
+# database if any changes were made.
+#
+# ARGUMENTS
+#  $1 - The table name to update the record in (e.g. "Users")
+#  $2 - The where clause to identify the record to update (e.g. "id=1")
+#  $3 - The fields to update, comma separated (e.g. "name, email, phone")
+#
+# RETURNS
+#  The updated record as JSON, or an empty string if no changes were made
+update_fields_as_json() {
+  table="$1"
+  where="$2"
+  fields="$3"
+
+  record_prev=$(ai-db-find-one --table "$table" \
+    --where "$where" --filter "$fields")
+  record_next=$(edit_in_editor "$record_prev")
+
+  if [ -z "$record_next" ]; then
+    return 0
+  fi
+
+  printf "%s" "$record_next"
+}
+
+# Interactively update a single field of a record in a table
+#
+# An editor will open with the record's data in plain text format. The user can
+# then edit the data and save the file. The record will then be updated in the
+# database if any changes were made.
+#
+# ARGUMENTS
+#  $1 - The table name to update the record in (e.g. "Users")
+#  $2 - The where clause to identify the record to update (e.g. "id=1")
+#  $3 - The field to update, comma separated (e.g. "name"
+update_as_markdown() {
+  table="$1"
+  where="$2"
+  field="$3"
+
+  value_prev=$(ai-db-find-one --table "$table" \
+    --where "$where" --filter "$field" \
+    | jq --raw-output ".$field")
+  value_next=$(edit_in_editor "$value_prev" "markdown")
+
+  if [ -z "$value_next" ]; then
+    print-info "No changes made, exiting" "$CMD_NAME" >&2
+    return 0
+  fi
+
+  if confirm "Update \`$table\` where \`$where\`?" "$CMD_NAME" </dev/tty; then
+    jq --null-input \
+      --arg field_name "$field" --arg field_next "$value_next" \
+      '{ ($field_name): $field_next }' \
+      | ai-db-update --table "$table" --where "$where"
+
+    print-success --no-border "Record updated with $(underline "$where") in $(underline "$table") table" "$CMD_NAME"
+  else
+    print-info "Record not updated" "$CMD_NAME"
+  fi
+}
+
+# ╭───┤ Input validation
+# ╰─
+
+table="$1"
+
+if [ -n "$table" ]; then 
+  shift
+
+  if ! ai-db-table "$table" exists 2>/dev/null; then
+    print-error "Table $(underline "$table") does not exist" "$CMD_NAME" >&2
+    exit 1
+  fi
+else
+  table=$(choose_table)
+  if [ -z "$table" ]; then
+    print-error "No table selected" "$CMD_NAME" >&2
+    exit 1
+  fi
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+pk=$(ai-db-table "$table" pk)
+instructions=$(choose_records "$table" "$pk")
+
+if [ -z "$instructions" ]; then
+  print-error "No \"$table\" record selected" "$CMD_NAME" >&2
+  exit 1
+fi
+
+crud_command=$(echo "$instructions" | head -n 1)
+ids=$(echo "$instructions" \
+  | tail -n +2 \
+  | awk -F "$FZF_DELIMITER" '{print $1}'
+)
+
+echo "$ids" | while read -r id; do
+  where="$pk='$id'"
+
+  case "$crud_command" in
+    # Update specific fields
+    enter)
+      fields=$(choose_fields "$table" "$pk")
+      fields_count=$(echo "$fields" | tr -cd ',' | wc -c | xargs expr 1 +)
+
+      if [ -z "$fields" ]; then
+        print-error "No fields selected" "$CMD_NAME" >&2
+        exit 1
+      fi
+
+      if [ "$fields_count" -eq 1 ] && ai-db-table "$table" field-type "$fields" = "TEXT"; then
+        update_as_markdown "$table" "$where" "$fields"
+        exit 0
+      fi
+
+      value=$(update_fields_as_json "$table" "$where" "$fields")
+
+      if [ -z "$value" ]; then
+        print-info "No changes made, exiting" "$CMD_NAME" >&2
+        exit 0
+      fi
+
+      if confirm "Update \`$table\` where \`$where\`?" "$CMD_NAME" </dev/tty; then
+        ai-db-update --table "$table" --where "$where" "$value"
+        print-success --no-border "Record updated with $(underline "$where") in $(underline "$table") table" "$CMD_NAME"
+      else
+        print-info --no-border "Record not updated" "$CMD_NAME"
+      fi
+    ;;
+
+    # Duplicate
+    D)
+      ai-db-find-one --table "$table" --where "$where" \
+        | jq --raw-output "del(.$pk)" \
+        | edit_in_editor \
+        | ai-db-create --table "$table" >/dev/null
+
+      print-success --no-border "Record duplicated with $(underline "$where") in $(underline "$table") table" "$CMD_NAME"
+    ;;
+
+    # Delete
+    ctrl-d)
+      ai-db-delete --table "$table" --where "$where" </dev/tty;
+    ;;
+  esac
+done
+

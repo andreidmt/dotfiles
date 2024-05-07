@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Run the command and measure its memory usage
-"$@" &
-pid=$!
-pmap -x "$pid"
-wait $pid

@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-
-alacritty --title layout-center --command "$@"

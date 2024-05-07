@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+
+# NAME
+#  move-submodule - 
+#
+# SYNOPSIS
+# DESCRIPTION
+#
+# OPTIONS
+#
+# EXAMPLES
+#
+# SEE ALSO
+
+# Change this variable according to your submodule configuration
+OLD_SUBMODULE_PATH="path/to/old/submodule"
+NEW_SUBMODULE_PATH="path/to/new/submodule"
+
+# Extract the Submodule URL based on its old path
+SUBMODULE_URL=$(git config --file .gitmodules --get submodule."$OLD_SUBMODULE_PATH".url)
+if [ -z "$SUBMODULE_URL" ]; then
+  echo "Could not find URL for submodule at $OLD_SUBMODULE_PATH. Exiting."
+  exit 1
+fi
+
+# Step 2: Deinitialize the Submodule
+git submodule deinit "$OLD_SUBMODULE_PATH"
+
+# Step 4: Remove the Submodule Directory
+rm -rf "$OLD_SUBMODULE_PATH"
+
+# Step 5 & 6: Remove the Submodule from .gitmodules and the git index
+git config --remove-section submodule."$OLD_SUBMODULE_PATH"
+git rm --cached "$OLD_SUBMODULE_PATH"
+
+# Step 7: Add the Submodule at the New Location
+git submodule add "$SUBMODULE_URL" "$NEW_SUBMODULE_PATH"
+
+# Step 8: Reinitialize the Submodule
+git submodule update --init --recursive
+
+# Step 9: Commit the Changes
+git add .gitmodules "$NEW_SUBMODULE_PATH"
+git commit -m "Move submodule from $OLD_SUBMODULE_PATH to $NEW_SUBMODULE_PATH"
+
+# Inform the user
+echo "Submodule moved and changes committed. Please push the changes to your remote repository."

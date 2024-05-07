@@ -1,0 +1,63 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai-recall - Choose and set the active conversation
+#
+# SYNOPSIS
+#  ai-recall
+#
+# DESCRIPTION
+#  Preview a conversation by displaying all messages in the conversation, nicely
+#  formatted in markdown.
+#
+#  Upon selecting the conversation, it is set as the active conversation and
+#  subsequent messages to `ai` will be added to this conversation.
+#
+# SEE ALSO
+#  ai-db-find-many(1), ai-db-update(1), jq(1), fzf(1), bat(1)
+
+# ╭───┤ Global variables
+# ╰─
+
+CMD_NAME="ai-recall"
+
+# ╭───┤ Functions
+# ╰─
+
+choose_conversation() {
+  delimiter="::"
+
+  ai-db-find-many --table Conversations \
+    --filter "id, title, messages_count" \
+    --sort "updated_at DESC" \
+  | jq --raw-output \
+    --arg delimiter "$delimiter" \
+    '.[] | (.id|tostring) + $delimiter + .title + " (" + (.messages_count|tostring) + ")"' \
+  | fzf \
+    --delimiter "$delimiter" \
+    --with-nth "2" \
+    --print-query \
+    --header "$SHELLAI_ICON Resume a conversation:" \
+    --preview 'ai-view conversation {1}' \
+    --preview-window 'right:60%:wrap:follow:border-none:~6' \
+  | awk -F "$delimiter" '{print $1}' \
+  | tr -d '\n'
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+cid=$(choose_conversation)
+
+if [ -z "$cid" ]; then
+  print-error "No conversation selected" "$CMD_NAME" >&2
+  exit 1
+fi
+
+ai-db-update --table Settings \
+  --where "key='active-conversation-id'" \
+  "{\"value\":$cid}"
+
+clear
+ai-view --meta-position bottom conversation "$cid"

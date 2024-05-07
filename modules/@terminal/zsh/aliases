@@ -1,0 +1,14 @@
+# configs
+alias cs="cd ~/Work/andreidmt.dotfiles && nvim modules/.init"
+alias cv="cd ~/.config && nvim ~/.config/nvim/init.vim"
+
+#
+alias jcurl='curl --verbose --header "Content-Type: application/json"'
+alias hcurl='curl --head --verbose'
+alias lsa='ls -Alh --color=auto --group-directories-first'
+alias vi='nvim'
+alias vim='nvim'
+alias gl='git log --graph --decorate --pretty=oneline --abbrev-commit'
+
+# find in file names
+alias rgf="rg --files --hidden | rg --smart-case"

@@ -1,0 +1,92 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai-config - Configure the active conversation and agent
+#
+# SYNOPSIS
+#  ai-config model [user_id]
+#  ai-config conversation [conversation_id]
+#
+# DESCRIPTION
+#
+# COMMANDS
+#  model [user_id|choose]
+#   Getter/Setter for the active model. The value is exposed in the OPENAI_MODEL
+#   environment variable.
+#
+#   If no value is set, the current model is taken from the `default-agent-id`
+#   stored in the `Settings` table.
+#
+#   ARGUMENTS
+#    user_id
+#     The agent (user with `is_ai=true`) id from to get the OpenAI model. 
+#     All future prompts will use this model.
+#
+#    choose
+#     Interactively choose and set the user is.
+#
+#   ERROR CODES
+#    1 User does not exist
+#    2 User's `is_ai` field is false
+#    3 User's `is_ai` field is true but the `model` field is not set
+# 
+# SEE ALSO
+#  ai-db-find-many(1), ai-db-update(1), jq(1), fzf(1), bat(1)
+
+ai_config_model() {
+  if [ "$1" = "choose" ]; then
+    user_id=$(ai-db-find-many --table Users --filter "id, name" \
+      | jq --raw-output '.[] | (.id|tostring) + "::" + .name' \
+      | fzf --with-nth "2" --delimiter "::" --header "Choose a user to set as the active model" \
+      | awk -F "::" '{print $1}' \
+      | tr -d '\n')
+  else
+    user_id=$1
+  fi
+
+  if [ -z "$user_id" ]; then
+    print-error "No user selected" "$CMD_NAME" >&2
+    exit 1
+  fi
+
+  if ! ai-db-exists Users -w "id=$user_id"; then
+    print-error "User with id $user_id does not exist" "$CMD_NAME" >&2
+    exit 1
+  fi
+
+  is_ai=$(ai-db-find-one --mode csv --table Users --filter "is_ai" --where "id=$user_id")
+  if [ "$is_ai" = "false" ]; then
+    print-error "User with id $user_id is not an AI user" "$CMD_NAME" >&2
+    exit 2
+  fi
+
+  model=$(ai-db-find-one --mode csv --table Users --filter "model" --where "id=$user_id")
+  if [ -z "$model" ]; then
+    print-error "User with id $user_id has no model set" "$CMD_NAME" >&2
+    exit 3
+  fi
+
+  export OPENAI_MODEL="$model"
+}
+
+
+# choose_conversation() {
+#   delimiter="::"
+
+#   ai-db-find-many --table Conversations \
+#     --filter "id, title, messages_count" \
+#     --sort "updated_at DESC" \
+#   | jq --raw-output \
+#     --arg delimiter "$delimiter" \
+#     '.[] | (.id|tostring) + $delimiter + .title + " (" + (.messages_count|tostring) + ")"' \
+#   | fzf \
+#     --delimiter "$delimiter" \
+#     --with-nth "2" \
+#     --print-query \
+#     --header "$OPENAI_ICON Resume a conversation:" \
+#     --preview 'ai-view conversation {1}' \
+#     --preview-window 'right:60%:wrap:follow:border-none:~6' \
+#   | awk -F "$delimiter" '{print $1}' \
+#   | tr -d '\n'
+# }
+

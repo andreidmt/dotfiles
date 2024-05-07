@@ -1,0 +1,362 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai - Ask OpenAI a question
+#
+# SYNOPSIS
+#  ai [--no-highlight] [query]
+#  ai new [query]
+#  ai recall
+#  ai retry
+#
+# DESCRIPTION
+#  Ask OpenAI a question and get a response. If no query is provided, the active
+#  conversation is printed.
+#
+#  If the query starts with "!", a new conversation is started and set as the
+#  active one.
+#
+# COMMANDS
+#  new [query]
+#   Start a new conversation and set it as the active one.
+#
+#  recall
+#   Choose a conversation to set as the active one.
+# 
+# OPTIONS
+#  --no-highlight 
+#   Do not syntax highlight the response.
+#
+# ENVIRONMENT
+#  SHELLAI_HIGHIGHT_RESPONSE
+#   Syntax highlight the response using bat(1).
+#
+# EXAMPLES 
+#  ai "What is the meaning of life?"
+#   Simple question
+#
+#  ai
+#   Print the active conversation
+#
+#  echo "What is the meaning of life?" | ai
+#   Simple question using pipe input instead of argument
+#
+#  cat "42.js" | ai "Explain what this does:"
+#   Concatenate both stdin and argument: <argument>\n\n<stdin>
+#  
+#  ai new "Let's start a new conversation, shall we?" 
+#   Start a new conversation
+#
+#  cat "42.js" | ai new "Explain what this does:"
+#   Start a new conversation and concatenate both stdin and argument:
+#   <argument>\n\n<stdin>
+#
+#  ai recall
+#   Choose a conversation to set as the active one
+#  
+# SEE ALSO
+#  ai-db-find-one(1), ai-db-find-many(1), ai-db-create(1), ai-db-update(1),
+#  jq(1), bat(1), sqlite3(2)
+
+# ╭───┤ Global variables
+# ╰─
+
+CMD_NAME="ai"
+
+# ╭───┤ Functions
+# ╰─
+
+interpolate() {
+  input=$(cat -)
+
+  eval "cat <<EOF
+$input
+EOF"
+}
+
+print_error() {
+  print-error "$@" "$CMD_NAME" >&2
+}
+
+print_warning() {
+  print-warning "$@" "$CMD_NAME" >&2
+}
+
+print_info() {
+  print-info "$@" "$CMD_NAME"
+}
+
+# Choose an agent (user with is_ai=1) to use for the conversation.
+#
+# RETURNS
+#  The agent id
+choose_agent() {
+  delimiter="::"
+
+  ai-db-find-many --table Users --where "is_ai=1" --sort "name ASC" \
+    | jq --raw-output --arg delimiter "$delimiter" \
+      '.[] | (.id|tostring) + $delimiter + .name' \
+    | fzf --height 15 --header "Choose an agent" \
+      --delimiter "$delimiter" \
+      --with-nth "2" \
+      --preview "ai-db-find-one --table Users --where 'id={1}' | bat --language json --paging never --style plain --color always " \
+      --preview-window 'right:60%' \
+    | awk -F "$delimiter" '{print $1}'
+}
+
+# Create a new conversation and set it as the active one, so that subsequent 
+# messages are added automatically to it.
+#
+# SYNOPSIS
+#  create_new_conversation <agent_id>
+#
+# RETURNS
+#  The newly created conversation id
+create_new_conversation() {
+  agent_id="$1"
+
+  if [ -z "$agent_id" ]; then
+    print_error "Agent ID is required to create a new conversation"
+    return 1
+  fi
+
+  jq --null-input --arg agent_id "$agent_id" \
+    '{ "main_agent_id": $agent_id | tonumber }' \
+    | ai-db-create --table Conversations --mode csv --filter "id"
+}
+
+# View the active conversation.
+#
+# ERRORS
+#  1 No active conversation set
+#  2 Active conversation does not exist
+print_active_conversation() {
+  cid=$(ai-db-find-one --mode csv --table Settings \
+        --filter "value" --where "key = 'active-conversation-id'")
+
+  if [ -z "$cid" ]; then
+    print_error "No active conversation set"
+    exit 1
+  fi
+
+  if ! ai-db-exists Conversations -w "id=$cid"; then
+    print_error "Active conversation with id $cid does not exist"
+    exit 2
+  fi
+
+  ai-view conversation "$cid"
+}
+
+# ╭───┤ Argument parsing
+# ╰─
+
+has_syntax_highlight=${SHELLAI_HIGHIGHT_RESPONSE:-true}
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --no-highlight) has_syntax_highlight=false ;;
+    --) shift; break ;;
+    -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+query_arg=$1
+[ -p /dev/stdin ] && query_stdin=$(cat -)
+should_create=false
+
+case "$1" in
+  new) 
+    should_create=true
+    query_arg=$2 
+
+    if [ -z "$query_arg" ] && [ -z "$query_stdin" ]; then
+      print_error "Please provide a query"
+      exit 1
+    fi
+  ;;
+  recall)
+    ai-recall
+    exit 0
+  ;;
+  retry)
+    should_retry=true
+    query_arg="dummy-content"
+  ;;
+esac
+
+if [ -z "$query_arg" ] && [ -z "$query_stdin" ]; then
+  clear
+  print_active_conversation
+  exit
+fi
+
+if [ -n "$query_arg" ] && [ -n "$query_stdin" ]; then
+  query="$query_arg\n\n$query_stdin"
+else
+  query="${query_arg:-$query_stdin}"
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+active_cid=$(ai-db-find-one --mode csv --table Settings \
+    --filter "value" --where "key = 'active-conversation-id'")
+
+if [ -z "$active_cid" ] && [ "$should_create" = false ]; then
+  print_warning --no-border "Cannot resume conversation because no active conversation is set, continuing by creating new conversation"
+  should_create=true
+fi
+
+user_slug="$(whoami | tr '[:upper:]' '[:lower:]')"
+user=$(ai-db-find-one --table Users \
+  --filter "id,mission" --where "slug = '$user_slug' AND is_ai=0")
+
+if [ "$should_create" = true ]; then
+  agent_id=$(choose_agent)
+  CID=$(create_new_conversation "$agent_id")
+else
+  CID="$active_cid"
+
+  if ! ai-db-exists Conversations -w "id=$CID"; then
+    print_warning --no-border "Active conversation with id $CID does not exist, creting new one"
+
+    agent_id=$(choose_agent)
+    CID=$(create_new_conversation "$agent_id")
+  else
+    agent_id=$(ai-db-find-one --mode csv --table Conversations \
+      --where "id=$CID" --filter "main_agent_id") 
+  fi
+fi
+
+if [ -z "$CID" ]; then
+  print_error "Failed to retrieve active conversation or create new one"
+  exit 1
+fi
+
+# If a new conversation was created, update the system wide active conversation
+if [ "$CID" != "$active_cid" ]; then
+  ai-db-update --table Settings \
+    --where "key='active-conversation-id'" \
+    "{\"value\": $CID}"
+fi
+
+AGENT=$(ai-db-find-one --mode json --table Users \
+  --filter "id, model, temperature, mission" \
+  --where "id=$agent_id")
+
+# ╭───┤ Add the user's and main agent's descriptions as system messages
+# ╰─
+if [ "$should_create" = true ]; then
+  jq --null-input \
+    --argjson agent "$AGENT" \
+    --arg conversation_id "$CID" \
+    '{
+      "conversations_id": $conversation_id | tonumber,
+      "users_id": $agent.id | tonumber,
+      "content": $agent.mission,
+      "role": "system_main-agent-mission"
+    }' \
+    | ai-db-create --table Messages > /dev/null
+
+  # Treat the content as a template string which requires shell variable and
+  # command interpolations.
+  user_mission=$(jq --null-input --raw-output \
+    --argjson user "$user" '$user.mission' \
+    | interpolate)
+
+  jq --null-input \
+    --argjson user "$user" \
+    --arg mission "$user_mission" \
+    --arg conversation_id "$CID" \
+    '{
+      "conversations_id": $conversation_id | tonumber,
+      "users_id": $user.id | tonumber,
+      "content": $mission,
+      "role": "system_main-user-mission"
+    }' \
+    | ai-db-create --table Messages > /dev/null
+fi
+
+# ╭───┤ Add user's query to the conversation
+# ╰─
+if [ -z "$should_retry" ]; then
+  jq --null-input \
+    --arg query "$query" \
+    --arg conversation_id "$CID" \
+    --argjson user "$user" \
+    '{
+      "conversations_id": $conversation_id | tonumber,
+      "users_id": $user.id | tonumber,
+      "content": $query,
+      "role": "user"
+    }' \
+    | ai-db-create --table Messages > /dev/null
+fi
+
+# ╭───┤ Prepare messages array for OpenAI POST request
+# ╰─
+messages=$(ai-db-find-many --table Messages \
+  --where "conversations_id = $CID" \
+  --sort "created_at ASC" \
+  --include "Users" \
+  | jq --raw-output --compact-output \
+    'def determineRole: 
+      if .role != null and .role != "" then 
+        .role 
+      else 
+        if .Users.is_ai == 0 then 
+          "user" 
+        else 
+          "assistant" 
+        end 
+      end;
+      
+     [
+       .[] | {
+         "role": determineRole,
+         "content": .content
+       }
+     ]'
+)
+
+# ╭───┤ OpenAI interaction
+# ╰─
+
+# File accumulating the response from OpenAI as it's being streamed
+TMP_FILE=$(mktemp /tmp/ai.XXXXXX)
+
+save_streamed_response() {
+  jq --null-input \
+    --argjson agent "$AGENT" \
+    --arg conversation_id "$CID" \
+    --rawfile content "$TMP_FILE" \
+    '{
+      "conversations_id": $conversation_id | tonumber,
+      "users_id": $agent.id | tonumber,
+      "content": $content,
+      "model": $agent.model,
+      "temperature": $agent.temperature | tonumber
+    }' \
+    | ai-db-create -t Messages > /dev/null
+}
+
+exit_gracefully() {
+  save_streamed_response
+  rm -f "$TMP_FILE"
+  exit 0
+}
+
+trap exit_gracefully EXIT 
+
+# Send data to OpenAI and capture the response in a temporary file
+# while also streaming it to stdout in real-time
+ai-openai-completions --agent "$AGENT" --messages "$messages" \
+  | tee "$TMP_FILE" \
+  | if [ "$has_syntax_highlight" = true ]; then
+      bat --unbuffered --language markdown --paging never --style plain
+    else
+      cat
+    fi

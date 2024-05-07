@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+# Make a string safe for use in a URL and/or filenames
+
+patternNonAlphanumeric='[^a-zA-Z0-9]'
+patternDuplicateDashes='-+'
+patternUppercase='[A-Z]'
+patternLeadingTrailingDashes='^-+|-+$'
+
+# input either from pipe or $1
+input=$(cat - || echo "$1")
+
+echo "$input" | sed -E \
+  -e "s/$patternNonAlphanumeric/-/g" \
+  -e "s/$patternDuplicateDashes/-/g" \
+  -e "s/$patternUppercase/\L&/g" \
+  -e "s/$patternLeadingTrailingDashes//g"
+

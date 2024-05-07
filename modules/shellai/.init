@@ -1,0 +1,73 @@
+#!/usr/bin/env dash
+
+# ╭──────────────────────
+# │ Entry point for the AI shell module.
+# ╰────────
+
+export SHELLAI_HOME="$(dirname "$0")"
+export SHELLAI_ICON="󱚥"
+export SHELLAI_DEFAULT_AGENT_ID="2"
+
+# ╭───┤ Prepare module directories
+# ╰─
+export SHELLAI_LOCAL="$SHELLAI_HOME/.local"
+export SHELLAI_CACHE="$SHELLAI_HOME/.cache"
+export SHELLAI_BACKUP="$SHELLAI_HOME/.backup"
+
+mkdir -p "$SHELLAI_CACHE" "$SHELLAI_LOCAL" "$SHELLAI_BACKUP"
+
+# ╭───┤ Expose scripts and libs
+# ╰─
+export SHELLAI_LIBS="$SHELLAI_HOME/libs"
+export SHELLAI_SCRIPTS="$SHELLAI_HOME/scripts"
+export SHELLAI_FUNCTIONS="$SHELLAI_HOME/functions"
+
+add_to_path "$SHELLAI_SCRIPTS" "$SHELLAI_HOME/db/sqlite-orm"
+
+if [ "$HMVC_DEBUG" = true ]; then
+  script_count="$(find "$SHELLAI_SCRIPTS" -type f | wc -l)"
+  functions_count="$(find "$SHELLAI_FUNCTIONS" -type f | wc -l)"
+  orm_count="$(find "$SHELLAI_HOME/db/sqlite-orm" -type f | wc -l)"
+  total_scripts=$((script_count + orm_count))
+
+  echo "$SHELLAI_ICON $(stylize underline "$total_scripts scripts") added to \$PATH"
+  echo "$SHELLAI_ICON $(stylize underline "$functions_count functions") added to \$PATH"
+fi
+
+# ╭───┤ Source private env vars, secrets, API keys, etc. Not tracked by git.
+# ╰─
+. "$SHELLAI_HOME/.env"
+
+# ╭───┤ Setup SQLite database
+# ╰─
+export SHELLAI_DB_FILE="$SHELLAI_LOCAL/ai.db"
+export SHELLAI_DB_HOME="$SHELLAI_HOME/db"
+
+if [ ! -f "$SHELLAI_DB_FILE" ]; then
+  # Create tables
+  cat \
+    "$SHELLAI_DB_HOME/schemas/_event_log.sql" \
+    "$SHELLAI_DB_HOME/schemas/_migrations.sql" \
+    "$SHELLAI_DB_HOME/schemas/settings.sql" \
+    "$SHELLAI_DB_HOME/schemas/users.sql" \
+    "$SHELLAI_DB_HOME/schemas/conversations.sql" \
+    "$SHELLAI_DB_HOME/schemas/messages.sql" \
+    | sqlite3 "$SHELLAI_DB_FILE"
+
+  # Seed data
+  cat \
+    "$SHELLAI_DB_HOME/seeds/settings.sql" \
+    "$SHELLAI_DB_HOME/seeds/users.sql" \
+    | sqlite3 "$SHELLAI_DB_FILE"
+
+  echo "$SHELLAI_ICON SQLite database created at \$SHELLAI_DB_FILE"
+else
+  echo "$SHELLAI_ICON SQLite database exists at \$SHELLAI_DB_FILE"
+fi
+
+# ╭───┤ Run database migrations
+# ╰─
+export SHELLAI_MIGRATIONS_DIR="$SHELLAI_DB_HOME/migrations"
+
+ai-db-migrate up
+

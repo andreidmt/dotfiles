@@ -1,0 +1,241 @@
+#!/usr/bin/env sh 
+
+# ██████╗ ██████╗ ██████╗            ██╗  ██╗███╗   ███╗██╗   ██╗ ██████╗
+# ██╔══██╗██╔══██╗██╔══██╗    ██╗    ██║  ██║████╗ ████║██║   ██║██╔════╝
+# ██║  ██║██║  ██║██║  ██║  ██████╗  ███████║██╔████╔██║██║   ██║██║
+# ██║  ██║██║  ██║██║  ██║  ╚═██╔═╝  ██╔══██║██║╚██╔╝██║╚██╗ ██╔╝██║
+# ██████╔╝██████╔╝██████╔╝    ╚═╝    ██║  ██║██║ ╚═╝ ██║ ╚████╔╝ ╚██████╗
+# ╚═════╝ ╚═════╝ ╚═════╝            ╚═╝  ╚═╝╚═╝     ╚═╝  ╚═══╝   ╚═════╝
+#            ██╗██████╗ 
+# ██████╗   ██╔╝╚════██╗
+# ╚═════╝  ██╔╝  █████╔╝
+# ██████╗  ╚██╗  ╚═══██╗
+# ╚═════╝   ╚██╗██████╔╝
+#            ╚═╝╚═════╝ 
+# NAME
+#  DDD + HMVC style shell modules
+#
+# DESCRIPTION
+#  An DDD (Domain Driven Design) and HMVC (Hierarchical Model View Controller)
+#  style module system for organizing shell scripts, functions, variables, etc.
+#
+#  Each module is a self-contained unit, with its own directory, with minimal 
+#  dependencies on other modules.
+#  Modules have their own .init file as entry point to their functionality.
+# 
+#  Example structure:
+#   @core/
+#   aws/
+#   i3/
+#    config/
+#    i3blocks/
+#     toolbars/
+#     layouts/
+#    scripts/
+#    widgets/
+#    .init
+#
+#  Here, the i3 module contains everything related to i3. The config file,
+#  layouts, toolbars, i3blocks widgets, etc. 
+#
+#  This is contrary to the default MVC (Model View Controller) way of
+#  organizing, that Linux uses, where the config file is in
+#  ~/.config/i3/config, the i3blocks config is in ~/.config/i3blocks/config,
+#  the scripts are in ~/.local/i3-widgets, etc.
+# 
+# INSTALLATION
+#  This file is meant to be sourced (it exports functions and variables) in the
+#  shell's rc file (e.g. .zshrc).
+#
+#  source /path/to/modules/.init
+#
+# REQUIREMENTS
+#   <.init>    Entry point file to the module's functionality. Automatically 
+#              sourced by this file.
+#
+# RECOMMENDED FOLDER STRUCTURE
+#   .env       File for private env data, such as API keys, passwords, etc.
+#              Ignored by git.
+#   .local/    Directory for temporary files and other data. Ignored by git.
+#   .cache/    Directory for cache files. Ignored by git.
+#   .tmp/      Directory for temporary files. Ignored by git.
+#   scripts/   Directory for scripts. Use module .init to include in $PATH and
+#              expose shell scripts to the outside world.
+#   libs/      Directory for libraries. Keep reusable functions ment to be
+#              imported in other scripts, for ex. a "die" function which
+#              outputs to stderr and exits with a non-zero code.
+#   functions/ Directory for functions. Use module .init to source and expose
+#              to the outside world.
+#   config/    Directory for config files.
+#
+# PRECEDENCE
+#  Modules whose name starts with "@" are loaded first, in alphabetical order.
+#  The rest of the modules are loaded after, also in alphabetical order.
+#  This a very light weight way of defining module dependencies.
+#
+#  A common folder structure would be:
+#   modules/
+#     @core/
+#     aws/
+#     i3/
+#     ssh/
+#
+#  The @core module is loaded first, then the rest of the modules, in 
+#  alphabetical order.
+#
+#  While this will not give the granularity of a full blown dependency manager,
+#  and allow you to specify if "nvm" depende on "ssh", it should strike a good
+#  80/20 balance between simplicity and functionality.
+#
+# IGNORED
+#  Modules whose name starts with "_" are ignored and not loaded. This is
+#  useful when you want to temporarily disable a module without having to
+#  delete it.
+
+HMVC_HOME="$(dirname "$0")"
+HMVC_DEBUG=true
+HMVC_LOG="$HMVC_HOME/.logs"
+HMVC_TMP="$HMVC_HOME/.tmp"
+HMVC_ICON="󰺔"
+
+# ╭──────────────────────
+# │ Before anything else, manually load the @core module to immediately 
+# │ benefit from the scripts and functions
+# ╰────────
+
+printf "\033[1m%s\033[0m\n" "󰺔 Loading @core ..."
+. "$HMVC_HOME/@core/.init"
+
+# ╭──────────────────────
+# │ Helper functions 
+# ╰────────
+
+# Find all defined modules. Modules whose name starts with "@" are loaded
+# first, in alphabetical order, and then the remaining, also in alphabetical
+# order.
+detect_modules() {
+  to_load_first=$(find "$HMVC_HOME"/@*/ -mindepth 1 -maxdepth 1 \
+    -name ".init" -o -name "load" -o -name "load.sh" -type f \
+    | sort --ignore-case \
+    | grep --invert-match "@core"
+  )
+  to_load_after=$(find "$HMVC_HOME"/* -mindepth 1 -maxdepth 1 \
+    -name ".init" -o -name "load" -o -name "load.sh" -type f \
+    | grep --invert-match "@.*" \
+    | sort --ignore-case \
+    | grep --invert-match "_.*"
+  )
+
+  printf "%s\n%s\n" "$to_load_first" "$to_load_after"
+}
+
+# Calculate the duration in milliseconds between two nanoseconds timestamps
+# 
+# SYNOPSIS:
+#  calculate_duration <start_ns> <end_ns>
+calculate_duration() {
+  nano_to_ms "$(( $2 - $1 ))"
+}
+
+# Colorize the duration, passed in seconds, based on the time it took to load
+# the module
+#
+# SYNOPSIS:
+#  colorize_duration <duration_ms>
+colorize_duration() {
+  is_warning=$(echo "$1 >= 100 && $1 <= 250" | bc)
+  is_critical=$(echo "$1 > 250" | bc)
+  label=$(printf "%dms" "$1")
+
+  if [ "$is_warning" -eq 1 ]; then
+    label=$(color orange "$label")
+  elif [ "$is_critical" -eq 1 ]; then
+    label=$(color red "$label")
+  else
+    label=$(color green "$label")
+  fi
+
+  printf "%s" "$label"
+}
+
+HMVC_UPGRADE_LOCK="$HMVC_TMP/.upgrade.lock"
+
+# Aquire an upgrade lock by creating a file in the .tmp directory.
+# RETURN
+#  The path to the lock file if the lock was aquired, empty string otherwise.
+aquire_upgrade_lock() {
+  if [ -f "$HMVC_UPGRADE_LOCK" ]; then
+    echo "$HMVC_ICON Upgrade lock aquired by another process, skipping." >&2
+    return 1
+  fi
+
+  echo "$$" > "$HMVC_UPGRADE_LOCK"
+  echo "$HMVC_UPGRADE_LOCK"
+}
+
+release_upgrade_lock() {
+  rm -f "$HMVC_UPGRADE_LOCK" >&2
+}
+
+trap release_upgrade_lock EXIT
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+start_time_main=$(date +%s%N)
+
+mkdir -p "$HMVC_LOG" "$HMVC_TMP"
+init_files=$(detect_modules)
+count=$(echo "$init_files" | wc -l)
+has_upgrade_lock=$(aquire_upgrade_lock)
+
+if has-days-passed --name "hmvc-upgrade" --count 1 && [ -n "$has_upgrade_lock" ]; then
+  echo "$HMVC_ICON $(stylize underline "Upgrade lock aquired"). Modules should upgrade their dependencies."
+  # Tell modules to upgrade their dependencies
+  export HMVC_SHOULD_UPGRADE="true"
+
+  # System wide package upgrades
+  sys_upgrade packages
+else 
+  # Since this init script runs also on login, we need to reset the variable 
+  # in case the lock was aquired then and the exported variable was set.
+  # In that case HMVC_SHOULD_UPGRADE would be set to "true" in the root
+  # shell, and would be inherited by all child shells.
+  export HMVC_SHOULD_UPGRADE=""
+fi
+
+# ╭───┤ Source each module's .init file
+# ╰─
+
+for init_file in $(echo "$init_files" | tr '\n' ' '); do
+  if [ "$HMVC_DEBUG" = true ]; then
+    start_time=$(date +%s%N)
+    name=$(basename "$(dirname "$init_file")")
+
+    
+    echo "$HMVC_ICON $(stylize bold "Loading $name ...")"
+
+    . "$init_file"
+    end_time=$(date +%s%N)
+    delta_ms=$(calculate_duration "$start_time" "$end_time")
+
+    echo "  Finished in $(colorize_duration "$delta_ms")"
+  else
+    . "$init_file"
+  fi
+done
+
+if [ -n "$has_upgrade_lock" ]; then
+  release_upgrade_lock
+fi
+
+end_time_main=$(date +%s%N)
+delta_ms=$(calculate_duration "$start_time_main" "$end_time_main")
+
+echo "╭───────────┤ Loaded $count modules"
+echo "│  ┓ ┓ ┓  ╻  ┓        ━ ┏┏┓"
+echo "│ ┏┫┏┫┏┫ ━╋━ ┣┓┏┳┓┓┏┏━━━┫ ┫"
+echo "│ ┗┻┗┻┗┻  ╹  ┛┗┛┗┗┗┛┗━━ ┗┗┛"
+echo "╰──┤ $(colorize_duration "$delta_ms")"
+

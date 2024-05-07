@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+# Predicate checking if a process is running under the current user
+is_process_running() {
+  pgrep "$1" -u "$USER" > /dev/null
+}
+
+# Predicate checking if the underlying file or directory of a symlink is missing
+is_symlink_broken() {
+  if [ -L "$1" ] && ! [ -e "$1" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Predicate checking if a command exists
+does_command_exist() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    return 1
+  fi
+}

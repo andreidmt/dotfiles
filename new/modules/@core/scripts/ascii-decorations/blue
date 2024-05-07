@@ -1,4 +1,0 @@
-#!/usr/bin/env dash
-
-printf "\x1b[34m%s\x1b[0m" "$@"
-

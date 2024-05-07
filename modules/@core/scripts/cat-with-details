@@ -1,0 +1,74 @@
+#!/usr/bin/env sh
+
+# NAME
+#   cat-uf - 
+#
+# SYNOPSIS
+#   cat-with-details <FILE|DIRECTORY>... 
+#
+# DESCRIPTION
+#   Output to stdout files' contents, formatted as markdown code blocks,
+#   together with file name, syntax 
+# 
+# SEE ALSO
+#   md-syntax(1), ripgrep(1)
+
+parse_arguments() {
+  if [ "$#" -eq 0 ]; then
+    echo "No files or directories provided."
+    exit 1
+  fi
+
+  for arg in "$@"; do
+    if [ ! -f "$arg" ] && [ ! -d "$arg" ]; then
+      echo "File or directory not found: $arg" 2>&1
+      exit 1
+    fi
+  done
+}
+
+file_content_with_details() {
+  relative_path=$(realpath --relative-to="$PWD" "$1")
+  absolute_path=$(realpath "$1")
+  file_content=$(cat "$absolute_path")
+  md_syntax=$(md-syntax "$absolute_path")
+
+  printf "Content of \"%s\":\n\`\`\`%s\n%s\n\`\`\`" \
+    "$relative_path" \
+    "$md_syntax" \
+    "$file_content"
+}
+
+find_all_files() {
+  for arg in "$@"; do
+    if [ -f "$arg" ]; then
+      echo "$arg"
+    elif [ -d "$arg" ]; then
+      rg --files --hidden \
+        --glob '!.git' \
+        --glob '!.cache' \
+        --glob '!node_modules' \
+        "$arg" 
+    fi
+  done
+}
+
+## 
+## Main
+##
+
+parse_arguments "$@"
+
+files=$(find_all_files "$@")
+result=""
+
+if [ -z "$files" ]; then
+  echo "No files selected."
+  exit 1
+fi
+
+for file in $files; do
+  result="$result$(file_content_with_details "$file")\n\n"
+done
+
+printf "%s" "$result"

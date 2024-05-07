@@ -1,0 +1,108 @@
+#!/usr/bin/env dash
+
+. "$CORE_FUNCTIONS/stdin-or"
+
+# NAME
+#  ai-db-update - Update one or more records in a given table
+#
+# SYNOPSIS
+#  ai-db-update <-t table_name> <-w where_clause> <json_data>
+#
+# DESCRIPTION
+#  Updates one or more records in a specified table.
+#
+# ARGUMENTS
+#  <json_data>
+#   The JSON data to update the record(s) with. The keys of the JSON object 
+#   should match the column names of the table.
+#
+# OPTIONS
+#  -t, --table <table_name>
+#   The table to update the record(s) in
+#
+#  -w, --where <where_clause>
+#   The WHERE clause to use when updating the record(s)
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#  2 JSON parsing error
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1), jq(1)
+
+# ╭───┤ Input validation
+# ╰─
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -t|--table)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        table=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    -w|--where)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        where=$2; shift
+      else
+        echo "error: argument $1 requires a value" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$table" ]; then
+  echo "error: missing required flag -t|--table" >&2
+  exit 1
+fi
+
+if [ -z "$where" ]; then
+  echo "error: missing required flag -w|--where" >&2
+  exit 1
+fi
+
+json_data=$(stdin_or "$1")
+if [ -z "$json_data" ] || [ "$json_data" = "{}" ]; then
+  echo "error: missing or empty required argument json_data" >&2
+  exit 1
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+update_statement=$(printf "%s" "$json_data" \
+  | jq --raw-output \
+    --arg table "$table" \
+    --arg where "$where" \
+  "# Function to escape string for SQLite
+  def sqlite_escape:
+    if type == \"string\" then
+      gsub(\"'\"; \"''\")
+    else
+      tostring
+    end;
+
+  # Build SQL update statement by setting each key to its corresponding value
+  \"UPDATE \(\$table) SET \" +
+    (to_entries | map(\"\(.key)='\" + (.value | sqlite_escape) + \"'\") | join(\", \")) +
+  \" WHERE \(\$where);\""
+)
+
+if [ $? -ne 0 ]; then
+  echo "error: Invalid JSON input" >&2
+  exit 2
+fi
+
+sqlite3 --json "$SHELLAI_DB_FILE" "$update_statement"

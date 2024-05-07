@@ -1,0 +1,5 @@
+cmake, pacman, "Cross-platform build automation system, that generates recipes for native build systems"
+dash, pacman, "Debian Almquist Shell, a modern, POSIX-compliant implementation of `sh` (not Bash-compatible)"
+bc, pacman, "An arbitrary precision calculator language"
+shellcheck, pacman, "Shell script analysis tool"
+

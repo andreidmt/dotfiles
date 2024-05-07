@@ -1,0 +1,84 @@
+#!/usr/bin/env sh
+
+# NAME
+#   yank-uf - User friendly yank script
+#
+# SYNOPSIS
+#   yank-uf [FILE|DIRECTORY]... 
+#
+# DESCRIPTION
+#   Add multiple files' contents to the clipboard buffer, formatted as markdown 
+#   code blocks, together with file name, syntax 
+# 
+# SEE ALSO
+#   md-syntax, cowsay, xclip, rofi, ripgrep
+
+parse_arguments() {
+  if [ "$#" -eq 0 ]; then
+    echo "No files or directories provided."
+    exit 1
+  fi
+
+  for arg in "$@"; do
+    if [ ! -f "$arg" ] && [ ! -d "$arg" ]; then
+      echo "File or directory not found: $arg" 2>&1
+      exit 1
+    fi
+  done
+}
+
+md_cat() {
+  relative_path=$(realpath --relative-to="$PWD" "$1")
+  absolute_path=$(realpath "$1")
+  file_content=$(cat "$absolute_path")
+  md_syntax=$(md-syntax "$absolute_path")
+
+  printf "Content of \"%s\":\n\`\`\`%s\n%s\n\`\`\`" \
+    "$relative_path" \
+    "$md_syntax" \
+    "$file_content"
+}
+
+find_all_files() {
+  for arg in "$@"; do
+    if [ -f "$arg" ]; then
+      echo "$arg"
+    elif [ -d "$arg" ]; then
+      rg --files --hidden \
+        --glob '!.git' \
+        --glob '!.cache' \
+        --glob '!node_modules' \
+        "$arg" 
+    fi
+  done
+}
+
+## 
+## Main
+##
+
+parse_arguments "$@"
+
+selected_files=$(find_all_files "$@" \
+  | sort \
+  | rofi -dmenu -i -multi-select -p "Select files to copy:"
+)
+buffer_content=""
+
+if [ -z "$selected_files" ]; then
+  echo "No files selected."
+  exit 1
+fi
+
+for file in $selected_files; do
+  buffer_content="$buffer_content$(md_cat "$file")\n\n"
+done
+
+printf "%b" "$buffer_content" | yank 
+
+file_count=$(echo "$selected_files" | wc -l)
+line_count=$(echo "$buffer_content" | wc -l)
+char_count=$(echo "$buffer_content" | wc --chars)
+token_count=$((char_count / 4))
+
+cowsay -f tux "Copied ${file_count} files, ${line_count} lines, ~${token_count} promt tokens, to clipboard."

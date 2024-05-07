@@ -1,0 +1,62 @@
+#!/usr/bin/bash -e
+
+scriptName=$(basename "$0")
+
+# Update hosts file with blocking lists for fakenews, gambling, social media 
+# and tracking
+updateHosts() {
+  sudo curl https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts -o /etc/hosts.steven
+
+  sudo cp /etc/hosts /etc/hosts.bak
+  sudo cp /etc/hosts.own /etc/hosts.own.bak
+
+  sudo cat /etc/hosts.own | sudo tee /etc/hosts > /dev/null
+  sudo cat /etc/hosts.steven | sudo tee -a /etc/hosts > /dev/null
+
+  doomst --type success "$scriptName - /etc/hosts" \
+    "Fakenews, gambling, social media and tracking hosts file updated"
+}
+
+# Update pacman packages
+updatePacman() {
+  # Clean pacman cache
+  sudo rm -R /var/lib/pacman/sync
+  
+  # Update package database from scratch
+  sudo pacman -Syyuv --noconfirm
+
+  # update i3blocks widgets with signal 10
+  pkill -SIGRTMIN+10 i3blocks
+
+  doomst --type success --title "$scriptName - pacman" --message "Packages updated"
+}
+
+updatePacmanDB() {
+  sudo pacman-key --refresh-keys
+
+  # Update package database
+  sudo pacman -Syy --noconfirm
+
+  # Update keyring
+  # sudo pacman -Sy archlinux-keyring
+
+  packageCount=$(pacman -Qu | wc | awk '{print $1}')
+
+  doomst --type success -t "$scriptName - pacman" \
+    -m "Database updated, ${packageCount} available."
+
+  # update i3blocks widgets with signal 10
+  pkill -SIGRTMIN+10 i3blocks
+}
+
+case "${1:-all}" in
+  hosts) updateHosts ;;
+  packages) updatePacman ;;
+  packages-db) updatePacmanDB ;;
+  all)
+    # updateHosts
+    updatePacman
+  ;;
+  *)
+    die "Invalid argument \"$1\""
+esac

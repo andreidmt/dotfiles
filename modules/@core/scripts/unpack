@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+
+# -e: exit on error
+set -e 
+
+parse_arguments() {
+  INPUT_ARCHIVE_FILE=$1
+
+  if [ -z "$INPUT_ARCHIVE_FILE" ]; then 
+    echo "Usage: unpack <archive-file> [destination-folder]" >&2
+    exit 1
+  fi
+
+  if [ ! -f "$INPUT_ARCHIVE_FILE" ]; then
+    echo "File not found: $INPUT_ARCHIVE_FILE" >&2
+    exit 1
+  fi
+
+  DESTINATION_FOLDER=${2-"unpacked-$INPUT_ARCHIVE_FILE"} 
+  mkdir -p "$DESTINATION_FOLDER"
+}
+
+##
+## Main
+##
+
+parse_arguments "$@"
+
+case "$INPUT_ARCHIVE_FILE" in
+  *.rar)
+    unrar e "$INPUT_ARCHIVE_FILE" "$DESTINATION_FOLDER"
+  ;;
+  *.zip)
+    unzip "$INPUT_ARCHIVE_FILE" -d "$DESTINATION_FOLDER"
+  ;;
+  *.tgz|*.tar.gz)
+    tar -xzf "$INPUT_ARCHIVE_FILE" -C "$DESTINATION_FOLDER"
+  ;;
+  *.gz)
+    gunzip "$INPUT_ARCHIVE_FILE"
+  ;;
+  *.tar.xz)
+    tar -xf "$INPUT_ARCHIVE_FILE" -c "$DESTINATION_FOLDER"
+  ;;
+  *)
+    echo "Unknown archive format $INPUT_ARCHIVE_FILE" >&2
+    exit 1
+  ;;
+esac

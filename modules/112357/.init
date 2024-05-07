@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+export APPSMITH_HOME="$(dirname "$0")"
+

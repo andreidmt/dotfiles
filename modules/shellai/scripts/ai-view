@@ -1,0 +1,226 @@
+#!/usr/bin/env sh
+
+# NAME
+#  ai-view - Pretty print a conversation or message
+#
+# SYNOPSIS
+#  ai-view conversation [-mp|--metadata-position <top|bottom>] <conversation_id> 
+#  ai-view message [-mp|--metadata-position <top|bottom>] <message_id
+#
+# DESCRIPTION
+#  Preview all messages in a conversation or a single message, nicely formatted
+#  in markdown.
+#
+# OPTIONS
+#  -mp|--metadata-position [top|bottom]
+#   Position of the metadata section. Default is "top". 
+#
+# COMMANDS
+#  conversation <conversation_id>
+#   Display all messages in the conversation with the given ID.
+#
+#  message <message_id>
+#   Display the message with the given ID.
+#
+# SEE ALSO
+#  ai-db-find-many(1), ai-db-find-one(1), jq(1), bat(1)
+
+# ╭───┤ Global variables
+# ╰─
+
+CMD_NAME="ai-view"
+META_POSITION="top"
+
+# ╭───┤ Functions
+# ╰─
+
+# Add bordered header section to the message content.
+# If the message is from the AI, it is italicized and prefixed with the AI icon.
+# If the message is from a human, it is bold and prefixed with the human icon.
+#
+# INPUT
+#  Pipe in the JSON message object.
+# 
+# RETURNS
+#  The formatted string message.
+format_message() {
+  jq --raw-output \
+    --arg ai_icon "$SHELLAI_ICON" \
+    --arg human_icon "" \
+    '(
+      if .Users.is_ai == 1 then
+        "|| \(.Users.id) | \(.id) | \(.created_at) | _\($ai_icon) \(.Users.name)_\n\n"
+      else
+        "|| \(.Users.id) | \(.id) | \(.created_at) | **\($human_icon) \(.Users.name)**\n\n"
+      end
+    ) + (
+      if .role == "system" then
+        ("```text_system\n" + .content + "\n```\n")
+      else
+        .content + "\n"
+      end
+    )' \
+  | awk 'BEGIN {
+      gray="\033[90m"; 
+      reset="\033[0m";
+    }
+    /^\|\|/ {
+      gsub(/^\|\|/, "");
+      split($0, parts, "|");
+      print gray "╭───────────────────┤ #mid" parts[2] "at" parts[3] reset;
+      print gray "│" reset parts[4];
+      print gray "╰─────┤ #uid" parts[1] reset;
+      next;
+    } {
+      print;
+    }'
+}
+
+# Syntax highlight the piped text input using bat(1).
+highlight_syntax() {
+  bat --language markdown \
+    --paging never \
+    --style plain \
+    --color always
+}
+
+# Display conversation metadata, nicely formatted in a bordered section.
+conversation_metadata() {
+  gray_start="\033[1;30m"
+  reset="\033[0m"
+
+  ai-db-find-one --table Conversations --where "id = $1" \
+    | jq --raw-output \
+      --arg gray_start "$gray_start" --arg reset "$reset" '
+      "╭───────── Conversation summary\n" +
+      "│ id=\(.id)\n" +
+      "│ title=\"\(.title)\"\n" +
+      "│ messages_count=\(.messages_count|tostring)\n" +
+      "│ updated_at=\"\(.updated_at)\"" + "\n" +
+      "╰─────"'
+}
+
+# Display all conversation messages, nicely formatted in markdown, together with
+# the conversation metadata.
+pretty_print_conversation() {
+  if [ "$META_POSITION" = "top" ]; then
+    conversation_metadata "$1"
+  fi
+
+  # Printing each message separately, in a loop, is really slow. You end up
+  # with individual bat and jq calls per message. 
+  # While it gives better control over the formatting, it is considerably
+  # slower and affects UX.
+
+  PAGE_SIZE=20
+  OFFSET=0
+
+  ai-db-find-many --table Messages \
+    --where "conversations_id = $1" \
+    --include Users \
+    --sort "created_at DESC" \
+    --limit "$PAGE_SIZE" \
+    --offset "$OFFSET" \
+    | jq --raw-output '. | sort_by(.created_at) | .[]' \
+    | format_message \
+    | highlight_syntax
+
+  if [ "$META_POSITION" = "bottom" ]; then
+    conversation_metadata "$1"
+  fi
+}
+
+# Display a message metadata, nicely formatted in a bordered section.
+message_metadata() {
+  ai-db-find-one --table Messages \
+    --where "id=$1" \
+    | jq --raw-output '
+      "╭───────── Message summary:\n" +
+      "│ id=\(.id)\n" +
+      "│ users_id=\(.users_id|tostring)\n" +
+      "│ conversations_id=\(.conversations_id|tostring)\n" +
+      "│ created_at=\"\(.created_at)\"" + "\n" +
+      "╰─────"'\
+    | highlight_syntax
+}
+
+# Display a single message, nicely formatted in markdown, together with the
+# message metadata.
+pretty_print_message() {
+  if [ "$META_POSITION" = "top" ]; then
+    message_metadata "$1"
+  fi
+
+  ai-db-find-one --table Messages \
+    --where "id=$1" \
+    --include Users \
+  | format_message \
+  | highlight_syntax
+
+  if [ "$META_POSITION" = "bottom" ]; then
+    message_metadata "$1"
+  fi
+}
+
+# ╭───┤ Input validation
+# ╰─
+ 
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -mp|--meta-position)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        META_POSITION=$2; shift
+      else
+        print-error "-mp|--metadata-position flag requires a value" "$CMD_NAME" >&2 
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*)
+      print-error "Unknown flag $1" "$CMD_NAME" >&2
+      exit 1
+    ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+case "${1:-conversation}" in
+  conversation)
+    cid="$2"
+    if [ -z "$cid" ]; then
+      print-error "Missing required argument <conversation_id>" "$CMD_NAME" >&2
+      exit 1
+    fi
+
+    if ! ai-db-exists Conversations -w "id=$cid"; then 
+      print-error "Conversation with ID $cid does not exist" "$CMD_NAME" >&2
+      exit 1
+    fi
+
+    pretty_print_conversation "$cid"
+  ;;
+  message)
+    mid="$2"
+    if [ -z "$mid" ]; then
+      print-error "Missing required argument <message_id>" "$CMD_NAME" >&2
+      exit 1
+    fi
+
+    if ! ai-db-exists Messages -w "id=$mid"; then
+      print-error "Message with ID $mid does not exist" "$CMD_NAME" >&2
+      exit 1
+    fi
+
+    pretty_print_message "$mid"
+  ;;
+  *) 
+    print-error "Command \"$1\" not recognized" "$CMD_NAME" >&2
+    exit 1 
+  ;;
+esac
+

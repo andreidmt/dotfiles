@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+
+# shellcheck source=../../../@core/functions/predicates
+. "$CORE_FUNCTIONS/predicates"
+
+# DESCRIPTION
+#  Start `polybar` bars with multiple monitors support.
+# 
+# ERROR CODES
+#  1 Xorg is not running
+#
+# SEE ALSO
+#  polybar(1), xrandr(1)
+
+if ! is_process_running "Xorg"; then
+  echo "Xorg is not running, not starting polybar" >&2
+  exit 1
+fi
+
+# Kill all running polybar instances, hard reset
+if is_process_running "polybar"; then
+  killall -q polybar
+fi
+
+# Expose monitor environment variables used in polybar config to determine what 
+# bars to start
+monitors=$(xrandr | grep -w connected)
+monitor_count=$(echo "$monitors" | wc -l)
+
+if [ "$monitor_count" -eq 1 ]; then
+  MONITOR_1ST=$(echo "$monitors" | awk '{print $1}')
+else
+  MONITOR_1ST=$(echo "$monitors" | grep -w primary | awk '{print $1}')
+  MONITOR_2ND=$(echo "$monitors" | grep -v primary | awk '{print $1}' | head -n 1)
+fi
+
+export MONITOR_1ST
+export MONITOR_2ND
+
+# Start polybar
+polybar top-a &
+polybar top-b &
+polybar bottom &
+
+if [ -n "$MONITOR_2ND" ]; then
+  polybar top-minimal-secondary &
+fi
+

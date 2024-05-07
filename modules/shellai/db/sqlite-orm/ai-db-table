@@ -1,0 +1,229 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-table - Table level utilities 
+#
+# SYNOPSIS
+#  ai-db-table <table> [command=exists] [options]
+#
+#  ai-db-table <table> exists
+#  ai-db-table <table> pk|primary-key
+#  ai-db-table <table> describe [options]
+#  ai-db-table <table> index-names
+#  ai-db-table <table> list-fields
+#   ai-db-table <table> describe-field <field> [options]
+#  ai-db-table <table> has-field <field>
+#  ai-db-table <table> field-type <field>
+#
+# DESCRIPTION
+#  Table level utilities.
+#
+# ARGUMENTS
+#  <table>
+#   The name of the table to operate on.
+#
+# COMMANDS
+#  exists
+#   Check if a table exists.
+#   Returns 0 if the table exists, 2 if it does not.
+#
+#  pk
+#   Get the field name for the primary key of a table.
+#
+#  describe
+#   Describe a table in markdown format. Fields, types, constraints, triggers,
+#   and indices are displayed for the given table.
+#
+#   ARGUMENTS
+#    -m, --mode [mode=markdown]
+#     The output format. Can be "markdown" or "json".
+#
+#  has-field <field>
+#   Check if a table has a given field.
+#   Returns 0 if the field exists, 3 if it does not.
+#
+#  field-type <field>
+#   Get the type of a field in a table.
+#
+# ERROR CODES
+#  1 Input error: missing table name argument
+#  2 Table does not exist
+#  3 Field does not exist
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+CMD_NAME="ai-db-table"
+
+# ╭───┤ Functions
+# ╰─
+
+# Check if a table exists
+#
+# RETURNS (exit code)
+#  0 if the table exists, 1 otherwise
+does_table_exist() {
+  sqlite3 "$SHELLAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table'" \
+    | grep -q -w "$1"
+}
+
+# Check if a field exists in a table
+#
+# RETURNS (exit code)
+#  0 if the field exists, 1 otherwise
+does_field_exist() {
+  sqlite3 --csv "$SHELLAI_DB_FILE" "PRAGMA table_info($1)" \
+    | cut -d, -f2 \
+    | grep -q -w "$2"
+}
+
+# Get the primary key field name of a table
+#
+# RETURNS (string to stdout)
+get_pk_field_name() {
+  sqlite3 -noheader -csv "$SHELLAI_DB_FILE" "PRAGMA table_info($1)" \
+    | awk -F, '$6 == 1 {print $2}'
+}
+
+get_field_type() {
+  table="$1"
+  field="$2"
+
+  if ! does_field_exist "$table" "$field"; then
+    print-error "Field $(underline "$field") does not exist in table $(underline "$table")" "$CMD_NAME" >&2
+    exit 3
+  fi
+
+  describe_table "$table" tabs \
+    | grep "$field" \
+    | awk -F '\t' '{print $3}'
+}
+
+describe_table() {
+  table="$1"
+  mode="${2:-markdown}"
+
+  sqlite3 "--$mode" "$SHELLAI_DB_FILE" \
+    "PRAGMA table_info($table);"
+
+  # indices=$(sqlite3 --markdown "$SHELLAI_DB_FILE" \
+  #   "SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name='$1';"
+  # )
+
+  # if [ -n "$indices" ]; then
+  #   echo "\n### Indices\n"
+  #   echo "$indices"
+  # fi
+
+  # triggers=$(sqlite3 --markdown "$SHELLAI_DB_FILE" \
+  #   "SELECT name, sql FROM sqlite_master WHERE type='trigger' AND tbl_name='$1';"
+  # )
+
+  # if [ -n "$triggers" ]; then
+  #   echo "\n### Triggers\n"
+  #   echo "$triggers"
+  # fi
+}
+
+guard_table_exists() {
+  table="$1"
+
+  if [ -z "$table" ]; then
+    print-error "Missing <table_name> argument" "$CMD_NAME" >&2
+    exit 1
+  fi
+
+  if ! does_table_exist "$table"; then
+    print-error "Table $(underline "$table") does not exist" "$CMD_NAME" >&2
+    exit 2
+  fi
+}
+
+# ╭───┤ Input validation 
+# ╰─
+
+table="$1"; 
+
+if [ -z "$table" ]; then
+  print-error "Missing <table> argument" "$CMD_NAME" >&2
+  exit 1
+else 
+  shift
+fi
+
+if ! does_table_exist "$table"; then
+  print-error "Table $(underline "$table") does not exist" "$CMD_NAME" >&2
+  exit 2
+fi
+
+cmd="${1:-exists}";
+
+if [ -n "$1" ]; then
+  shift
+fi
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+case "$cmd" in
+  exists) 
+    # noop, already checked before reaching here
+  ;;
+  pk|primary-key)
+    get_pk_field_name "$table"
+  ;;
+  describe)
+    while [ "$#" -gt 0 ]; do
+      case $1 in
+        -m|--mode)
+          if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+            mode=$2; shift
+          else
+            echo "error: argument $1 requires a value" >&2
+            exit 1
+          fi
+        ;;
+        --) shift; break ;;
+        -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
+        *) break ;;
+      esac
+      shift
+    done
+
+    describe_table "$table" "$mode"
+  ;;
+  has-field)
+    field="$1";
+
+    if [ -z "$field" ]; then
+      print-error "Missing required argument <field>" "$CMD_NAME" >&2
+      exit 1
+    fi
+
+    if ! does_field_exist "$table" "$field"; then
+      print-error "Field $(underline "$field") does not exist in table $(underline "$table")" "$CMD_NAME" >&2
+      exit 3
+    fi
+  ;;
+  field-type)
+    field="$1";
+
+    if [ -z "$field" ]; then
+      print-error "Missing required argument <field>" "$CMD_NAME" >&2
+      exit 1
+    fi
+    
+    get_field_type "$table" "$field"
+  ;;
+  *)
+    print-error "Unknown subcommand $(underline "$cmd")" "$CMD_NAME" >&2
+    exit 1
+  ;;
+esac
+

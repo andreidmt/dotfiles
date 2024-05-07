@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+# NAME
+#  feed-camera-thumbnail - Feed the camera in a small window
+#
+# DESCRIPTION
+#  Feed the camera in a small window, 320x240, positioned at the bottom right
+#  of the screen. 
+#
+#  I3 manages the window position, watching for the "ffplay-thumb" title.
+
+device="/dev/video0"
+
+# Fast, small video size, optimized for low cpu usage, low latency and low
+# bandwidth.
+ffplay -f v4l2 -video_size 320x240 \
+  -framerate 30 \
+  -input_format mjpeg \
+  -i $device \
+  -fflags nobuffer \
+  -preset veryfast \
+  -noborder \
+  -window_title "ffplay-thumb - $device"

@@ -1,0 +1,54 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-info - Database level utilities
+#
+# SYNOPSIS
+#  ai-db-info table-names 
+#
+# DESCRIPTION
+#  Database level utilities. 
+#
+# COMMANDS
+#  table-names
+#   List all table names in the database.
+#
+# ERROR CODES
+#  1 Input error: missing or unknown command
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+# ╭───┤ Global variables 
+# ╰─
+
+CMD_NAME="ai-db-info"
+
+# ╭───┤ Functions
+# ╰─
+
+get_table_names() {
+  sqlite3 "$SHELLAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+cmd="$1"
+
+case "$cmd" in
+  table-names)
+    get_table_names
+  ;;
+  *)
+    print-error "Unknown subcommand $(underline "\"$cmd\"")" "$CMD_NAME" >&2
+    exit 1
+  ;;
+esac
+

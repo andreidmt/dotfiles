@@ -1,0 +1,46 @@
+#!/usr/bin/env dash
+
+# NAME 
+#  ai-db-backup - Backup one or multiple tables
+#
+# SYNOPSIS
+#  ai-db-backup [...tables]
+#
+# DESCRIPTION
+#  Backup one or multiple tables in .sql format.
+#  If no table is provided, a list of tables is displayed and the user can
+#  preview each one.
+#
+# ERROR CODES
+#  1 Input error: unknown flag provided, missing value for flag or missing
+#    required flag
+#
+# ENVIRONMENT
+#  SHELLAI_DB_FILE
+#   The SQLite database file.
+#
+# SEE ALSO
+#  sqlite3(1)
+
+get_all_table_names() {
+  sqlite3 "$SHELLAI_DB_FILE" \
+    "SELECT name FROM sqlite_master WHERE type='table';" \
+  | tr '\n' ' '
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+tables=${@:-$(get_all_table_names)}
+backup_file="${OPENAI_BACKUP}/$(date +'%Y-%m-%d_%H-%M-%S').sql"
+
+echo "--Backing up tables: $tables" > "$backup_file"
+
+for table in $tables; do
+  echo "-- Table: $table" >> "$backup_file"
+  sqlite3 "$SHELLAI_DB_FILE" \
+    ".mode insert" \
+    "SELECT * FROM $table;" >> "$backup_file" \
+    ".mode list"
+done

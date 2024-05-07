@@ -1,0 +1,198 @@
+#!/usr/bin/env dash
+
+# NAME
+#  ai-provider-openai - Interface for OpenAI's /chat/completions endpoint.
+#
+# SYNOPSIS
+#  ai-provider-openai <-m|--messages> <messages> [--no-stream] 
+#
+# DESCRIPTION
+#  Low-level script calling the OpenAI API to get completions for a given
+#  message chain.
+#
+#  See the OpenAI API reference for more details:
+#  https://platform.openai.com/docs/api-reference/chat
+#
+# OPTIONS
+#  -t|--temperature <temperature=0.7>
+#   The sampling temperature to use when generating completions.
+#   Higher values mean the model will take more risks.
+#
+#  --model <model=gpt-4-turbo-preview>
+#   The model to use for generating completions.
+#
+#  -m|--messages <messages>
+#   JSON array of objects with `role` and `content` fields.
+#
+#  --no-stream
+#   Disable streaming response.
+#
+#  --debug
+#   Enable debug mode.
+#
+#  --raw
+#   Output raw response from OpenAI without any processing
+#
+# ENVIRONMENT
+#  OPENAI_API_KEY
+#   The API key used for authenticating with the OpenAI API. 
+#
+#  OPENAI_ORG_ID
+#   The organization ID used for authenticating with the OpenAI API.
+# 
+# SEE ALSO
+#  curl(1), jq(1)
+
+# ╭───┤ Outside dependencies 
+# ╰─
+if [ -z "$OPENAI_API_KEY" ]; then
+  echo "error: missing required environment variable OPENAI_API_KEY" >&2
+  exit 1
+fi
+
+# ╭───┤ Input validation
+# ╰─
+should_stream="true"
+should_output_raw=""
+is_debug="$SHELLAI_DEBUG"
+model="gpt-4-turbo-preview"
+temperature="0.7"
+max_tokens="4096"
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --raw)
+      should_output_raw="true"
+    ;;
+    --debug)
+      is_debug="true"
+    ;;
+    --no-stream)
+      should_stream=""
+    ;;
+    -mt|--max-tokens)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        max_tokens=$2; shift
+      else
+        echo 'error: argument --max-tokens requires value.' >&2
+        exit 1
+      fi
+    ;;
+    -msg|--messages)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        messages=$2; shift
+      else
+        echo 'error: argument --messages requires value.' >&2
+        exit 1
+      fi
+    ;;
+    -t|--temperature)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        temperature=$2; shift
+      else
+        echo 'error: argument --temperature requires value.' >&2
+        exit 1
+      fi
+    ;;
+    -m|--model)
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        model=$2; shift
+      else
+        echo 'error: argument --model requires value.' >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) echo "error: unknown flag: $1" >&2; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -z "$messages" ]; then
+  messages=$(cat -)
+fi
+
+if [ -z "$messages" ]; then
+  echo "error: missing -m|--messages argument or stdin input" >&2
+  exit 1 
+fi
+
+# ╭───┤ Functions
+# ╰─
+
+# Extract the content from the streamed response chunks.
+# - When streaming, OpenAI sends multiple JSON objects with the content of the
+# completion.
+# - Each chunk contains the string "data: " followed by the JSON object.
+# - Last chunk, marking the end of the stream, contains the string "[DONE]".
+extract_streaming_content() {
+  sed --unbuffered --regexp-extended \
+    -e 's/^data: //' \
+    -e 's/\[DONE\]//g' \
+    | jq --unbuffered --raw-output --join-output \
+      'select(.choices[0].delta.content != null) | .choices[0].delta.content' 
+}
+
+# Extract the content string from the non-streamed response.
+extract_content() {
+  jq --unbuffered --raw-output \
+    '.choices[0].message.content'
+}
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+if [ -n "$should_stream" ]; then
+  curl_stream_flags="--no-buffer"
+else
+  # Workaround for curl throwing an error if an argument is empty. This ensures
+  # curl_stream_flags is never empty, preventing "curl: option : blank argument
+  # where content is expected".
+  curl_stream_flags="--silent"
+fi
+
+if [ -n "$is_debug" ]; then 
+  print-info -nb "should_stream: ${should_stream:-false}"
+  print-info -nb "should_output_raw: ${should_output_raw:-false}"
+  print-info -nb "temperature: $temperature"
+  print-info -nb "model: $model"
+fi
+
+jq --compact-output --null-input \
+  --argjson messages "$messages" \
+  --arg max_tokens "$max_tokens" \
+  --arg model "$model" \
+  --arg temperature "$temperature" \
+  --arg stream "$should_stream" \
+  '{
+    model: $model,
+    stream: ($stream | test("true")),
+    temperature: ($temperature | tonumber),
+    max_tokens: $max_tokens | tonumber,
+    messages: $messages | map(
+      if .role | test("^system_") then
+        .role = "system"
+      else
+        .
+      end
+    )
+  }' \
+ | curl --silent "$curl_stream_flags" \
+  --data @- \
+  --fail-with-body \
+  --request POST \
+  --header "Content-Type: application/json" \
+  --header "Authorization: Bearer $OPENAI_API_KEY" \
+  --header "OpenAI-Organization: $OPENAI_ORG_ID" \
+    https://api.openai.com/v1/chat/completions \
+  | if [ -n "$should_output_raw" ]; then
+      cat
+    else
+      if [ -n "$should_stream" ]; then
+        extract_streaming_content
+      else
+        extract_content
+      fi
+    fi

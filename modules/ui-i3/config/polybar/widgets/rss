@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+# DESCRIPTION
+#  Show the number of unread newsboat articles.
+#  This script is meant to be used with `polybar`.
+
+newsboat -x print-unread | awk '{print $1}'
+

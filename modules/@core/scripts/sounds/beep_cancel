@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# NAME
+#  beep_cancel - Cancel/wrong beep sound using the pc speaker
+
+beep -f 400 -l 100 \
+  -n -f 100 -l 100 \
+  -n -f 30 -l 100 \
+  -n -f 10 -l 100 \
+  -n -f 1 -l 100 

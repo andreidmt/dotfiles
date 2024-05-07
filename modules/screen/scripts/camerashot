@@ -1,0 +1,94 @@
+#!/usr/bin/env sh
+
+# NAME
+#  camerashot - Take a screenshot from a webcam
+#
+# SYNOPSIS
+#  camerashot [-c|--count-down]
+#
+# DESCRIPTION
+#  Take a screenshot from a webcam and save it to a file. The file is saved in
+#
+# OPTIONS
+#  -c, --count-down
+#   Count down from 5 to 1, then take the screenshot.
+#
+#  -o, --output-dir <output-dir>
+#   The directory to save the screenshot. If not provided, the screenshot is
+#   saved in $SCREEN_LOCAL/camerashot/ where a subdirectory is automatically
+#   created for each day.
+#
+# ENVIRONMENT
+#  SCREEN_LOCAL
+#   The directory where the screenshots are saved. 
+#   Defaults to $SCREEN_HOME/.local
+#
+#  SCREEN_TMP
+#   The directory where temporary files are saved.
+#
+# SEE ALSO
+#  ffmpeg(1)
+
+DEVICE="/dev/video0"
+OUTPUT_DIR="$SCREEN_LOCAL/camerashot/$(date +"%Y-%m-%d")"
+
+get_last_frame() {
+  total_frames=$(ffprobe -v error \
+    -select_streams v:0 -count_frames \
+    -show_entries stream=nb_read_frames \
+    -of default=nokey=1:noprint_wrappers=1 "$1"
+  )
+
+  # Calculate the last frame (0-indexed)
+  echo "$total_frames - 1" | bc
+}
+
+take_screenshot() {
+  timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+  output_path="${OUTPUT_DIR}/${timestamp}.jpg"
+  mkdir -p "$OUTPUT_DIR"
+
+  tmp_video_path="$SCREEN_TMP/camerashot-1s-$timestamp.mp4"
+
+  # record 1 sec to get past the warm-up artifacts of the camera
+  ffmpeg -f v4l2 -framerate 30 -video_size 1280x720 \
+    -i "$DEVICE" -t 1 "$tmp_video_path"
+
+  # extract the last frame
+  ffmpeg -i "$tmp_video_path" -vf "select='eq(n,$(get_last_frame "$tmp_video_path"))'" \
+    -vsync vfr "$output_path"
+
+  rm "$tmp_video_path"
+}
+
+# ╭───┤ Input validation 
+# ╰─
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -c|--count-down) count_down=true ;;
+    -o|--output-dir) OUTPUT_DIR="$2"; shift ;;
+    --) shift; break ;;
+    -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# ╭──────────────────────
+# │ Main. Start here.
+# ╰────────
+
+if [ "$count_down" ]; then
+  for i in $(seq 5 -1 1); do
+    espeak "$i"
+    sleep 1
+  done
+
+  espeak "Say cheeese!"
+  take_screenshot
+  beep -f 1000 -l 100
+else
+  take_screenshot
+fi
+
