@@ -1,4 +1,33 @@
 #!/usr/bin/env sh
 
-export GITUTILS_HOME="$(dirname "$0")"
+GITUTILS_HOME="$(dirname "$0")"
 
+export LOG_NAMESPACE="󰊢 git"
+export LOG_LEVEL=info
+
+# ╭───┤ Expose scripts 
+# ╰─
+
+scripts_home="$GITUTILS_HOME/scripts"
+fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
+export PATH="$scripts_home:$PATH"
+
+# ╭───┤ Patch git config 
+# ╰─
+
+fake_path="$HOME/.gitconfig"
+real_path="$GITUTILS_HOME/config/.gitconfig"
+
+if is_symlink_broken "$fake_path"; then
+  fancy-log warn -v path "$fake_path" \
+    "Removing broken config symlink ..."
+
+  rm "$fake_path"
+fi
+
+if [ ! -e "$fake_path" ]; then
+  fancy-log info -v real "$real_path" -v fake "$fake_path" \
+    "Creating config symlink ..."
+
+  ln -s "$real_path" "$fake_path"
+fi
