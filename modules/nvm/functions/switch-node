@@ -20,9 +20,9 @@ switch_node() {
       nvm install "$nvmrc_version"
     fi
   else
-    if [ "$current_version" != "$(nvm version default)" ]; then
+    if [ "$current_version" != "$NVMM_DEFAULT_VERSION" ]; then
       echo " No .nvmrc file found, switching to $(stylize underline "default") version"
-      nvm use default
+      nvm use "$NVMM_DEFAULT_VERSION"
     fi
   fi
 }

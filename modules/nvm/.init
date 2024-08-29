@@ -6,6 +6,9 @@ export NVMM_FUNCTIONS="$NVMM_HOME/functions"
 export NVMM_CONFIG="$NVMM_HOME/config"
 export NVMM_SCRIPTS="$NVMM_HOME/scripts"
 
+export LOG_NAMESPACE=" nvm"
+export LOG_LEVEL=info
+
 mkdir -p "$NVMM_LOCAL"
 
 ## Upgrade dependencies. Coordinated by the HMVC system via global 
@@ -17,7 +20,6 @@ if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
 fi
 
 ## Main
-
 export NVM_COMPLETION=true
 export NVM_DIR="$NVMM_LOCAL/nvm"
 
@@ -37,12 +39,13 @@ done
 # Auto switch node version when changing directories
 add-zsh-hook chpwd switch_node
 
-export NVMM_DEFAULT_VERSION=$(nvm version default)
+# export NVMM_DEFAULT_VERSION=$(nvm version default)
+export NVMM_DEFAULT_VERSION="v20.10.0" # save ~200ms on terminal start time
 
 # Install or upgrade global npm packages
 
 if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
-  echo " Installing global npm packages..."
+  fancy-log info "Installing global npm packages..."
 
   npm install -g --prefer-offline --no-progress --no-audit \
     npm \
@@ -66,6 +69,4 @@ if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
     yaml-language-server
 fi
 
-if [ "$HMVC_DEBUG" = true ]; then
-  echo " Using node $(stylize underline "$(node --version)")"
-fi
+fancy-log info -v version "$(node --version)" "Current Node.js"
