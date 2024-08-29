@@ -4,21 +4,21 @@
     "current_border_width": 3,
     "floating": "auto_off",
     "geometry": {
-       "height": 600,
-       "width": 800,
-       "x": 0,
-       "y": 0
+        "height": 600,
+        "width": 800,
+        "x": 0,
+        "y": 0
     },
     "marks": [],
     "name": "NERD_tree_1 - (~/Work/asd14.zeroboot-stacks) - NVIM",
     "percent": 0.59375,
     "swallows": [
-       {
-       // "class": "^Alacritty$",
-       // "instance": "^Alacritty$",
-       // "machine": "^t440p$",
-       // "title": "^NERD_tree_1\\ \\-\\ \\(\\~\\/Work\\/asd14\\.zeroboot\\-stacks\\)\\ \\-\\ NVIM$"
-       }
+        {
+            // "class": "^Alacritty$",
+            // "instance": "^Alacritty$",
+            // "machine": "^t440p$",
+            // "title": "^NERD_tree_1\\ \\-\\ \\(\\~\\/Work\\/asd14\\.zeroboot\\-stacks\\)\\ \\-\\ NVIM$"
+        }
     ],
     "type": "con"
 }
@@ -46,21 +46,21 @@
                     "current_border_width": 3,
                     "floating": "auto_off",
                     "geometry": {
-                       "height": 600,
-                       "width": 800,
-                       "x": 0,
-                       "y": 0
+                        "height": 600,
+                        "width": 800,
+                        "x": 0,
+                        "y": 0
                     },
                     "marks": [],
                     "name": "Alacritty",
                     "percent": 1,
                     "swallows": [
-                       {
-                       // "class": "^Alacritty$",
-                       // "instance": "^Alacritty$",
-                       // "machine": "^t440p$",
-                       // "title": "^Alacritty$"
-                       }
+                        {
+                            // "class": "^Alacritty$",
+                            // "instance": "^Alacritty$",
+                            // "machine": "^t440p$",
+                            // "title": "^Alacritty$"
+                        }
                     ],
                     "type": "con"
                 }
@@ -80,21 +80,21 @@
                     "current_border_width": 3,
                     "floating": "auto_off",
                     "geometry": {
-                       "height": 600,
-                       "width": 800,
-                       "x": 0,
-                       "y": 0
+                        "height": 600,
+                        "width": 800,
+                        "x": 0,
+                        "y": 0
                     },
                     "marks": [],
                     "name": "Alacritty",
                     "percent": 1,
                     "swallows": [
-                       {
-                       // "class": "^Alacritty$",
-                       // "instance": "^Alacritty$",
-                       // "machine": "^t440p$",
-                       // "title": "^Alacritty$"
-                       }
+                        {
+                            // "class": "^Alacritty$",
+                            // "instance": "^Alacritty$",
+                            // "machine": "^t440p$",
+                            // "title": "^Alacritty$"
+                        }
                     ],
                     "type": "con"
                 }
@@ -102,4 +102,3 @@
         }
     ]
 }
-

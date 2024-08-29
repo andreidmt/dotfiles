@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+# ╭──────────────────────
+# │ Packages are listed in .packages files in the module root. It is a comma
+# │ separated list of packages, for example:
+# │
+# │  i3,      pacman, "Window manager"
+# │  polybar, pacman, "Status bar"
+# │  ─┬─      ─┬─     ─┬─
+# │   │        │       ╰─ Description of the package
+# │   │        ╰─ Package manager
+# │   ╰─ Package name
+# ╰─────
+
+pacman_package_names=$(grep -v "^#" < "$UII3_HOME/.packages" \
+  | grep "pacman" \
+  | cut -d, -f1 \
+  | tr '\n' ' '
+)
+
+fancy-log info -v packages "$pacman_package_names" \
+  "Module pacman dependencies"
+
+# ╭───┤ Symlink application config
+# ╰─
+
+UII3_CONFIG="$UII3_HOME/config"
+
+echo "picom
+redshift
+polybar
+i3
+rofi
+newsboat
+sxiv" | while IFS="" read -r dir; do
+  if [ ! -d "$HOME/.config/$dir" ]; then
+    echo "Config for $(red "$dir not found"), symlinking ..."
+    rm -f "$HOME/.config/$dir"
+    ln -s "$UII3_CONFIG/$dir" "$HOME/.config/$dir"
+  fi
+done
+

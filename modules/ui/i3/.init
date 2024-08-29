@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+
+if ! does_command_exist i3; then 
+  fancy-log warn -v cmd i3 "Command does not exit, skipping module" 
+  return 0
+fi
+
+export UII3_HOME="$(dirname "$0")"
+export UII3_TMP="$UII3_HOME/.tmp"
+
+mkdir -p "$UII3_TMP"
+
+# ╭───┤ Expose scripts and libs
+# ╰─
+
+scripts_home="$UII3_HOME/scripts"
+export PATH="$scripts_home:$PATH"
+fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
+
+config_dirs="i3
+newsboat
+picom
+polybar
+redshift
+rofi
+sxiv"
+
+echo "$config_dirs" | while IFS="" read -r dir; do
+  config_path="$HOME/.config/$dir"
+
+  if is_symlink_broken "$config_path"; then
+    fancy-log warn -v path "$config_path" "Removing broken config symlink ..."
+    rm "$config_path"
+  fi
+
+  if [ ! -d "$config_path" ]; then
+    fancy-log info -v to "$config_path" "Creating config symlink ..."
+    ln -s "$UII3_HOME/config/$dir" "$config_path"
+  fi
+done

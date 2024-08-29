@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+if ! does_command_exist sway; then 
+  fancy-log warn -v cmd sway "Command does not exit, skipping module" 
+  return 0
+fi
+
+export UISWAY_HOME="$(dirname "$0")"
+
+# ╭───┤ Expose scripts 
+# ╰─
+
+UISWAY_SCRIPTS="$UISWAY_HOME/scripts"
+export PATH="$UISWAY_SCRIPTS:$PATH"
+
+fancy-log info -v script_count "$(find "$UISWAY_SCRIPTS" -type f | wc -l)" \
+  "Scripts added to \$PATH"

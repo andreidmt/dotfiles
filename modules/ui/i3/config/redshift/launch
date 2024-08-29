@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
-# shellcheck source=../../../@core/functions/predicates
-. "$CORE_FUNCTIONS/predicates"
+# shellcheck source=../../../@0_fancy-cli/functions/predicates
+. "$FCLI_FUNCTIONS/predicates"
 
 # DESCRIPTION
 #  Start `redshift` with latitude and longitude from Mozilla Location Service

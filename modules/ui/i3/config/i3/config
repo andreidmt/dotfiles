@@ -55,12 +55,13 @@ for_window [window_role="task_dialog"] floating enable
 bindsym $mod+p      exec --no-startup-id rofi -show run
 bindsym $mod+grave  exec --no-startup-id sys_menu
 
-# bindsym $mod+n        exec --no-startup-id st -t such-important -e notes create
-bindsym $mod+n        exec --no-startup-id obsidian
-# bindsym $mod+Shift+p  exec --no-startup-id notes ask
+bindsym $mod+n       exec --no-startup-id terminal-center notes create
+bindsym $mod+Shift+n exec --no-startup-id obsidian
+bindsym $mod+Shift+p exec --no-startup-id terminal-center notes ask
 
 bindsym $mod+s       exec --no-startup-id terminal-center snippets copy
 bindsym $mod+Shift+s exec --no-startup-id terminal-center snippets upsert
+
 bindsym $mod+b       exec --no-startup-id terminal-center bookmarks open
 bindsym $mod+Shift+b exec --no-startup-id terminal-center bookmarks upsert
 
