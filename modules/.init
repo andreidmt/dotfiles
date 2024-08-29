@@ -115,7 +115,7 @@ start_time_main=$(date +%s%N)
 # Find the paths of all defined modules. 
 # Modules whose name start with a "@" or "_" are ignored. 
 # The alphabetical sorting has no functional purpose, it's there for easier
-# human log parsing.
+# human parsing.
 detect_modules() {
   find "$HMVC_HOME"/* -mindepth 1 -maxdepth 1 \
     -name ".init" -o -name "load" -o -name "load.sh" -type f \
@@ -175,6 +175,7 @@ export LOG_LEVEL=info
 
 duration=$(calculate_duration "$start_time_main" "$(date +%s%N)")
 fancy-log success \
+  -v modules "fancy-cli,core,terminal" \
   -v duration "$(colorize_duration "$duration")" \
   "Core modules loaded"
 
@@ -210,8 +211,8 @@ while IFS= read -r init_file; do
   start_time=$(date +%s%N)
   . "$init_file"
   end_time=$(date +%s%N)
-
   delta_ms=$(calculate_duration "$start_time" "$end_time")
+
   fancy-log success \
     -v duration "$(colorize_duration "$delta_ms")" \
     "Module loaded"
@@ -227,8 +228,8 @@ delta_ms=$(calculate_duration "$start_time_main" "$(date +%s%N)")
 count=$(echo "$init_files" | wc --lines)
 
 echo "╭───────────┤ Loaded $count modules"
-echo "│  ┓ ┓ ┓   ┓            ┏┏┓"
-echo "│ ┏┫┏┫┏┫ + ┣┓┏┳┓┓┏┏━ =  ┫ ┫"
-echo "│ ┗┻┗┻┗┻   ┛┗┛┗┗┗┛┗━    ┗┗┛"
+echo "│  ┓ ┓ ┓   ┓           ┏┏┓"
+echo "│ ┏┫┏┫┏┫ + ┣┓┏┳┓┓┏┏━ = ┫ ┫"
+echo "│ ┗┻┗┻┗┻   ┛┗┛┗┗┗┛┗━   ┗┗┛"
 echo "╰──┤ $(colorize_duration "$delta_ms")"
 
