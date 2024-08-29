@@ -18,22 +18,19 @@ DESCRIPTION
 
 COMMANDS
   ls                     Lists available profiles in ~/.aws/config.
-  [profile_name]         Switches to the specified AWS profile. If no profile 
-                         is specified, a menu is shown to select one.
+  [profile_name]         Switches to the specified AWS profile. If not
+                         specified, a menu is shown to select one.
 
 OPTIONS
   -h, --help             Display this help message.
 
 EXAMPLES
-  awswitch ls            # List available AWS profiles
   awswitch               # Select and switch to an AWS profile
+  awswitch ls            # List available AWS profiles
   awswitch my-profile    # Switch to 'my-profile'
 
-DEPENDENCIES
-  aws-profile-utils, choose
-
 SEE ALSO
-  aws(1) 
+  aws-profile-utils(1), aws(1), choose(1), fzf(2)
 EOF
 }
 
@@ -53,17 +50,18 @@ switch_to_profile() {
   export AWS_REGION="$(aws-profile-utils get-property "$profile" "region")"
 
   if ! (test_connection || login_sso "$profile"); then
-    echo "Error: Failed to switch to profile '$profile'" >&2
+    fancy-log error -v profile "$profile" "Failed to switch"
+
     export AWS_PROFILE="$prev_profile"
     export AWS_REGION="$prev_region"
     return 1
   fi
 
-  echo "Switched to AWS profile: $profile"
+  fancy-log success -v profile "$profile" "Switched profile"
 }
 
 test_connection() {
-  echo "Testing connection..."
+  fancy-log info "Testing connection..."
   aws sts get-caller-identity
 }
 
@@ -71,16 +69,20 @@ login_sso() {
   profile="$1"
 
   if ! aws-profile-utils get-property "$profile" "sso_start_url"; then
-    echo "No SSO session detected for $profile."
+    fancy-log error -v profile "$profile" "No SSO session detected"
     return 1
   fi
 
-  echo "SSO profile detected. Attempting to login..."
+  fancy-log info -v profile "$profile" "SSO detected. Attempting to login..."
+
   aws sso login --profile "$profile"
   test_connection
 }
 
 awswitch() {
+  export LOG_NAMESPACE="󰸏 awswitch"
+  export LOG_LEVEL=info
+
   if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     print_help
     return 0
@@ -96,12 +98,12 @@ awswitch() {
   profile="${command:-$(select_profile)}"
 
   if [ -z "$profile" ]; then
-    echo "No profile selected."
+    fancy-log error "No profile selected"
     return 1
   fi
 
   if ! aws-profile-utils exists "$profile"; then
-    echo "Profile '$profile' not found in ~/.aws/config" >&2
+    fancy-log error -v profile "$profile" "Profile not found in ~/.aws/config"
     return 1
   fi
 

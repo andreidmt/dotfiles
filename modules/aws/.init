@@ -1,17 +1,24 @@
 #!/usr/bin/env sh
 
+# ╭──────────────────────
+# │ Entry point for the AWS shell module.
+# ╰────────
+
 export AWSM_HOME="$(dirname "$0")"
 export AWSM_BIN="$AWSM_HOME/.bin"
 export AWSM_FUNCTIONS="$AWSM_HOME/functions"
 export AWSM_SCRIPTS="$AWSM_HOME/scripts"
-export AWSM_ICON="󰸏"
-export AWSM_NAME="aws"
 
-## Main
+export LOG_NAMESPACE="󰸏 aws"
+export LOG_LEVEL=info
+
+# ╭───┤ Source functions
+# ╰─
 
 export AWS_PROFILE="r3wy"
 export AWS_REGION="eu-west-1"
 export AWS_PAGER=""
+
 export PATH="$AWSM_BIN:$AWSM_SCRIPTS:$PATH"
 
 # Expose all module functions to the shell environment
@@ -26,7 +33,7 @@ export AWSM_TMP="$AWSM_HOME/.tmp"
 export AWSM_LOCAL="$AWSM_HOME/.local"
 
 upgrade_dependencies() {
-  echo "$AWSM_ICON Updating AWS CLI..."
+  fancy-log info "Updating AWS CLI..."
 
   zip_file="$AWSM_TMP/awscliv2.zip"
   mkdir -p "$AWSM_TMP" "$AWSM_LOCAL/aws-cli" "$AWSM_BIN"
@@ -45,7 +52,8 @@ if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
   upgrade_dependencies
 fi
 
-if [ "$HMVC_DEBUG" = true ]; then
-  echo "$AWSM_ICON $(stylize underline "$(aws-profile-utils list | wc -l) profiles") available"
-  echo "$AWSM_ICON Using default profile: $(stylize underline "$AWS_PROFILE")"
-fi
+profiles_count=$(aws-profile-utils list | wc --lines)
+fancy-log info \
+  -v count "$profiles_count" \
+  -v default_profile "$AWS_PROFILE" \
+  "Profiles available"
