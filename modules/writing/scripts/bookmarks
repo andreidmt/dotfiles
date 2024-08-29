@@ -1,6 +1,9 @@
 #!/usr/bin/env sh
 
-. "$CORE_FUNCTIONS/stdin-or"
+. "$FCLI_FUNCTIONS/stdin-or"
+
+export LOG_NAMESPACE="󱅄 writing"
+export LOG_LEVEL=info
 
 # NAME
 #  bookmarks - Manage bookmarks
@@ -21,7 +24,6 @@
 #  Create or edit a bookmark
 #
 # SEE ALSO
-#  
 
 get_toml_field() {
   input=$(stdin_or "$1")
@@ -88,7 +90,7 @@ choose_bookmark() {
     | grep --only-matching "/" \
     | wc --lines
   ) 
-  all_bookmarks=$(rg --files --glob '**/data/*' \
+  all_bookmarks=$(rg --files --glob '**/*' \
     --sortr modified \
     "$BOOKMARKS_DATA"
   )
@@ -111,14 +113,16 @@ choose_bookmark() {
   fi
 }
 
-case ${1:-list} in
-  list) list ;;
+case ${1:-open} in
+  list) 
+    list
+  ;;
   open)
     path=$(choose_bookmark " open bookmark:")
     echo "$path"
 
     if [ -f "$path" ]; then
-      url=$(cat "$path" | get_toml_field "url")
+      url=$(get_toml_field "url" < "$path")
       xdg-open "$url"
     fi
   ;;
@@ -127,5 +131,11 @@ case ${1:-list} in
     echo "$path" 
     open_or_create "$path"
   ;;
-  *) echo "Command \"$1\" not recognized" >&2; exit 1 ;;
+  *) 
+    fancy-log error \
+      -v cmd "$1" \
+      -v available_commands "list,open,upsert" \
+      "Command not found"
+    exit 1 
+  ;;
 esac

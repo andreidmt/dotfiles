@@ -1,0 +1,18 @@
+#!/usr/bin/env dash
+
+WRITING_HOME="$(dirname "$0")"
+
+export LOG_NAMESPACE="󱅄 writing"
+export LOG_LEVEL=info
+
+WRITING_SCRIPTS="$WRITING_HOME/scripts"
+export PATH="$WRITING_SCRIPTS:$PATH"
+
+# notes, snippets and bookmarks scripts need to know where they are
+export SNIPPETS_DATA="$WRITING_HOME/data/snippets"
+export BOOKMARKS_DATA="$WRITING_HOME/data/bookmarks"
+export NOTES_DATA="$HOME/Notes"
+
+fancy-log info -v copy mob+s "Snippets shortcuts"
+fancy-log info -v open mob+b "Bookmarks shortcuts"
+fancy-log info -v new mob+n "Notes shortcuts"

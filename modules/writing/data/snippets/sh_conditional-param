@@ -1,0 +1,54 @@
+```toml
+id="1157d2b1-f6ab-4ef1-a753-6a357f14af16"
+type="snippet"
+description=""
+tags=[]
+created_at="2024-08-16T14:43:29+02:00"
+```
+
+### TL;DR: Passing Conditional Parameters in POSIX Shell
+
+To conditionally pass parameters based on the presence of a flag, use parameter substitution. 
+
+For example, to pass the `--allow-custom` flag if `ALLOW_CUSTOM` is set:
+
+```sh
+ALLOW_CUSTOM="true"  # Example flag; set or unset as needed
+
+# Conditionally add --allow-custom to the command
+choose --prompt "Confirm?" ${ALLOW_CUSTOM:+--allow-custom}
+```
+
+### Parameter Substitution Explanation
+
+- **`${ALLOW_CUSTOM:+--allow-custom}`**:
+  - If `ALLOW_CUSTOM` is set and non-empty, the expansion substitutes `--allow-custom`.
+  - If `ALLOW_CUSTOM` is unset or empty, the expansion substitutes nothing.
+
+### Example Usage
+
+```sh
+ALLOW_CUSTOM="true"
+OPTIONS="yes\nno"
+MESSAGE="Proceed?"
+
+# Conditionally pass --allow-custom based on the value of ALLOW_CUSTOM
+ANSWER=$(echo "$OPTIONS" | choose --prompt "$MESSAGE" ${ALLOW_CUSTOM:+--allow-custom})
+```
+
+### Visualizing the Substitution
+
+#### When `ALLOW_CUSTOM` is set:
+```sh
+ALLOW_CUSTOM="true"
+choose --prompt "Confirm?" ${ALLOW_CUSTOM:+--allow-custom}
+# Resulting command: choose --prompt "Confirm?" --allow-custom
+```
+
+#### When `ALLOW_CUSTOM` is unset or empty:
+
+```sh
+ALLOW_CUSTOM=""
+choose --prompt "Confirm?" ${ALLOW_CUSTOM:+--allow-custom}
+# Resulting command: choose --prompt "Confirm?"
+```

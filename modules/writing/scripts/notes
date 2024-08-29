@@ -1,10 +1,12 @@
-#!/usr/bin/sh -eu
+#!/usr/bin/env sh
 
-. "$LIBRARY_HOME/die.sh"
-. "$LIBRARY_HOME/read-stdin-or.sh"
+. "$FCLI_FUNCTIONS/stdin-or"
+
+export LOG_NAMESPACE="󱅄 writing"
+export LOG_LEVEL=info
 
 create() {
-  draftsPath="$NOTES_HOME/draft"
+  draftsPath="$NOTES_DATA/draft"
   path="$draftsPath/$(date +%y-%j).md"
 
   mkdir -p "$draftsPath"
@@ -18,7 +20,7 @@ create() {
   fi
 
   printf "\n## %s\n" "$(date '+%H:%M')" >> "$path"
-  cd "$NOTES_HOME"
+  cd "$NOTES_DATA"
   nvim -c "norm G" -c "norm zz" -c "set spell" "$path"
 }
 
@@ -26,15 +28,16 @@ open() {
   notePath=$(readStdinOr "$1")
 
   if [ -f "$notePath" ]; then
-    cd "$NOTES_HOME"
+    cd "$NOTES_DATA"
     nvim -c "norm zz" -c "set spell" "$notePath"
   else
-    die "Cannot find note at \"$notePath\""
+    fancy-log error -v path "$notePath" "Note does not exist"
+    exit 2
   fi
 }
 
 list() {
-  notes=$(rg --files --sortr modified "$NOTES_HOME" \
+  notes=$(rg --files --sortr modified "$NOTES_DATA" \
     | rg .md \
   )
 
@@ -45,7 +48,7 @@ list() {
       | grep --ignore-case "type" \
       | awk --field-separator '[ ="]+' '{ print tolower($2) }'
     )
-    relativePath=$(echo "$path" | sed -e "s|$NOTES_HOME/||g")
+    relativePath=$(echo "$path" | sed -e "s|$NOTES_DATA/||g")
 
     if [ -z "$type" ]; then
       printf "%s\n<small>%s</small>|" "${title:-'--'}" "$relativePath"
@@ -79,5 +82,11 @@ case "${1-ask}" in
   create) create ;;
 	list) list ;;
 	open) open "$2" ;;
-  *) die "Command \"$1\" (\$1) not defined" ;;
+  *) 
+    fancy-log error \
+      -v cmd "$1" \
+      -v available_commands "ask,create,list,open" \
+      "Command not found"
+    exit 1 
+  ;;
 esac

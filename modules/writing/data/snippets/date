@@ -1,7 +1,5 @@
 #!/usr/bin/sh -eu
 
-. "$LIBRARY_HOME/die"
-
 # nice()
 # Output current date in a human-readable format.
 # 
@@ -46,5 +44,5 @@ case ${1-iso} in
   nice) nice ;;
   dayOfTheYear) dayOfTheYear ;;
   iso) iso ;;
-  *) die "Command '$1' does not exist" ;;
+  *) log error "Command '$1' does not exist" ;;
 esac

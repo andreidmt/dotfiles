@@ -3,7 +3,7 @@
 # -e: exit on error, -u: error on undefined variable
 set -u
 
-. "$CORE_FUNCTIONS/stdin-or"
+. "$FCLI_FUNCTIONS/stdin-or"
 
 # List all snippet files in the snippets directory.
 list_all() {
@@ -108,7 +108,7 @@ choose() {
     | grep --only-matching "/" \
     | wc --lines
   ) 
-  choice=$(rg --files --glob '**/data/*' --sortr modified "$SNIPPETS_DATA" \
+  choice=$(rg --files --glob '**/*' --sortr modified "$SNIPPETS_DATA" \
     | fzf \
       --preview 'bat --color=always --style=numbers --line-range :500 {}' \
       --preview-window=right:85:wrap \
@@ -156,5 +156,8 @@ case ${1-copy} in
       open "$path"
     fi
   ;;
-  *) echo "error: command $1 not defined" >&2; exit 1 ;;
+  *) 
+    fancy-log error -v cmd "$1" "Command not defined"
+    exit 1 
+  ;;
 esac

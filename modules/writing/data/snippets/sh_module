@@ -1,0 +1,28 @@
+```toml
+id="f43b84df-4846-423c-986c-e6a47a39fc5a"
+type="snippet"
+description=""
+tags=[]
+created_at="2024-02-05T12:16:22+01:00"
+```
+
+```sh
+#!/usr/bin/env sh
+
+# ╭──────────────────────
+# │ Entry point for the Screen shell module. 
+# ╰────────
+
+SCREEN_HOME="$(dirname "$0")"
+
+export LOG_NAMESPACE=" screen"
+export LOG_LEVEL=info
+
+# ╭───┤ Expose scripts 
+# ╰─
+
+scripts_home="$SCREEN_HOME/scripts"
+export PATH="$scripts_home:$PATH"
+
+fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
+```
