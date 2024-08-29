@@ -1,11 +1,14 @@
 #!/usr/bin/env sh
 
-# shellcheck source=../@core/functions/predicates
-. "$CORE_FUNCTIONS/predicates"
+# shellcheck source=../@0_fancy-cli/functions/predicates
+. "$FCLI_FUNCTIONS/predicates"
 
 export SSHM_HOME="$(dirname "$0")"
 export SSHM_SCRIPTS="$SSHM_HOME/scripts"
 export SSHM_LOCAL="$SSHM_HOME/.local"
+
+export LOG_NAMESPACE="󱕴 ssh"
+export LOG_LEVEL=info
 
 export PATH="$SSHM_HOME/scripts:$PATH"
 export SSH_ASKPASS="${SSHM_SCRIPTS}/ssh-askpass"
@@ -18,7 +21,7 @@ tmp_sock_file="$SSHM_LOCAL/ssh-agent.sock"
 # start one, add our SSH keys to it and persist the PID and socket path for
 # future terminals.
 if ! is_process_running ssh-agent; then
-  echo "󱕴 SSH agent not detected, $(stylize underline "starting")..."
+  fancy-log info "SSH agent not detected, starting ..."
   eval "$(ssh-agent -s)" > /dev/null
 
   # Persist the SSH agent PID and socket path for future terminals
@@ -35,11 +38,13 @@ if ! is_process_running ssh-agent; then
   ssh-add "$HOME/.ssh/asd14__ci" > /dev/null 2>&1
   ssh-add "$HOME/.ssh/abcam-gitlab.t440p" > /dev/null 2>&1
 
-  echo "󱕴 Added $(stylize underline "$(ssh-add -l | wc -l) keys")"
+  fancy-log success -v keys_count "$(ssh-add -l | wc --lines)" \
+    "SSH agent started"
 else
   export SSH_AGENT_PID="$(cat "$tmp_pid_file")"
   export SSH_AUTH_SOCK="$(cat "$tmp_sock_file")"
 
-  echo "󱕴 SSH agent already running with $(stylize underline "$(ssh-add -l | wc -l) keys")"
+  fancy-log info -v keys_count "$(ssh-add -l | wc --lines)" \
+    "SSH agent already running"
 fi
 
