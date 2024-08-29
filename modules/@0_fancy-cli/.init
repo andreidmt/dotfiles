@@ -1,0 +1,30 @@
+#!/usr/bin/env dash
+
+# ╭──────────────────────
+# │ Entry point for the FancyCLI shell module.
+# ╰────────
+
+FCLI_HOME="$(dirname "$0")"
+
+export LOG_NAMESPACE=" @fancy-cli"
+export LOG_LEVEL=info
+
+# ╭───┤ Source functions
+# ╰─
+
+# Other script might want to source
+export FCLI_FUNCTIONS="$FCLI_HOME/functions"
+
+for fn_file in $(find "$FCLI_FUNCTIONS" -type f | tr '\n' ' '); do
+  . "$fn_file"
+done
+
+fancy-log info -v path "$FCLI_FUNCTIONS" "Functions sourced"
+
+# ╭───┤ Expose scripts 
+# ╰─
+
+scripts_home="$FCLI_HOME/scripts"
+export PATH="$scripts_home:$PATH"
+
+fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"

@@ -2,7 +2,14 @@
 
 # Predicate checking if a process is running under the current user
 is_process_running() {
-  pgrep "$1" -u "$USER" > /dev/null
+  name=$1
+  args=$2
+
+  if [ -z "$args" ]; then
+    pgrep "$name" -u "$USER" > /dev/null
+  else
+    pgrep --full "$name $args" -u "$USER" > /dev/null
+  fi
 }
 
 # Predicate checking if the underlying file or directory of a symlink is missing

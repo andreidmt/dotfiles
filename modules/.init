@@ -93,40 +93,35 @@
 #  delete it.
 
 HMVC_HOME="$(dirname "$0")"
-HMVC_DEBUG=true
 HMVC_LOG="$HMVC_HOME/.logs"
 HMVC_TMP="$HMVC_HOME/.tmp"
-HMVC_ICON="󰺔"
+
+mkdir -p "$HMVC_LOG" "$HMVC_TMP"
 
 # ╭──────────────────────
-# │ Before anything else, manually load the @core module to immediately 
-# │ benefit from the scripts and functions
+# │ Manually load modules that must be in a certain order 
 # ╰────────
 
-printf "\033[1m%s\033[0m\n" "󰺔 Loading @core ..."
-. "$HMVC_HOME/@core/.init"
+start_time_main=$(date +%s%N)
+
+. "$HMVC_HOME/@0_fancy-cli/.init"
+. "$HMVC_HOME/@1_core/.init"
+. "$HMVC_HOME/@2_terminal/.init"
 
 # ╭──────────────────────
 # │ Helper functions 
 # ╰────────
 
-# Find all defined modules. Modules whose name starts with "@" are loaded
-# first, in alphabetical order, and then the remaining, also in alphabetical
-# order.
+# Find the paths of all defined modules. 
+# Modules whose name start with a "@" or "_" are ignored. 
+# The alphabetical sorting has no functional purpose, it's there for easier
+# human log parsing.
 detect_modules() {
-  to_load_first=$(find "$HMVC_HOME"/@*/ -mindepth 1 -maxdepth 1 \
-    -name ".init" -o -name "load" -o -name "load.sh" -type f \
-    | sort --ignore-case \
-    | grep --invert-match "@core"
-  )
-  to_load_after=$(find "$HMVC_HOME"/* -mindepth 1 -maxdepth 1 \
+  find "$HMVC_HOME"/* -mindepth 1 -maxdepth 1 \
     -name ".init" -o -name "load" -o -name "load.sh" -type f \
     | grep --invert-match "@.*" \
     | sort --ignore-case \
     | grep --invert-match "_.*"
-  )
-
-  printf "%s\n%s\n" "$to_load_first" "$to_load_after"
 }
 
 # Calculate the duration in milliseconds between two nanoseconds timestamps
@@ -134,7 +129,7 @@ detect_modules() {
 # SYNOPSIS:
 #  calculate_duration <start_ns> <end_ns>
 calculate_duration() {
-  nano_to_ms "$(( $2 - $1 ))"
+  echo "$(( ($2 - $1) / 1000000 ))"
 }
 
 # Colorize the duration, passed in seconds, based on the time it took to load
@@ -143,19 +138,13 @@ calculate_duration() {
 # SYNOPSIS:
 #  colorize_duration <duration_ms>
 colorize_duration() {
-  is_warning=$(echo "$1 >= 100 && $1 <= 250" | bc)
-  is_critical=$(echo "$1 > 250" | bc)
-  label=$(printf "%dms" "$1")
-
-  if [ "$is_warning" -eq 1 ]; then
-    label=$(color orange "$label")
-  elif [ "$is_critical" -eq 1 ]; then
-    label=$(color red "$label")
+  if [ "$1" -ge 100 ] && [ "$1" -le 250 ]; then
+    printf "\033[33m%dms\033[0m" "$1"  # Orange
+  elif [ "$1" -gt 250 ]; then
+    printf "\033[31m%dms\033[0m" "$1"  # Red
   else
-    label=$(color green "$label")
+    printf "\033[32m%dms\033[0m" "$1"  # Green
   fi
-
-  printf "%s" "$label"
 }
 
 HMVC_UPGRADE_LOCK="$HMVC_TMP/.upgrade.lock"
@@ -165,7 +154,7 @@ HMVC_UPGRADE_LOCK="$HMVC_TMP/.upgrade.lock"
 #  The path to the lock file if the lock was aquired, empty string otherwise.
 aquire_upgrade_lock() {
   if [ -f "$HMVC_UPGRADE_LOCK" ]; then
-    echo "$HMVC_ICON Upgrade lock aquired by another process, skipping." >&2
+    fancy-log info "Upgrade lock aquired by another process, skipping."
     return 1
   fi
 
@@ -179,21 +168,29 @@ release_upgrade_lock() {
 
 trap release_upgrade_lock EXIT
 
+# Output the time it took for the manual modules to load
+
+export LOG_NAMESPACE="󰺔 ddd+hmvc" 
+export LOG_LEVEL=info
+
+duration=$(calculate_duration "$start_time_main" "$(date +%s%N)")
+fancy-log success \
+  -v duration "$(colorize_duration "$duration")" \
+  "Core modules loaded"
+
 # ╭──────────────────────
 # │ Main. Start here.
 # ╰────────
 
-start_time_main=$(date +%s%N)
 
-mkdir -p "$HMVC_LOG" "$HMVC_TMP"
-init_files=$(detect_modules)
-count=$(echo "$init_files" | wc -l)
+# ╭───┤ Upgrade modules and packages every 24hours 
+# ╰─
+
 has_upgrade_lock=$(aquire_upgrade_lock)
-
 if has-days-passed --name "hmvc-upgrade" --count 1 && [ -n "$has_upgrade_lock" ]; then
-  echo "$HMVC_ICON $(stylize underline "Upgrade lock aquired"). Modules should upgrade their dependencies."
-  # Tell modules to upgrade their dependencies
   export HMVC_SHOULD_UPGRADE="true"
+
+  fancy-log info "Upgrade lock aquired, modules will upgrade their dependencies."
 
   # System wide package upgrades
   sys_upgrade packages
@@ -208,34 +205,30 @@ fi
 # ╭───┤ Source each module's .init file
 # ╰─
 
-for init_file in $(echo "$init_files" | tr '\n' ' '); do
-  if [ "$HMVC_DEBUG" = true ]; then
-    start_time=$(date +%s%N)
-    name=$(basename "$(dirname "$init_file")")
+init_files=$(detect_modules)
+while IFS= read -r init_file; do
+  start_time=$(date +%s%N)
+  . "$init_file"
+  end_time=$(date +%s%N)
 
-    
-    echo "$HMVC_ICON $(stylize bold "Loading $name ...")"
-
-    . "$init_file"
-    end_time=$(date +%s%N)
-    delta_ms=$(calculate_duration "$start_time" "$end_time")
-
-    echo "  Finished in $(colorize_duration "$delta_ms")"
-  else
-    . "$init_file"
-  fi
-done
+  delta_ms=$(calculate_duration "$start_time" "$end_time")
+  fancy-log success \
+    -v duration "$(colorize_duration "$delta_ms")" \
+    "Module loaded"
+done <<EOF
+$init_files
+EOF
 
 if [ -n "$has_upgrade_lock" ]; then
   release_upgrade_lock
 fi
 
-end_time_main=$(date +%s%N)
-delta_ms=$(calculate_duration "$start_time_main" "$end_time_main")
+delta_ms=$(calculate_duration "$start_time_main" "$(date +%s%N)")
+count=$(echo "$init_files" | wc --lines)
 
 echo "╭───────────┤ Loaded $count modules"
-echo "│  ┓ ┓ ┓  ╻  ┓        ━ ┏┏┓"
-echo "│ ┏┫┏┫┏┫ ━╋━ ┣┓┏┳┓┓┏┏━━━┫ ┫"
-echo "│ ┗┻┗┻┗┻  ╹  ┛┗┛┗┗┗┛┗━━ ┗┗┛"
+echo "│  ┓ ┓ ┓   ┓            ┏┏┓"
+echo "│ ┏┫┏┫┏┫ + ┣┓┏┳┓┓┏┏━ =  ┫ ┫"
+echo "│ ┗┻┗┻┗┻   ┛┗┛┗┗┗┛┗━    ┗┗┛"
 echo "╰──┤ $(colorize_duration "$delta_ms")"
 

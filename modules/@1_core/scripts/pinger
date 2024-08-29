@@ -1,0 +1,233 @@
+#!/usr/bin/env sh
+
+# NAME
+#  pinger - Rudimentary load testing tool for HTTP servers
+#
+# SYNOPSIS
+#  pinger <options> 
+#
+# OPTIONS
+#  -u, --url <URL>            URL to ping
+#  -s, --sleep [SECONDS]      Sleep between batches (default: 0)
+#  -c, --concurrency [COUNT]  Number of concurrent requests (default: 3)
+#
+# DESCRIPTION
+#  Ping a URL every second with a specified number of concurrent requests.
+#  Useful for testing server load and connection handling.
+#
+# SEE ALSO
+#  curl(1)
+
+parse_args() {
+  while [ "$#" -gt 0 ]; do
+    case $1 in
+      -t|--timeout)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then TIMEOUT=$2; shift; else
+          echo 'error: "--timeout" requires a non-empty option argument.' >&2
+          exit 1
+        fi
+      ;;
+      -u|--url)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then URL=$2; shift; else
+          echo 'error: "--url" requires a non-empty option argument.' >&2
+          exit 1
+        fi
+      ;;
+      -s|--sleep)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then SLEEP=$2; shift; else
+          echo 'error: "--sleep" requires a non-empty option argument.' >&2
+          exit 1
+        fi
+      ;;
+      -c|--concurrency)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then CONCURRENCY=$2; shift; else 
+          echo 'error: "--concurrency" requires a non-empty option argument.' >&2
+          exit 1
+        fi
+      ;;
+      --) shift; break ;;
+      -?*) echo "error: Unknown option: $1" >&2; exit 1 ;;
+      *) break ;;
+    esac
+    shift
+  done
+}
+
+validate_args() {
+  if [ -z "$URL" ]; then
+    echo "error: URL is required." >&2
+    exit 1
+  fi
+
+  if [ "$SLEEP" -lt 0 ]; then
+    echo "error: Sleep must be a positive integer, got $SLEEP." >&2
+    exit 1
+  fi
+}
+
+timestamp_to_hms() {
+  timestamp=$1
+  date -d "@$timestamp" +"%H:%M:%S"
+}
+
+# Send a single HTTP request to the specified URL. 
+# Returns the HTTP status code.
+send_http_request() {
+  start_time=$(date +%s%N)
+  timestamp=$(date +%s)
+  hms_timestamp=$(timestamp_to_hms "$timestamp")
+  status_code=$(curl --write-out "%{http_code}" \
+    --max-time "${TIMEOUT:-1}" \
+    --silent \
+    --output /dev/null \
+    --location \
+    --user-agent "$USER_AGENT" "$URL")
+  end_time=$(date +%s%N)
+
+  duration=$((end_time - start_time))
+  echo "$hms_timestamp $status_code $(nano_to_s "$duration" 3)"
+}
+
+send_concurrent_requests() {
+  temp_file=$(mktemp --tmpdir pinger.XXXXXX)
+
+  for i in $(seq 1 "$CONCURRENCY"); do
+    (send_http_request >> "$temp_file") &
+  done
+  wait
+
+  while read -r line; do
+    timestamp=$(echo "$line" | cut -d' ' -f1)
+    status_code=$(echo "$line" | cut -d' ' -f2)
+    duration=$(echo "$line" | cut -d' ' -f3)
+
+    if [ "$status_code" -eq 200 ]; then
+      REQ_SUCCESS_COUNT=$((REQ_SUCCESS_COUNT + 1))
+      color green "$status_code "
+    else
+      REQ_FAIL_COUNT=$((REQ_FAIL_COUNT + 1))
+      color red "$status_code "
+    fi
+
+    echo "$timestamp $status_code $duration" >> "$DURATION_FILE"
+  done < "$temp_file"
+
+  rm "$temp_file"
+}
+
+plot_results() {
+  echo "Generating plot..."
+
+  # Generate data files for different status codes
+  grep 200 "$DURATION_FILE" > success.dat
+  grep -v 200 "$DURATION_FILE" > failure.dat
+
+  gnuplot <<-EOFMarker
+    reset
+    set terminal png size 1024,768
+    set output 'request_times.png'
+    set title 'Pinging $URL, every $SLEEP seconds, with $CONCURRENCY concurrent requests'
+    set xlabel 'Time (HH:MM:SS)'
+    set ylabel 'Time (seconds)'
+    set key outside
+    set grid
+
+    # Calculate duration statistics without xdata time
+    unset xdata
+    stats '$DURATION_FILE' using 3 name 'Duration' nooutput
+
+    # Print duration statistics
+    print_stats = sprintf("Duration: Count=%d, Mean=%.2f, StdDev=%.2f, Min=%.2f, Max=%.2f, Median=%.2f", \
+      Duration_records, Duration_mean, Duration_stddev, Duration_min, Duration_max, Duration_median)
+
+    print print_stats
+
+    # Enable xdata time for plotting
+    set xdata time
+    set timefmt "%H:%M:%S"
+    set format x "%H:%M:%S"
+
+    # Define variables for median and standard deviation lines
+    median = Duration_median
+    mean = Duration_mean
+    stddev = Duration_stddev
+    min_y = Duration_min
+    max_y = Duration_max
+    dynamic_offset = stddev * 0.1
+
+    # Determine skew direction
+    delta_mean_median = mean - median
+    skew_direction = (mean > median) ? "Right Skew (Positive)" : (mean < median) ? "Left Skew (Negative)" : "Symmetric"
+
+    # Use sprintf for label formatting
+    set label 1 at graph 0.98, first (mean + dynamic_offset) front sprintf("Mean: %.2fs", mean) right
+    set label 2 at graph 0.02, first (mean - stddev - dynamic_offset) front sprintf("-1 StdDev: %.2fs", mean - stddev)
+    set label 3 at graph 0.02, first (mean + stddev + dynamic_offset) front sprintf("+1 StdDev: %.2fs", mean + stddev)
+    set label 4 at graph 0.02, first (median + dynamic_offset) front sprintf("Median: %.2fs", median)
+
+    # Info box content at the bottom, 0.2 units from the right side
+    set label 5 at graph 0.98, graph 0.89 front sprintf("StdDev: %.2fs", stddev) right
+    set label 6 at graph 0.98, graph 0.93 front sprintf("Delta Mean-Median: %.2fs", delta_mean_median) right
+    set label 7 at graph 0.98, graph 0.97 front sprintf("Skew: %s", skew_direction) right
+
+    # Plot with mean and ± standard deviation lines and color-coded intervals
+    plot mean + stddev with filledcurves y1=mean lt 1 lc rgb "#bbddbb02", \
+         mean - stddev with filledcurves y1=mean lt 1 lc rgb "#bbbbdd02", \
+         'success.dat' using 1:3 title 'Success (200)' with points pointtype 7 pointsize 1 lc rgb 'dark-green', \
+         'failure.dat' using 1:3 title 'Failure' with points pointtype 7 pointsize 1 lc rgb 'red', \
+         mean title 'Mean' with lines lc rgb 'blue', \
+         median title 'Median' with lines lc rgb 'green', \
+         mean + stddev title '+1 StdDev' with lines lc rgb 'dark-yellow', \
+         mean - stddev title '-1 StdDev' with lines lc rgb 'dark-green'
+EOFMarker
+
+  # Cleanup data files
+  rm -f success.dat failure.dat
+}
+
+cleanup() {
+  plot_results
+  rm -f "$DURATION_FILE"
+  exit 0
+}
+
+##
+## Defaults 
+##
+
+URL=""
+SLEEP=0
+CONCURRENCY=3
+USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0"
+
+REQ_SUCCESS_COUNT=0
+REQ_FAIL_COUNT=0
+BATCH_COUNT=0
+DURATION_FILE=$(mktemp --tmpdir pinger_durations.XXXXXX)
+
+##
+## Setup
+##
+
+parse_args "$@"
+validate_args
+trap cleanup INT
+
+##
+## Main
+##
+
+cowthink -f tux "Pinging $URL, every $SLEEP seconds, with $CONCURRENCY concurrent requests."
+
+while true; do
+  start_time=$(date +%s%N)
+  printf "Batch %s " "$BATCH_COUNT"
+  send_concurrent_requests
+  end_time=$(date +%s%N)
+
+  duration=$((end_time - start_time))
+  printf "in %sms\n" "$(nano_to_ms "$duration")"
+  BATCH_COUNT=$((BATCH_COUNT + 1))
+
+  sleep "$SLEEP"
+done

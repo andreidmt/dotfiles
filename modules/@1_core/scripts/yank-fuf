@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # NAME
-#   yank-uf - User friendly yank script
+#   yank-fuf - User friendly, multiple file yank script
 #
 # SYNOPSIS
 #   yank-uf [FILE|DIRECTORY]... 
@@ -74,11 +74,18 @@ for file in $selected_files; do
   buffer_content="$buffer_content$(md_cat "$file")\n\n"
 done
 
-printf "%b" "$buffer_content" | yank 
+# If stdout is a terminal, copy to clipboard and print some stats
+if [ -t 1 ]; then
+  printf "%b" "$buffer_content" | yank 
 
-file_count=$(echo "$selected_files" | wc -l)
-line_count=$(echo "$buffer_content" | wc -l)
-char_count=$(echo "$buffer_content" | wc --chars)
-token_count=$((char_count / 4))
+  file_count=$(echo "$selected_files" | wc -l)
+  line_count=$(echo "$buffer_content" | wc -l)
+  char_count=$(echo "$buffer_content" | wc --chars)
+  token_count=$((char_count / 4))
 
-cowsay -f tux "Copied ${file_count} files, ${line_count} lines, ~${token_count} promt tokens, to clipboard."
+  cowsay -f tux "Copied ${file_count} files, ${line_count} lines, ~${token_count} promt tokens, to clipboard."
+  exit 0
+fi
+
+# If stdout is not a terminal, print the buffer content, useful when piping.
+echo "$buffer_content"

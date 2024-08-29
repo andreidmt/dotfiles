@@ -1,0 +1,165 @@
+#!/usr/bin/env sh
+
+# NAME 
+#  kube-extra-keks - Check that cant be done with kube-lint or other static tooling
+#
+# SYNOPSIS
+#  kube-extra-keks does-ingress-host-exist <host>
+#
+# ERRORS
+#  1: Invalid input - parsing error of stdin, argument or flag parsing
+#  2: Host already exists - the host is already in use by an ingress
+#
+# SEE ALSO
+#  kubectl(1)
+
+# ╭───┤ Functions
+# ╰─
+
+bold() { [ -z "$CI" ] && printf "\033[1m%s\033[0m" "$1" || printf "%s" "$1"; }
+gray() { [ -z "$CI" ] && printf "\033[1;30m%s\033[0m" "$1" || printf "%s" "$1"; }
+red() {  [ -z "$CI" ] && printf "\033[1;31m%s\033[0m" "$1" || printf "%s" "$1"; }
+
+log() {
+  msg_type=$([ "$1" = "ERR" ] && red "$1" || gray "$1")
+  echo "$(date +%T) $msg_type $2" >&2
+}
+
+# Get all ingress hosts in the cluster.
+# Each pair on a separate line as `<ingress-name> <host>`
+get_all_ingress_hosts() {
+  log INF "Fetching all ingresses..."
+
+  [ -z "$NAMESPACE" ] && namespace_option="--all-namespaces" || namespace_option="--namespace $NAMESPACE"
+
+  ingress_pairs=$(kubectl get ingress $namespace_option \
+    -o jsonpath='{range .items[*]}{.metadata.name} {.spec.rules[*].host}{"\n"}{end}' \
+    | sort)
+
+  log INF "Found $(echo "$ingress_pairs" | wc -l) hosts"
+
+  echo "$ingress_pairs"
+}
+
+# Check if ingress host is already in use by another ingress that is not the one 
+# we are checking
+check_ingress_does_not_overlap() {
+  while [ "$#" -gt 0 ]; do
+    case $1 in
+      -n|--name) 
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+          ingress_to_find=$2; shift
+        else
+          log ERR "-n|--name option requires a value"
+          exit 1
+        fi
+      ;;
+      -h|--host)
+        if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+          host_to_find=$2; shift
+        else
+          log ERR "-h|--host option requires a value"
+          exit 1
+        fi
+      ;;
+      --) shift; break ;;
+      -?*) log ERR "Unknown option: $1"; exit 1 ;;
+      *) break ;;
+    esac
+    shift
+  done
+
+  if [ -z "$ingress_to_find" ]; then
+    log ERR "-n|--name option is required"
+    exit 1
+  fi
+
+  if [ -z "$host_to_find" ]; then
+    log ERR "-h|--host option is required"
+    exit 1
+  fi
+
+  log INF "Checking if other ingresses, besides $(bold "$ingress_to_find"), are using $(bold "$host_to_find")..."
+
+  all_hosts=$(get_all_ingress_hosts)
+  other_ingresses_with_same_host=$(echo "$all_hosts" \
+    | grep " $host_to_find\$" \
+    | grep --invert-match "$ingress_to_find")
+
+  if [ -n "$other_ingresses_with_same_host" ]; then 
+    log ERR "Host $(bold "$host_to_find") is already in use by:\n$other_ingresses_with_same_host"
+    exit 2
+  fi
+}
+
+check_ingress_duplicate_hosts() {
+  all_hosts=$(get_all_ingress_hosts)
+  duplicates=$(echo "$all_hosts" | awk '{print $2}' | sort | uniq --repeated)
+
+  if [ -z "$duplicates" ]; then
+    log INF "No duplicate hosts found"
+    exit 0
+  fi
+
+  for host in $duplicates; do
+    ingresses=$(echo "$all_hosts" | grep "$host" | awk '{print $1}')
+    log ERR "Duplicate host $(bold "$host") found in ingresses:"
+    echo "$ingresses"
+  done
+
+  exit 2
+}
+
+# ╭───┤ Input parsing/validation
+# ╰─
+
+NAMESPACE=""
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -n|--namespace) 
+      if [ "$2" ] && [ "${2#-}" = "$2" ]; then
+        NAMESPACE=$2; shift
+      else
+        log ERR "-n|--namespace option requires a value" >&2
+        exit 1
+      fi
+    ;;
+    --) shift; break ;;
+    -?*) log ERR "Unknown flag: $1"; exit 1 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+# ╭───┤ Main
+# ╰─
+
+subcommand="$1";
+if [ -z "$subcommand" ]; then
+  log "No command provided"
+  exit 1
+fi
+shift
+
+case "$subcommand" in
+  ingress-does-not-overlap)
+    if [ -z "$1" ]; then
+      log ERR "Ingress name is required"
+      exit 1
+    fi
+    if [ -z "$2" ]; then
+      log ERR "Host is required"
+      exit 1
+    fi
+
+    check_ingress_does_not_overlap "$@"
+  ;;
+  ingress-duplicate-hosts)
+    check_ingress_duplicate_hosts
+  ;;
+  _ingress-list)
+    get_all_ingress_hosts
+  ;;
+  *) log ERR "Unknown command: $subcommand"; exit 1 ;;
+esac

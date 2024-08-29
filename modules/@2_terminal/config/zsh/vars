@@ -1,7 +1,7 @@
 ## General
 export MAILTO="andrei.dumitrescu@pm.me"
 export EDITOR="nvim"
-export BROWSER="firefox-developer-edition"
+export BROWSER="chromium"
 export READER="zathura"
 export FILE="nnn"
 export MACHINE="$(uname -n)"

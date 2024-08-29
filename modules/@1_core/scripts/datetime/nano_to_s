@@ -20,5 +20,12 @@
 nanoseconds=$1
 decimal_places=${2:-2}
 
-echo "scale=$decimal_places; $nanoseconds / 1000000000" | bc -l
+result=$(echo "scale=$decimal_places; $nanoseconds / 1000000000" | bc -l)
+
+# Prepend 0 if result starts with a dot
+case "$result" in
+  .*) result="0$result" ;;
+esac
+
+echo "$result"
 

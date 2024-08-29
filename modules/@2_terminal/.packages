@@ -1,3 +1,5 @@
-zsh, pacman, "A very advanced and programmable command interpreter (shell) for UNIX"
 alacritty, pacman, "A cross-platform, GPU-accelerated terminal emulator"
+bat, pacman, "cat with syntax highlighting"
+neofetch, pacman, ""
 starship, pacman, "The minimal, blazing-fast, and infinitely customizable prompt for any shell!"
+zsh, pacman, "A very advanced and programmable command interpreter (shell) for UNIX"

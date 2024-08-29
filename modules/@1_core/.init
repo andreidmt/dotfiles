@@ -1,0 +1,46 @@
+#!/usr/bin/env dash
+
+# ╭──────────────────────
+# │ Entry point for the Core shell module.
+# ╰────────
+
+export CORE_HOME="$(dirname "$0")"
+export LOG_NAMESPACE=" @core"
+export LOG_LEVEL=info
+
+# ╭───┤ Prepare module directories
+# ╰─
+
+export CORE_TMP="$CORE_HOME/.tmp"
+mkdir -p "$CORE_TMP"
+
+# ╭───┤ Load Xresources (colors, fonts) and make available in shell
+# ╰─
+
+if [ -n "$DISPLAY" ]; then 
+  xrdb -merge ~/.Xresources
+fi
+
+# ╭───┤ Expose scripts 
+# ╰─
+
+scripts_home="$CORE_HOME/scripts"
+export PATH="$scripts_home:$PATH"
+export PATH="$scripts_home/datetime:$PATH"
+export PATH="$scripts_home/sounds:$PATH"
+export PATH="$scripts_home/sys:$PATH"
+export PATH="$scripts_home/tui:$PATH"
+
+fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
+
+# ╭───┤ Source functions
+# ╰─
+
+export CORE_FUNCTIONS="$CORE_HOME/functions"
+fn_files=$(find "$CORE_FUNCTIONS" -type f)
+
+echo "$fn_files" | while IFS= read -r fn_file; do 
+  . "$fn_file"
+done
+
+fancy-log info -v path "$CORE_FUNCTIONS" "Functions sourced"

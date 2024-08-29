@@ -1,0 +1,84 @@
+#!/usr/bin/env sh
+
+TERMINALM_HOME="$(dirname "$0")"
+
+export LOG_NAMESPACE=" @terminal"
+export LOG_LEVEL=info
+
+##
+## Load local/secret environment variables
+##
+
+. "${TERMINALM_HOME}/.env"
+
+##
+## Upgrade dependencies. Coordinated by the HMVC system via global 
+## $HMVC_SHOULD_UPGRADE variable.
+##
+
+export TERMINALM_LOCAL="${TERMINALM_HOME}/.local"
+mkdir -p "$TERMINALM_LOCAL"
+
+if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
+  fancy-log info "Upgrading ZSH plugins..."
+
+  plugins="Aloxaf/fzf-tab
+  zsh-users/zsh-syntax-highlighting
+  zsh-users/zsh-autosuggestions
+  zsh-users/zsh-history-substring-search"
+
+  echo "$plugins" | while IFS= read -r git_address; do
+    name=$(basename "$git_address")
+
+    git-download "$git_address" "$TERMINALM_LOCAL/$name"
+  done
+fi
+
+##
+## ZSH
+##
+
+ZSHM_HOME="$TERMINALM_HOME/config/zsh"
+
+. "${ZSHM_HOME}/config"
+. "${ZSHM_HOME}/aliases"
+. "${ZSHM_HOME}/plugins"
+. "${ZSHM_HOME}/vars"
+
+config_dirs="alacritty
+bat
+neofetch
+starship"
+
+echo "$config_dirs" | while IFS="" read -r dir; do
+  fake_path="$HOME/.config/$dir"
+  real_path="$TERMINALM_HOME/config/$dir"
+
+  if is_symlink_broken "$fake_path"; then
+    fancy-log warn \
+      -v path "$fake_path" \
+      "Removing broken config symlink ..."
+
+    rm "$fake_path"
+  fi
+
+  if [ ! -d "$fake_path" ]; then
+    fancy-log info \
+      -v real "$real_path" \
+      -v fake "$fake_path" \
+      "Creating config symlink ..."
+
+    ln -s "$real_path" "$fake_path"
+  fi
+done
+
+## Starship
+
+# Default config is ~/.config/starship.toml
+export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
+eval "$(starship init zsh)"
+
+## BAT
+
+export BAT_THEME="gruvbox-dark"
+
