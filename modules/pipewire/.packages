@@ -1,0 +1,4 @@
+pipewire, pacman, ""
+pipewire-pulse, pacman, ""
+pipewire-audio, pacman, ""
+wireplumber, pacman, ""

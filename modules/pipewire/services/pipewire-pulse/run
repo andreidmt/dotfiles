@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# The directory will be created for you, if logging is enabled.
+LOG_DIR="$HOME/var/log/pipewire-pulse"
+
+# Set the pipewire log level.
+# See: https://docs.pipewire.org/page_daemon.html#sec_logging
+export PIPEWIRE_DEBUG="1"
+
+exec pipewire-pulse 2>&1

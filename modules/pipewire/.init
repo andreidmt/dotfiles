@@ -1,0 +1,44 @@
+#!/usr/bin/env sh
+
+# ╭──────────────────────
+# │ Entry point for the Pipewire shell module.
+# ╰────────
+
+PIPEWIRE_HOME="$(dirname "$0")"
+PIPEWIRE_MODULE_NAME="pipewire"
+
+export LOG_NAMESPACE="󰟥 $PIPEWIRE_MODULE_NAME"
+export LOG_LEVEL=info
+
+# ╭───┤ Start module specific services 
+# ╰─
+
+# chpst(8) is used to start a new runsvdir(8) process as the specified user.
+# chpst(8) does not read groups on its own, but expects the user to list all
+# required groups separated by a :. 
+#
+# The `id` and `tr` pipe is used to create a list of all the user's groups in a
+# way chpst(8) understands it. 
+#
+# Note that we export $USER and $HOME because some user services may not work
+# without them.
+
+# export USER="$(whoami)"
+# export HOME="$(eval echo ~"$USER")"
+
+svdir="$HOME/.runit/${PIPEWIRE_MODULE_NAME}-service"
+
+mkdir -p "$svdir"
+
+if is_process_running "runsvdir" "$svdir"; then
+  fancy-log info -v dir "$svdir" "Services already running" 
+else
+  fancy-log info -v dir "$svdir" "Starting services" 
+
+  nohup runsvdir "$svdir" > /dev/null 2>&1 &
+  
+  ln -s -f "$PIPEWIRE_HOME/services/pipewire" "$svdir" 
+  ln -s -f "$PIPEWIRE_HOME/services/wireplumber" "$svdir" 
+  ln -s -f "$PIPEWIRE_HOME/services/pipewire-pulse" "$svdir" 
+fi
+
