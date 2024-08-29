@@ -4,21 +4,18 @@
 # │ Entry point for the Screen shell module. 
 # ╰────────
 
-export SCREEN_HOME="$(dirname "$0")"
-export SCREEN_ICON=""
+SCREEN_HOME="$(dirname "$0")"
 export SCREEN_LOCAL="$SCREEN_HOME/.local"
 export SCREEN_TMP="$SCREEN_HOME/.tmp"
+
+export LOG_NAMESPACE=" screen"
+export LOG_LEVEL=info
 
 mkdir -p "$SCREEN_LOCAL" "$SCREEN_TMP"
 
 # ╭───┤ Expose scripts and libs
 # ╰─
-export SCREEN_SCRIPTS="$SCREEN_HOME/scripts"
 
-add_to_path "$SCREEN_SCRIPTS"
-
-if [ "$HMVC_DEBUG" = true ]; then
-  script_count="$(find "$SCREEN_SCRIPTS" -type f | wc -l)"
-
-  echo "$SCREEN_ICON $(stylize underline "$script_count scripts") added to \$PATH"
-fi
+scripts_home="$SCREEN_HOME/scripts"
+export PATH="$scripts_home:$PATH"
+fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
