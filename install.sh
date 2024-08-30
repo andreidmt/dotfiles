@@ -152,6 +152,7 @@ echo_title "2. Install core packages"
 ################################################
 
 core_packages=(
+  pacman-contrib    # Contributed scripts and tools for pacman systems
   neofetch          # System information tool
   cmake             # Cross-platform open-source make system
   mesa              # Open source graphics drivers
@@ -183,11 +184,9 @@ core_packages=(
 
 install_pacman_package "${core_packages[@]}"
 
-ln -v -f -s "$DOTFILES_HOME/new/.config/bat" "$HOME/.config/bat"
-ln -v -f -s "$DOTFILES_HOME/new/.config/neofetch" "$HOME/.config/neofetch"
-ln -v -f -s "$DOTFILES_HOME/new/home/.gitconfig" "$HOME/.gitconfig"
-ln -v -f -s "$DOTFILES_HOME/new/home/doomguy.png" "$HOME/doomguy.png"
-ln -v -f -s "$DOTFILES_HOME/new/home/doomguy-blood.png" "$HOME/doomguy-blood.png"
+ln -v -f -s "$DOTFILES_HOME/home/.gitconfig" "$HOME/.gitconfig"
+ln -v -f -s "$DOTFILES_HOME/home/doomguy.png" "$HOME/doomguy.png"
+ln -v -f -s "$DOTFILES_HOME/home/doomguy-blood.png" "$HOME/doomguy-blood.png"
 
 echo_success "Core packages installed"
 
@@ -252,9 +251,6 @@ mkdir -v -p "$HOME/Work/andreidmt"
 mkdir -v -p "$HOME/Pictures/Screenshots"
 ln -v -f -s "$DOTFILES_HOME/wallpapers" "$HOME/Pictures/Wallpapers"
 
-# Folder bookmarks in file managers
-ln -v -f -s "$DOTFILES_HOME/new/.config/gtk-3.0" "$HOME/.config/gtk-3.0"
-
 echo_success "Core directories created"
 wait_for_key_press
 
@@ -274,9 +270,6 @@ alacritty_packages=(
 )
 
 install_pacman_package "${alacritty_packages[@]}"
-
-ln -v -f -s "$DOTFILES_HOME/new/.config/alacritty" "$HOME/.config/alacritty"
-ln -v -f -s "$DOTFILES_HOME/new/.config/fontconfig" "$HOME/.config/fontconfig"
 
 echo_success "Alacritty terminal and fonts installed"
 wait_for_key_press
@@ -305,8 +298,6 @@ wayland_packages=(
 
 install_pacman_package "${wayland_packages[@]}"
 
-ln -v -f -s "$DOTFILES_HOME/new/.config/sway" "$HOME/.config/sway"
-
 echo_success "Wayland, Sway and friends installed"
 wait_for_key_press
 
@@ -321,8 +312,6 @@ zsh_packages=(
 
 install_pacman_package "${zsh_packages[@]}"
 
-ln -v -f -s "$DOTFILES_HOME/new/modules/zsh/.env" "$HOME/.zshrc"
-
 echo_success "ZSH & Staship installed"
 
 ################################################
@@ -332,10 +321,6 @@ echo_title "5.1 Set ZSH as default shell"
 sudo chsh -s "$(which zsh)" "$USER"
 
 wait_for_key_press "Press any key to continue or Ctrl+C to abort and restart the system into ZSH. You dont need to do this for the install process to finish" 
-
-################################################
-echo_title "5.2 Install ZSH plugins"
-################################################
 
 
 ################################################
@@ -349,26 +334,5 @@ nvim_packages=(
 install_pacman_package "${nvim_packages[@]}"
 
 echo_success "NVim installed"
-wait_for_key_press
-
-################################################
-echo_title "6.1 Clone NvChad config"
-################################################
-
-# Blazing fast Neovim config providing solid defaults and a beautiful UI, 
-# enhancing your neovim experience. 
-
-NVCHAD_HOME="$HOME/.config/nvim_nvchad"
-
-if [ -d "$NVCHAD_HOME" ]; then
-  echo_bold "NvChad already cloned in $NVCHAD_HOME, pulling insted..."
-  cd "$NVCHAD_HOME" && git pull && cd -
-else 
-  git clone https://github.com/NvChad/NvChad "$NVCHAD_HOME" --depth 1
-fi
-
-ln -v -f -s "$NVCHAD_HOME" "$HOME/.config/nvim"
-
-echo_success "NvChad cloned in $NVCHAD_HOME"
 wait_for_key_press
 
