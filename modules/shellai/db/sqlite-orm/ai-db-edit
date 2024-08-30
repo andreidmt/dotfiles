@@ -1,6 +1,10 @@
 #!/usr/bin/env dash
 
-. "$CORE_FUNCTIONS/stdin-or"
+# shellcheck source=../../../@0_fancy-cli/functions/stdin-or
+. "$FCLI_FUNCTIONS/stdin-or"
+#
+# shellcheck source=../../../@0_fancy-cli/functions/fancy-log
+. "$FCLI_FUNCTIONS/fancy-log"
 
 # NAME
 #  ai-db-edit - Create, Update, Duplicate or Delete a record
@@ -32,6 +36,8 @@
 CMD_NAME="ai-db-edit"
 FZF_DELIMITER="::"
 FZF_HEIGHT=15
+
+export LOG_NAMESPACE="ai-db-edit"
 
 # Allow user to choose a table. 
 # Remove sqlite internal tables and tables with a leading underscore, which
@@ -216,7 +222,7 @@ update_as_markdown() {
   value_next=$(edit_in_editor "$value_prev" "markdown")
 
   if [ -z "$value_next" ]; then
-    print-info "No changes made, exiting" "$CMD_NAME" >&2
+    fancy-log info "No changes made, exiting"
     return 0
   fi
 
@@ -226,9 +232,11 @@ update_as_markdown() {
       '{ ($field_name): $field_next }' \
       | ai-db-update --table "$table" --where "$where"
 
-    print-success --no-border "Record updated with $(underline "$where") in $(underline "$table") table" "$CMD_NAME"
+    fancy-log success -v where "$where" -v table "$table" \
+      "Record updated"
   else
-    print-info "Record not updated" "$CMD_NAME"
+    fancy-log info -v where "$where" -v table "$table" \
+      "Record not updated"
   fi
 }
 
@@ -241,13 +249,13 @@ if [ -n "$table" ]; then
   shift
 
   if ! ai-db-table "$table" exists 2>/dev/null; then
-    print-error "Table $(underline "$table") does not exist" "$CMD_NAME" >&2
+    fancy-log error -v table "$table" "Table does not exist"
     exit 1
   fi
 else
   table=$(choose_table)
   if [ -z "$table" ]; then
-    print-error "No table selected" "$CMD_NAME" >&2
+    fancy-log error "No table selected"
     exit 1
   fi
 fi
@@ -260,7 +268,7 @@ pk=$(ai-db-table "$table" pk)
 instructions=$(choose_records "$table" "$pk")
 
 if [ -z "$instructions" ]; then
-  print-error "No \"$table\" record selected" "$CMD_NAME" >&2
+  fancy-log error -v table "$table" "No record selected from table"
   exit 1
 fi
 
@@ -280,7 +288,7 @@ echo "$ids" | while read -r id; do
       fields_count=$(echo "$fields" | tr -cd ',' | wc -c | xargs expr 1 +)
 
       if [ -z "$fields" ]; then
-        print-error "No fields selected" "$CMD_NAME" >&2
+        fancy-log error -v table "$table" "No fields selected"
         exit 1
       fi
 
@@ -292,15 +300,19 @@ echo "$ids" | while read -r id; do
       value=$(update_fields_as_json "$table" "$where" "$fields")
 
       if [ -z "$value" ]; then
-        print-info "No changes made, exiting" "$CMD_NAME" >&2
+        fancy-log info "No changes made, exiting"
         exit 0
       fi
 
       if confirm "Update \`$table\` where \`$where\`?" "$CMD_NAME" </dev/tty; then
         ai-db-update --table "$table" --where "$where" "$value"
-        print-success --no-border "Record updated with $(underline "$where") in $(underline "$table") table" "$CMD_NAME"
+
+        fancy-log success \
+          -v table "$table" \
+          -v where "$where" \
+          "Record updated"
       else
-        print-info --no-border "Record not updated" "$CMD_NAME"
+        fancy-log info "Record not updated"
       fi
     ;;
 
@@ -311,7 +323,10 @@ echo "$ids" | while read -r id; do
         | edit_in_editor \
         | ai-db-create --table "$table" >/dev/null
 
-      print-success --no-border "Record duplicated with $(underline "$where") in $(underline "$table") table" "$CMD_NAME"
+      fancy-log success \
+          -v table "$table" \
+          -v where "$where" \
+        "Record duplicated" 
     ;;
 
     # Delete

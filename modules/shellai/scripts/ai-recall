@@ -19,7 +19,7 @@
 # ╭───┤ Global variables
 # ╰─
 
-CMD_NAME="ai-recall"
+export LOG_NAMESPACE="ai-recall"
 
 # ╭───┤ Functions
 # ╰─
@@ -51,7 +51,7 @@ choose_conversation() {
 cid=$(choose_conversation)
 
 if [ -z "$cid" ]; then
-  print-error "No conversation selected" "$CMD_NAME" >&2
+  fancy-log error "No conversation selected"
   exit 1
 fi
 

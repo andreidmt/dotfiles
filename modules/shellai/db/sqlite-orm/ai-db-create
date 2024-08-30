@@ -1,6 +1,7 @@
 #!/usr/bin/env dash
 
-. "$CORE_FUNCTIONS/stdin-or"
+# shellcheck source=../../../@0_fancy-cli/functions/stdin-or
+. "$FCLI_FUNCTIONS/stdin-or"
 
 # NAME
 #  ai-db-create - Create a new record in a given table

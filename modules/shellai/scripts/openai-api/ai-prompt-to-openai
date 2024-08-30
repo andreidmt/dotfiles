@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-. "$CORE_FUNCTIONS/stdin-or"
+# shellcheck source=../../../@0_fancy-cli/functions/stdin-or
+. "$FCLI_FUNCTIONS/stdin-or"
 
 # NAME
 #  ai-prompt-to-openai - Turn an array of shallai messages into an OpenAI prompt 

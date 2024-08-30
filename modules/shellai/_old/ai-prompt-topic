@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-. "$CORE_FUNCTIONS/stdin-or"
+. "$FCLI_FUNCTIONS/stdin-or"
 
 build_query() {
   # Important features of the prompt:

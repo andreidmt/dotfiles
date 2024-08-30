@@ -54,10 +54,7 @@
 #  ai-db-find-one(1), ai-db-find-many(1), ai-db-create(1), ai-db-update(1),
 #  jq(1), bat(1), sqlite3(2)
 
-# ╭───┤ Global variables
-# ╰─
-
-CMD_NAME="ai"
+export LOG_NAMESPACE="ai"
 
 # ╭───┤ Functions
 # ╰─
@@ -70,22 +67,9 @@ $input
 EOF"
 }
 
-print_error() {
-  print-error "$@" "$CMD_NAME" >&2
-}
-
-print_warning() {
-  print-warning "$@" "$CMD_NAME" >&2
-}
-
-print_info() {
-  print-info "$@" "$CMD_NAME"
-}
-
 # Choose an agent (user with is_ai=1) to use for the conversation.
 #
-# RETURNS
-#  The agent id
+# RETURNS: The agent id
 choose_agent() {
   delimiter="::"
 
@@ -112,7 +96,7 @@ create_new_conversation() {
   agent_id="$1"
 
   if [ -z "$agent_id" ]; then
-    print_error "Agent ID is required to create a new conversation"
+    fancy-log error "Agent ID is required to create a new conversation"
     return 1
   fi
 
@@ -131,12 +115,12 @@ print_active_conversation() {
         --filter "value" --where "key = 'active-conversation-id'")
 
   if [ -z "$cid" ]; then
-    print_error "No active conversation set"
+    fancy-log error "No active conversation set"
     exit 1
   fi
 
   if ! ai-db-exists Conversations -w "id=$cid"; then
-    print_error "Active conversation with id $cid does not exist"
+    fancy-log error "Active conversation with id $cid does not exist"
     exit 2
   fi
 
@@ -168,7 +152,7 @@ case "$1" in
     query_arg=$2 
 
     if [ -z "$query_arg" ] && [ -z "$query_stdin" ]; then
-      print_error "Please provide a query"
+      fancy-log error "Please provide a query"
       exit 1
     fi
   ;;
@@ -202,7 +186,7 @@ active_cid=$(ai-db-find-one --mode csv --table Settings \
     --filter "value" --where "key = 'active-conversation-id'")
 
 if [ -z "$active_cid" ] && [ "$should_create" = false ]; then
-  print_warning --no-border "Cannot resume conversation because no active conversation is set, continuing by creating new conversation"
+  fancy-log warn --no-border "Cannot resume conversation because no active conversation is set, continuing by creating new conversation"
   should_create=true
 fi
 
@@ -217,7 +201,7 @@ else
   CID="$active_cid"
 
   if ! ai-db-exists Conversations -w "id=$CID"; then
-    print_warning --no-border "Active conversation with id $CID does not exist, creting new one"
+    fancy-log warn --no-border "Active conversation with id $CID does not exist, creting new one"
 
     agent_id=$(choose_agent)
     CID=$(create_new_conversation "$agent_id")
@@ -228,7 +212,7 @@ else
 fi
 
 if [ -z "$CID" ]; then
-  print_error "Failed to retrieve active conversation or create new one"
+  fancy-log error "Failed to retrieve active conversation or create new one"
   exit 1
 fi
 

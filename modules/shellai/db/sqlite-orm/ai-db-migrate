@@ -1,5 +1,8 @@
 #!/usr/bin/env dash
 
+# shellcheck source=../../../@0_fancy-cli/functions/fancy-log
+. "$FCLI_FUNCTIONS/fancy-log"
+
 # NAME 
 #  ai-db-migrate - Run database migrations on the AI SQLite database
 #
@@ -43,10 +46,6 @@ STATUS_PENDING="pending"
 
 # ╭───┤ Functions
 # ╰─
-
-print_info() { log -t info "$@" "$CMD_NAME"; }
-print_success() { log -t success "$@" "$CMD_NAME"; }
-print_error() { log -t error "$@" "$CMD_NAME"; }
 
 # Get the status of a migration from the database. 
 # Returns "applied", "pending" or an empty string.
@@ -133,39 +132,39 @@ case "$1" in
     name=$(next)
 
     if [ -z "$name" ]; then
-      print_info "No pending migrations"
+      fancy-log info "No pending migrations"
       exit 0
     fi
 
     status=$(status "$name")
     if [ "$status" = "$STATUS_PENDING" ]; then
-      print_info "Migration already pending: $name"
+      fancy-log info -v name "$name" "Migration already pending"
       exit 0
     fi
 
-    print_info --no-border "Running migration: $name"
+    fancy-log info -v name "$name" "Running migration ..."
     run "$name"
-    print_success --no-border "Done"
+    fancy-log success "Done"
   ;;
   down)
     name=$(previous)
     if [ -z "$name" ]; then
-      print_info "No migrations to rollback"
+      fancy-log info "No migrations to rollback"
       exit 0
     fi
 
     status=$(status "$name")
     if [ "$status" = "$STATUS_PENDING" ]; then
-      print_error "Migration already pending: $name"
+      fancy-log error -v name "$name" "Migration already pending"
       exit 1
     fi
 
-    print_info --no-border "Rolling back migration: $name"
+    fancy-log info -v name "$name" "Rolling back migration ..."
     rollback "$name"
-    print_success --no-border "Done"
+    fancy-log success "Done"
   ;;
   status)
     ai-db-find-many --mode box --table _migrations
   ;;
-  *) print_error "Unknown command: $1"; exit 1 ;;
+  *) fancy-log -v cmd "$1" "Unknown command"; exit 1 ;;
 esac

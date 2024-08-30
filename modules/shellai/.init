@@ -5,8 +5,10 @@
 # ╰────────
 
 export SHELLAI_HOME="$(dirname "$0")"
-export SHELLAI_ICON="󱚥"
 export SHELLAI_DEFAULT_AGENT_ID="2"
+
+export LOG_NAMESPACE="󱚥 shellai"
+export LOG_LEVEL=info
 
 # ╭───┤ Prepare module directories
 # ╰─
@@ -20,19 +22,12 @@ mkdir -p "$SHELLAI_CACHE" "$SHELLAI_LOCAL" "$SHELLAI_BACKUP"
 # ╰─
 export SHELLAI_LIBS="$SHELLAI_HOME/libs"
 export SHELLAI_SCRIPTS="$SHELLAI_HOME/scripts"
-export SHELLAI_FUNCTIONS="$SHELLAI_HOME/functions"
 
-add_to_path "$SHELLAI_SCRIPTS" "$SHELLAI_HOME/db/sqlite-orm"
+export PATH="$SHELLAI_SCRIPTS:$PATH"
+export PATH="$SHELLAI_SCRIPTS/openai-api:$PATH"
+export PATH="$SHELLAI_HOME/db/sqlite-orm:$PATH"
 
-if [ "$HMVC_DEBUG" = true ]; then
-  script_count="$(find "$SHELLAI_SCRIPTS" -type f | wc -l)"
-  functions_count="$(find "$SHELLAI_FUNCTIONS" -type f | wc -l)"
-  orm_count="$(find "$SHELLAI_HOME/db/sqlite-orm" -type f | wc -l)"
-  total_scripts=$((script_count + orm_count))
-
-  echo "$SHELLAI_ICON $(stylize underline "$total_scripts scripts") added to \$PATH"
-  echo "$SHELLAI_ICON $(stylize underline "$functions_count functions") added to \$PATH"
-fi
+fancy-log info -v path "$SHELLAI_SCRIPTS" "Scripts exposed in \$PATH"
 
 # ╭───┤ Source private env vars, secrets, API keys, etc. Not tracked by git.
 # ╰─
@@ -60,9 +55,9 @@ if [ ! -f "$SHELLAI_DB_FILE" ]; then
     "$SHELLAI_DB_HOME/seeds/users.sql" \
     | sqlite3 "$SHELLAI_DB_FILE"
 
-  echo "$SHELLAI_ICON SQLite database created at \$SHELLAI_DB_FILE"
+  fancy-log success -v path "$SHELLAI_DB_FILE" "SQLite database created"
 else
-  echo "$SHELLAI_ICON SQLite database exists at \$SHELLAI_DB_FILE"
+  fancy-log info -v path "$SHELLAI_DB_FILE" "SQLite database exists"
 fi
 
 # ╭───┤ Run database migrations
