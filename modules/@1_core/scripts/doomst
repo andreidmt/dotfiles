@@ -1,10 +1,13 @@
 #!/usr/bin/env dash
 
-# shellcheck source=../functions/stdin-or
-. "$CORE_FUNCTIONS/stdin-or"
+# shellcheck source=../../@0_fancy-cli/functions/stdin-or
+. "$FCLI_FUNCTIONS/stdin-or"
 
-# shellcheck source=../functions/predicates
-. "$CORE_FUNCTIONS/predicates"
+# shellcheck source=../../@0_fancy-cli/functions/predicates
+. "$FCLI_FUNCTIONS/predicates"
+
+export LOG_NAMESPACE="doomst"
+export LOG_LEVEL="info"
 
 # NAME
 #   doomst - Doomguy themed dunst notification script
@@ -30,7 +33,7 @@ while [ "$#" -gt 0 ]; do
       if [ "$2" ]; then
         type="$2"; shift
       else
-        echo '"--type" requires a non-empty option argument.' >&2
+        fancy-log error -v option "$2" "Option require a value"
         exit 1
       fi
     ;;
@@ -38,7 +41,7 @@ while [ "$#" -gt 0 ]; do
       if [ "$2" ]; then
         title="$2"; shift
       else
-        echo '"--title" requires a non-empty option argument.' >&2
+        fancy-log error -v option "$2" "Option require a value"
         exit 1
       fi
     ;;
@@ -46,17 +49,11 @@ while [ "$#" -gt 0 ]; do
       if [ "$2" ]; then
         message="$2"; shift
       else
-        echo '"--message" requires a non-empty option argument.' >&2
+        fancy-log error -v option "$2" "Option require a value"
         exit 1
       fi
     ;;
-    -?*)
-      echo "Error: Unknown option (ignored): $1" >&2
-      exit 1
-    ;;
-    *) 
-      break
-    ;;
+    *) break ;;
   esac
   shift
 done
@@ -79,10 +76,9 @@ case ${type:-info} in
 esac
 
 if is_process_running dunst; then
-  dunstify --icon "$icon" \
-    --urgency $urgency \
+  notify-send "$@" --icon "$icon" --urgency $urgency \
     "$title" "$message"
 else
-  echo "Dunst is not running, skipping notification" >&2
+  fancy-log error "Dunst is not running, skipping notification"
   exit 1
 fi

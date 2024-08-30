@@ -51,24 +51,21 @@ neofetch
 starship"
 
 echo "$config_dirs" | while IFS="" read -r dir; do
-  fake_path="$HOME/.config/$dir"
-  real_path="$TERMINALM_HOME/config/$dir"
+  fake="$HOME/.config/$dir"
+  real="$TERMINALM_HOME/config/$dir"
 
-  if is_symlink_broken "$fake_path"; then
-    fancy-log warn \
-      -v path "$fake_path" \
+  if is_symlink_broken "$fake"; then
+    fancy-log warn -v path "$fake" \
       "Removing broken config symlink ..."
 
-    rm "$fake_path"
+    rm "$fake"
   fi
 
-  if [ ! -d "$fake_path" ]; then
-    fancy-log info \
-      -v real "$real_path" \
-      -v fake "$fake_path" \
+  if [ ! -d "$fake" ]; then
+    fancy-log info -v real "$real" -v fake "$fake" \
       "Creating config symlink ..."
 
-    ln -s "$real_path" "$fake_path"
+    ln -s "$real" "$fake"
   fi
 done
 

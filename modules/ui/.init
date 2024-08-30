@@ -7,19 +7,25 @@ export LOG_LEVEL=info
 UI_COMMON_HOME="$UI_HOME/common"
 UI_COMMON_CONFIG_DIRS="fontconfig
 dunst
-gtk-3.0"
+gtk-3.0
+terminal-colors.d"
 
 echo "$UI_COMMON_CONFIG_DIRS" | while IFS="" read -r dir; do
-  config_path="$HOME/.config/$dir"
+  fake="$HOME/.config/$dir"
+  real="$UI_COMMON_HOME/$dir"
 
-  if is_symlink_broken "$config_path"; then
-    fancy-log warn -v path "$config_path" "Removing broken config symlink ..."
-    rm "$config_path"
+  if is_symlink_broken "$fake"; then
+    fancy-log warn -v path "$fake" \
+      "Removing broken config symlink ..."
+
+    rm "$fake"
   fi
 
-  if [ ! -d "$config_path" ]; then
-    fancy-log info -v to "$config_path" "Creating config symlink ..."
-    ln -s "$UI_COMMON_HOME/$dir" "$config_path"
+  if [ ! -d "$fake" ]; then
+    fancy-log info -v real "$real" -v fake "$fake" \
+      "Creating config symlink ..."
+
+    ln -s "$real" "$fake"
   fi
 done
 

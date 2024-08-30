@@ -15,19 +15,19 @@ export PATH="$scripts_home:$PATH"
 # ╭───┤ Patch git config 
 # ╰─
 
-fake_path="$HOME/.gitconfig"
-real_path="$GITUTILS_HOME/config/.gitconfig"
+fake="$HOME/.gitconfig"
+real="$GITUTILS_HOME/config/.gitconfig"
 
-if is_symlink_broken "$fake_path"; then
-  fancy-log warn -v path "$fake_path" \
+if is_symlink_broken "$fake"; then
+  fancy-log warn -v path "$fake" \
     "Removing broken config symlink ..."
 
-  rm "$fake_path"
+  rm "$fake"
 fi
 
-if [ ! -e "$fake_path" ]; then
-  fancy-log info -v real "$real_path" -v fake "$fake_path" \
+if [ ! -e "$fake" ]; then
+  fancy-log info -v real "$real" -v fake "$fake" \
     "Creating config symlink ..."
 
-  ln -s "$real_path" "$fake_path"
+  ln -s "$real" "$fake"
 fi

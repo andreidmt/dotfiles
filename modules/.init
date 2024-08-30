@@ -26,14 +26,17 @@
 #  Example structure:
 #   @core/
 #   aws/
-#   i3/
 #    config/
-#    i3blocks/
-#     toolbars/
-#     layouts/
 #    scripts/
-#    widgets/
+#    .env
 #    .init
+#   ui/
+#    i3/
+#     config/
+#     scripts/
+#    sway/
+#     ..
+#   .init
 #
 #  Here, the i3 module contains everything related to i3. The config file,
 #  layouts, toolbars, i3blocks widgets, etc. 
@@ -51,7 +54,7 @@
 #
 # REQUIREMENTS
 #   <.init>    Entry point file to the module's functionality. Automatically 
-#              sourced by this file.
+#              detected and sourced by this file.
 #
 # RECOMMENDED FOLDER STRUCTURE
 #   .env       File for private env data, such as API keys, passwords, etc.
@@ -73,7 +76,7 @@
 #  The rest of the modules are loaded after, also in alphabetical order.
 #  This a very light weight way of defining module dependencies.
 #
-#  A common folder structure would be:
+#  A folder structure might be:
 #   modules/
 #     @core/
 #     aws/
@@ -84,13 +87,12 @@
 #  alphabetical order.
 #
 #  While this will not give the granularity of a full blown dependency manager,
-#  and allow you to specify if "nvm" depende on "ssh", it should strike a good
-#  80/20 balance between simplicity and functionality.
+#  and not allow you to specify if "nvm" depends on "ssh", it should strike a
+#  good 80/20 balance between simplicity and functionality.
 #
 # IGNORED
 #  Modules whose name starts with "_" are ignored and not loaded. This is
-#  useful when you want to temporarily disable a module without having to
-#  delete it.
+#  useful when you want to temporarily disable a module.
 
 HMVC_HOME="$(dirname "$0")"
 HMVC_LOG="$HMVC_HOME/.logs"
@@ -154,7 +156,7 @@ HMVC_UPGRADE_LOCK="$HMVC_TMP/.upgrade.lock"
 #  The path to the lock file if the lock was aquired, empty string otherwise.
 aquire_upgrade_lock() {
   if [ -f "$HMVC_UPGRADE_LOCK" ]; then
-    fancy-log info "Upgrade lock aquired by another process, skipping."
+    fancy-log info "Upgrade lock aquired by another process, skipping"
     return 1
   fi
 
@@ -191,7 +193,7 @@ has_upgrade_lock=$(aquire_upgrade_lock)
 if has-days-passed --name "hmvc-upgrade" --count 1 && [ -n "$has_upgrade_lock" ]; then
   export HMVC_SHOULD_UPGRADE="true"
 
-  fancy-log info "Upgrade lock aquired, modules will upgrade their dependencies."
+  fancy-log info "Upgrade lock aquired, modules will upgrade their dependencies"
 
   # System wide package upgrades
   sys_upgrade packages

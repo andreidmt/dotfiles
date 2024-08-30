@@ -14,16 +14,19 @@ fi
 export NVIM_LAZY_HOME="$NVIM_LOCAL/lazy.nvim"
 
 # Check if ~/.config/nvim is setup correctly
-real_config_path="$NVIM_HOME/config"
-fake_user_path="$HOME/.config/nvim"
-if is_symlink_broken "$fake_user_path"; then
-  fancy-log warn -v path "$fake_user_path" "Removing broken config symlink ..."
-  rm "$fake_user_path"
+real="$NVIM_HOME/config"
+fake="$HOME/.config/nvim"
+
+if is_symlink_broken "$fake"; then
+  fancy-log warn -v path "$fake" \
+    "Removing broken config symlink ..."
+
+  rm "$fake"
 fi
 
-if [ ! -d "$fake_user_path" ]; then
-  fancy-log info \
-    -v real "$real_config_path" -v fake "$fake_user_path" \
+if [ ! -d "$fake" ]; then
+  fancy-log info -v real "$real" -v fake "$fake" \
     "Creating config symlink ..."
-  ln -s "$real_config_path" "$fake_user_path"
+
+  ln -s "$real" "$fake"
 fi

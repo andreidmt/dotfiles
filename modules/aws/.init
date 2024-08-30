@@ -33,7 +33,7 @@ export AWSM_TMP="$AWSM_HOME/.tmp"
 export AWSM_LOCAL="$AWSM_HOME/.local"
 
 upgrade_dependencies() {
-  fancy-log info "Updating AWS CLI..."
+  fancy-log info "Updating AWS CLI ..."
 
   zip_file="$AWSM_TMP/awscliv2.zip"
   mkdir -p "$AWSM_TMP" "$AWSM_LOCAL/aws-cli" "$AWSM_BIN"
@@ -46,6 +46,8 @@ upgrade_dependencies() {
     --install-dir "$AWSM_LOCAL/aws-cli"
 
   rm -rf "$AWSM_TMP"
+
+  fancy-log info -v version "$(aws --version)" "AWS CLI updated"
 }
 
 if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
