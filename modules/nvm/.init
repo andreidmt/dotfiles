@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 
 export NVMM_HOME=$(dirname "$0")
-export NVMM_LOCAL="$NVMM_HOME/.local"
 export NVMM_FUNCTIONS="$NVMM_HOME/functions"
 export NVMM_CONFIG="$NVMM_HOME/config"
 export NVMM_SCRIPTS="$NVMM_HOME/scripts"
@@ -9,21 +8,23 @@ export NVMM_SCRIPTS="$NVMM_HOME/scripts"
 LOG_NAMESPACE=" nvm"
 LOG_LEVEL=info
 
-mkdir -p "$NVMM_LOCAL"
-
 ## Upgrade dependencies. Coordinated by the HMVC system via global 
 ## $HMVC_SHOULD_UPGRADE variable.
 
-if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
+export NVMM_LOCAL="$NVMM_HOME/.local"
+mkdir -p "$NVMM_LOCAL"
+
+if [ -n "$HMVC_SHOULD_UPGRADE" ] || [ ! -d "$NVMM_LOCAL/nvm" ]; then
   git-download nvm-sh/nvm "$NVMM_LOCAL/nvm"
   git-download lukechilds/zsh-better-npm-completion "$NVMM_LOCAL/zsh-better-npm-completion"
 fi
 
 ## Main
+
+# Load nvm/npm plugins
 export NVM_COMPLETION=true
 export NVM_DIR="$NVMM_LOCAL/nvm"
 
-# Load nvm/npm plugins
 source "$NVMM_LOCAL/nvm/nvm.sh"
 source "$NVMM_LOCAL/zsh-better-npm-completion/zsh-better-npm-completion.plugin.zsh"
 
@@ -40,6 +41,13 @@ done
 add-zsh-hook chpwd switch_node
 
 # export NVMM_DEFAULT_VERSION=$(nvm version default)
-export NVMM_DEFAULT_VERSION="v20.10.0" # save ~200ms on terminal start time
+export NVMM_DEFAULT_VERSION="v20.17.0" # save ~200ms on terminal start time
+
+if ! which node; then
+  fancy-log warn "No default version set, installing ..."
+
+  nvm install "$NVMM_DEFAULT_VERSION"
+  nvm alias default "$NVMM_DEFAULT_VERSION"
+fi
 
 fancy-log info -v version "$(node --version)" "Current Node.js"

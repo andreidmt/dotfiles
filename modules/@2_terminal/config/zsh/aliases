@@ -1,5 +1,5 @@
 # configs
-alias cs="cd ~/Work/andreidmt.dotfiles && nvim modules/.init"
+alias cs="cd ~/Work/andreidmt/dotfiles && nvim modules/.init"
 alias cv="cd ~/.config && nvim ~/.config/nvim/init.vim"
 
 #

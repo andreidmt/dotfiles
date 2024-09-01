@@ -9,7 +9,10 @@ LOG_LEVEL=info
 ## Load local/secret environment variables
 ##
 
-. "${TERMINALM_HOME}/.env"
+dotenv_path="$TERMINALM_HOME/.env"
+if [ -f "$dotenv_path" ]; then
+  . "$dotenv_path"
+fi
 
 ##
 ## Upgrade dependencies. Coordinated by the HMVC system via global 
@@ -19,19 +22,21 @@ LOG_LEVEL=info
 export TERMINALM_LOCAL="${TERMINALM_HOME}/.local"
 mkdir -p "$TERMINALM_LOCAL"
 
-if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
+zsh_plugins="Aloxaf/fzf-tab
+zsh-users/zsh-syntax-highlighting
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-history-substring-search"
+
+if [ -n "$HMVC_SHOULD_UPGRADE" ] || [ ! -e "$TERMINALM_LOCAL/fzf-tab" ]; then
   fancy-log info "Upgrading ZSH plugins..."
 
-  plugins="Aloxaf/fzf-tab
-  zsh-users/zsh-syntax-highlighting
-  zsh-users/zsh-autosuggestions
-  zsh-users/zsh-history-substring-search"
-
-  echo "$plugins" | while IFS= read -r git_address; do
+  while IFS= read -r git_address; do
     name=$(basename "$git_address")
 
     git-download "$git_address" "$TERMINALM_LOCAL/$name"
-  done
+  done <<EOF
+$zsh_plugins
+EOF
 fi
 
 ##

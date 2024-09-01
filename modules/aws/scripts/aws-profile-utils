@@ -34,6 +34,8 @@ EXAMPLES
 EOF
 }
 
+AWS_CONFIG_PATH="$HOME/.aws/config"
+
 parse_arguments() {
   COMMAND="$1"
   shift 
@@ -49,16 +51,8 @@ parse_arguments() {
         ALSO_CREDENTIALS="true"
       ;;
 
-      # Standalone "--" terminates argument processing
       --) shift; break ;;
-
-      # Argument not recognized
-      -?*)
-        echo "Error: Unknown argument $1" >&2
-        exit 1
-      ;;
-
-      # anything else, considered as non-option argument
+      -?*) fancy-log error -v argument "$1" "Unknown argument"; exit 1 ;;
       *) break ;;
     esac
     shift
@@ -102,7 +96,7 @@ getAllProfileProperties() {
 
 get_profile_details() {
   local profile_name="$1"
-  local aws_files=(~/.aws/config)
+  local aws_files=($AWS_CONFIG_PATH)
 
   if [ "$ALSO_CREDENTIALS" = "true" ]; then
     aws_files+=(~/.aws/credentials)
@@ -134,11 +128,16 @@ get_profile_property() {
 ## Main
 ##
 
+if [ ! -e "$AWS_CONFIG_PATH" ]; then
+  fancy-log error -v path "$AWS_CONFIG_PATH" "AWS config file not found"
+  exit 1
+fi
+
 parse_arguments "$@"
 
 case "$COMMAND" in
   ls|list) 
-    grep -E '^\[(profile )?([a-zA-Z0-9_-]+)\]$' ~/.aws/config \
+    grep -E '^\[(profile )?([a-zA-Z0-9_-]+)\]$' "$AWS_CONFIG_PATH" \
       | sed -E 's/^\[(profile )?([a-zA-Z0-9_-]+)\]$/\2/'
   ;;
 
@@ -151,11 +150,11 @@ case "$COMMAND" in
   ;; 
 
   exists) 
-    if grep -E "^\[profile $2\]$" ~/.aws/config > /dev/null; then
+    if grep -E "^\[profile $2\]$" "$AWS_CONFIG_PATH" > /dev/null; then
       exit 0
     fi
 
-    echo "Profile \"$2\" does not exist" >&2
+    fancy-log error -v name "$2" "Profile does not exist"
     exit 1
   ;;
 

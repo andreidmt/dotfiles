@@ -6,7 +6,7 @@ NVIM_LOCAL="$NVIM_HOME/.local"
 LOG_NAMESPACE=" nvim"
 LOG_LEVEL=info
 
-if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
+if [ -n "$HMVC_SHOULD_UPGRADE" ] || [ ! -d "$NVIM_LOCAL/lazy.nvim" ]; then
   mkdir -p "$NVIM_LOCAL"
   git-download "folke/lazy.nvim" "$NVIM_LOCAL/lazy.nvim"
 fi

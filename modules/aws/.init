@@ -6,6 +6,7 @@
 
 AWSM_HOME="$(dirname "$0")"
 export AWSM_BIN="$AWSM_HOME/.bin"
+
 export AWSM_FUNCTIONS="$AWSM_HOME/functions"
 export AWSM_SCRIPTS="$AWSM_HOME/scripts"
 
