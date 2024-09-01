@@ -57,8 +57,8 @@ choose_conversation() {
 # The preview window shows the full message, nicely formatted in markdown.
 choose_message() {
   cid=$1
-  icon_ai=$(red "$SHELLAI_ICON")
-  icon_human=$(orange "")
+  icon_ai=$(color red "$SHELLAI_ICON")
+  icon_human=$(color orange "")
 
   ai-db-find-many --table Messages \
     --filter "id, content, users_id" \
@@ -106,6 +106,7 @@ while true; do
     # Return Conversation selection 
     continue
   else
+
     exit 0
   fi
 done
