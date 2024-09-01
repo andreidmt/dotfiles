@@ -320,8 +320,9 @@ echo_title "5.1 Set ZSH as default shell"
 
 sudo chsh -s "$(which zsh)" "$USER"
 
-wait_for_key_press "Press any key to continue or Ctrl+C to abort and restart the system into ZSH. You dont need to do this for the install process to finish" 
+echo "source \"$DOTFILES_HOME/.init\"" > "$HOME/.zshrc"
 
+wait_for_key_press "Press any key to continue or Ctrl+C to abort and restart the system into ZSH. You dont need to do this for the install process to finish" 
 
 ################################################
 echo_title "6. Install NVim"
