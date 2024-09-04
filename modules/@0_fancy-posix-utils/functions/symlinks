@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+# Predicate checking if the underlying file or directory of a symlink is missing
+is_symlink_broken() {
+  [ -L "$1" ] && [ ! -e "$1" ]
+}
+
+# Create a symlink if it does not exist or is broken
+ensure_symlink() {
+  real=$1; fake=$2
+
+  if is_symlink_broken "$fake"; then 
+    fancy-log warn -v path "$fake" "Removing broken config symlink ..."
+    rm "$fake"
+  fi
+
+  if [ ! -e "$fake" ]; then
+    fancy-log info \
+      -v fake "$fake" -v real "$real" \
+      "Creating config symlink ..."
+
+    ln -s "$real" "$fake"
+  fi
+}

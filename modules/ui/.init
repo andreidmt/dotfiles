@@ -1,62 +1,29 @@
 #!/usr/bin/env dash
 
-export UI_HOME="$(dirname "$0")"
+UI_HOME="$(dirname "$0")"
+UI_CONFIG="$UI_HOME/common"
 
-export LOG_NAMESPACE=" ui"
-export LOG_LEVEL=info
+LOG_NAMESPACE=" ui"
+LOG_LEVEL=info
 
-UI_COMMON_HOME="$UI_HOME/common"
-UI_COMMON_CONFIG_DIRS="fontconfig
+# ╭───┤ Link user configs 
+# ╰─
+
+while IFS="" read -r dir; do
+  fake="$HOME/.config/$dir"
+  real="$UI_CONFIG/$dir"
+  ensure_symlink "$real" "$fake"
+done << EOF
+fontconfig
 dunst
 gtk-3.0
-terminal-colors.d"
+terminal-colors.d
+EOF
 
-echo "$UI_COMMON_CONFIG_DIRS" | while IFS="" read -r dir; do
-  fake="$HOME/.config/$dir"
-  real="$UI_COMMON_HOME/$dir"
+ensure_symlink \
+  "$UI_CONFIG/applications" \
+  "$HOME/.local/share/applications"
 
-  if is_symlink_broken "$fake"; then
-    fancy-log warn -v path "$fake" \
-      "Removing broken config symlink ..."
-
-    rm "$fake"
-  fi
-
-  if [ ! -d "$fake" ]; then
-    fancy-log info -v real "$real" -v fake "$fake" \
-      "Creating config symlink ..."
-
-    ln -s "$real" "$fake"
-  fi
-done
-
-## Symlink default applications 
-
-mimeapps_list="$HOME/.config/mimeapps.list"
-if is_symlink_broken "$mimeapps_list"; then
-  fancy-log warn -v path "$mimeapps_list" "Removing broken config symlink ..."
-  rm "$mimeapps_list"
-fi
-if [ ! -e "$mimeapps_list" ]; then
-  fancy-log info -v to "$mimeapps_list" "Creating config symlink ..."
-  ln -s "$UI_COMMON_HOME/mimeapps.list" "$mimeapps_list"
-fi
-
-## Symlink application configs
-
-applications_dir="$HOME/.local/share/applications"
-if is_symlink_broken "$applications_dir"; then
-  fancy-log warn -v path "$applications_dir" "Removing broken config symlink ..."
-  rm "$applications_dir"
-fi
-if [ ! -d "$applications_dir" ]; then
-  fancy-log info -v to "$applications_dir" "Creating config symlink ..."
-  ln -s "$UI_COMMON_HOME/applications" "$applications_dir" 
-fi
-
-## Start services in background if not already running, decupled from shell
-
-if is_process_running "Xorg" && ! is_process_running "dunst"; then 
-  fancy-log info -v name dunst "Starting background process ..."
-  nohup dunst > /dev/null 2>&1 &
-fi
+ensure_symlink \
+  "$UI_CONFIG/mimeapps.list" \
+  "$HOME/.config/mimeapps.list"

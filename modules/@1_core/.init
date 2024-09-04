@@ -6,8 +6,8 @@
 
 CORE_HOME="$(dirname "$0")"
 
-export LOG_NAMESPACE=" @core"
-export LOG_LEVEL=info
+LOG_NAMESPACE=" @core"
+LOG_LEVEL=info
 
 # ╭───┤ Load Xresources (colors, fonts) and make available in shell
 # ╰─

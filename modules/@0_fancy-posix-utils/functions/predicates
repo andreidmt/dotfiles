@@ -12,15 +12,6 @@ is_process_running() {
   fi
 }
 
-# Predicate checking if the underlying file or directory of a symlink is missing
-is_symlink_broken() {
-  if [ -L "$1" ] && ! [ -e "$1" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 # Predicate checking if a command exists
 does_command_exist() {
   if ! command -v "$1" >/dev/null 2>&1; then

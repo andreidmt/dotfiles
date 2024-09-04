@@ -1,10 +1,11 @@
 #!/usr/bin/env sh
 
-export NVIM_HOME="$(dirname "$0")"
-export LOG_NAMESPACE=" nvim"
-export LOG_LEVEL=info
-
+NVIM_HOME="$(dirname "$0")"
 NVIM_LOCAL="$NVIM_HOME/.local"
+
+LOG_NAMESPACE=" nvim"
+LOG_LEVEL=info
+
 if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
   mkdir -p "$NVIM_LOCAL"
   git-download "folke/lazy.nvim" "$NVIM_LOCAL/lazy.nvim"
@@ -13,20 +14,10 @@ fi
 # Required by the nvim lua config
 export NVIM_LAZY_HOME="$NVIM_LOCAL/lazy.nvim"
 
-# Check if ~/.config/nvim is setup correctly
-real="$NVIM_HOME/config"
-fake="$HOME/.config/nvim"
+# ╭───┤ Link user configs 
+# ╰─
 
-if is_symlink_broken "$fake"; then
-  fancy-log warn -v path "$fake" \
-    "Removing broken config symlink ..."
+ensure_symlink \
+  "$NVIM_HOME/config" \
+  "$HOME/.config/nvim"
 
-  rm "$fake"
-fi
-
-if [ ! -d "$fake" ]; then
-  fancy-log info -v real "$real" -v fake "$fake" \
-    "Creating config symlink ..."
-
-  ln -s "$real" "$fake"
-fi

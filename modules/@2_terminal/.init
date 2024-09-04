@@ -2,8 +2,8 @@
 
 TERMINALM_HOME="$(dirname "$0")"
 
-export LOG_NAMESPACE=" @terminal"
-export LOG_LEVEL=info
+LOG_NAMESPACE=" @terminal"
+LOG_LEVEL=info
 
 ##
 ## Load local/secret environment variables
@@ -45,29 +45,19 @@ ZSHM_HOME="$TERMINALM_HOME/config/zsh"
 . "${ZSHM_HOME}/plugins"
 . "${ZSHM_HOME}/vars"
 
-config_dirs="alacritty
-bat
-neofetch
-starship"
+# ╭───┤ Link user configs 
+# ╰─
 
-echo "$config_dirs" | while IFS="" read -r dir; do
+while IFS="" read -r dir; do
   fake="$HOME/.config/$dir"
   real="$TERMINALM_HOME/config/$dir"
-
-  if is_symlink_broken "$fake"; then
-    fancy-log warn -v path "$fake" \
-      "Removing broken config symlink ..."
-
-    rm "$fake"
-  fi
-
-  if [ ! -d "$fake" ]; then
-    fancy-log info -v real "$real" -v fake "$fake" \
-      "Creating config symlink ..."
-
-    ln -s "$real" "$fake"
-  fi
-done
+  ensure_symlink "$real" "$fake"
+done << EOF
+alacritty
+bat
+neofetch
+starship
+EOF
 
 ## Starship
 

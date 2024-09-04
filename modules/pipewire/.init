@@ -5,9 +5,8 @@
 # ╰────────
 
 PIPEWIRE_HOME="$(dirname "$0")"
-PIPEWIRE_MODULE_NAME="pipewire"
 
-LOG_NAMESPACE="󰟥 $PIPEWIRE_MODULE_NAME"
+LOG_NAMESPACE="󰟥 pipewire"
 LOG_LEVEL=info
 
 # ╭───┤ Start module specific services 
@@ -26,7 +25,7 @@ LOG_LEVEL=info
 # export USER="$(whoami)"
 # export HOME="$(eval echo ~"$USER")"
 
-svdir="$HOME/.runit/${PIPEWIRE_MODULE_NAME}-service"
+svdir="$HOME/.runit/pipewire-service"
 
 mkdir -p "$svdir"
 

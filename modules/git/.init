@@ -2,8 +2,8 @@
 
 GITUTILS_HOME="$(dirname "$0")"
 
-export LOG_NAMESPACE="󰊢 git"
-export LOG_LEVEL=info
+LOG_NAMESPACE="󰊢 git"
+LOG_LEVEL=info
 
 # ╭───┤ Expose scripts 
 # ╰─
@@ -12,22 +12,9 @@ scripts_home="$GITUTILS_HOME/scripts"
 fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
 export PATH="$scripts_home:$PATH"
 
-# ╭───┤ Patch git config 
+# ╭───┤ Link user configs 
 # ╰─
 
-fake="$HOME/.gitconfig"
-real="$GITUTILS_HOME/config/.gitconfig"
-
-if is_symlink_broken "$fake"; then
-  fancy-log warn -v path "$fake" \
-    "Removing broken config symlink ..."
-
-  rm "$fake"
-fi
-
-if [ ! -e "$fake" ]; then
-  fancy-log info -v real "$real" -v fake "$fake" \
-    "Creating config symlink ..."
-
-  ln -s "$real" "$fake"
-fi
+ensure_symlink \
+  "$GITUTILS_HOME/config/.gitconfig" \
+  "$HOME/.gitconfig"

@@ -8,8 +8,8 @@ SCREEN_HOME="$(dirname "$0")"
 export SCREEN_LOCAL="$SCREEN_HOME/.local"
 export SCREEN_TMP="$SCREEN_HOME/.tmp"
 
-export LOG_NAMESPACE=" screen"
-export LOG_LEVEL=info
+LOG_NAMESPACE=" screen"
+LOG_LEVEL=info
 
 mkdir -p "$SCREEN_LOCAL" "$SCREEN_TMP"
 

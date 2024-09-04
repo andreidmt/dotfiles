@@ -6,8 +6,8 @@
 
 FCLI_HOME="$(dirname "$0")"
 
-export LOG_NAMESPACE=" @fancy-posix-utils"
-export LOG_LEVEL=info
+LOG_NAMESPACE=" @fancy-posix-utils"
+LOG_LEVEL=info
 
 # ╭───┤ Expose scripts 
 # ╰─
@@ -26,6 +26,7 @@ export FCLI_FUNCTIONS="$FCLI_HOME/functions"
 . "$FCLI_FUNCTIONS/guards"
 . "$FCLI_FUNCTIONS/predicates"
 . "$FCLI_FUNCTIONS/stdin-or"
+. "$FCLI_FUNCTIONS/symlinks"
 
 fancy-log info -v path "$FCLI_FUNCTIONS" "Functions sourced"
 

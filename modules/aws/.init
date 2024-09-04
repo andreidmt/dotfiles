@@ -4,13 +4,13 @@
 # │ Entry point for the AWS shell module.
 # ╰────────
 
-export AWSM_HOME="$(dirname "$0")"
+AWSM_HOME="$(dirname "$0")"
 export AWSM_BIN="$AWSM_HOME/.bin"
 export AWSM_FUNCTIONS="$AWSM_HOME/functions"
 export AWSM_SCRIPTS="$AWSM_HOME/scripts"
 
-export LOG_NAMESPACE="󰸏 aws"
-export LOG_LEVEL=info
+LOG_NAMESPACE="󰸏 aws"
+LOG_LEVEL=info
 
 # ╭───┤ Source functions
 # ╰─
@@ -54,8 +54,7 @@ if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
   upgrade_dependencies
 fi
 
-profiles_count=$(aws-profile-utils list | wc --lines)
 fancy-log info \
-  -v count "$profiles_count" \
+  -v count "$(aws-profile-utils list | wc --lines)" \
   -v default_profile "$AWS_PROFILE" \
   "Profiles available"

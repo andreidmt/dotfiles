@@ -2,8 +2,8 @@
 
 WRITING_HOME="$(dirname "$0")"
 
-export LOG_NAMESPACE="󱅄 writing"
-export LOG_LEVEL=info
+LOG_NAMESPACE="󱅄 writing"
+LOG_LEVEL=info
 
 WRITING_SCRIPTS="$WRITING_HOME/scripts"
 export PATH="$WRITING_SCRIPTS:$PATH"

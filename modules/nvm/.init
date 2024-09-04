@@ -6,8 +6,8 @@ export NVMM_FUNCTIONS="$NVMM_HOME/functions"
 export NVMM_CONFIG="$NVMM_HOME/config"
 export NVMM_SCRIPTS="$NVMM_HOME/scripts"
 
-export LOG_NAMESPACE=" nvm"
-export LOG_LEVEL=info
+LOG_NAMESPACE=" nvm"
+LOG_LEVEL=info
 
 mkdir -p "$NVMM_LOCAL"
 
