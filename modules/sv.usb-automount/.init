@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+SVUSB_HOME="$(dirname "$0")"
+
+LOG_NAMESPACE="󱇰 sv.usb-automount"
+LOG_LEVEL=info
+
+if [ ! -e /run/runit/service/sv.usb-automount ]; then
+  sudo ln -s "$SVUSB_HOME" /run/runit/service
+  sudo sv restart sv.usb-automount
+fi

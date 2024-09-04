@@ -1,7 +1,6 @@
 #!/usr/bin/sh
 
 . "$(dirname "$0")/lib"
-. "$(dirname "$0")/../../libs/guard-is-root.sh"
 
 # Automatically mount and unmount USB devices to the specified user's home 
 # directory, ~/Media/USB
@@ -9,8 +8,6 @@
 # The script must be run as root.
 #
 # Usage: usb_automount -u <user>
-
-guard_is_root
 
 while getopts ":hu:" opt; do 
   case $opt in

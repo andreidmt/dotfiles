@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-
-export SVUSB_HOME="$(dirname "$0")"
-
