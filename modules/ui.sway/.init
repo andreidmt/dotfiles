@@ -1,11 +1,9 @@
 #!/usr/bin/env sh
 
-if ! does_command_exist sway; then 
-  fancy-log warn -v cmd sway "Command does not exit, skipping module" 
-  return 0
-fi
+UISWAY_HOME="$(dirname "$0")"
 
-export UISWAY_HOME="$(dirname "$0")"
+LOG_NAMESPACE=" ui-sway"
+LOG_LEVEL=info
 
 # ╭───┤ Expose scripts 
 # ╰─

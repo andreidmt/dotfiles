@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+LOG_NAMESPACE=" ui-i3"
+LOG_LEVEL=info
+
+# shellcheck source=../@0_fancy-posix-utils/functions/predicates
+. "$FCLI_FUNCTIONS/predicates"
+
+if does_command_exist i3; then 
+  exit 0
+fi
+
+fancy-log warn -v cmd i3 \
+  "Command does not exit, skipping module" 
+exit 1

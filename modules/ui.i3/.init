@@ -1,13 +1,11 @@
 #!/usr/bin/env sh
 
-if ! does_command_exist i3; then 
-  fancy-log warn -v cmd i3 "Command does not exit, skipping module" 
-  return 0
-fi
-
 export UII3_HOME="$(dirname "$0")"
-export UII3_TMP="$UII3_HOME/.tmp"
 
+LOG_NAMESPACE=" ui-i3"
+LOG_LEVEL=info
+
+export UII3_TMP="$UII3_HOME/.tmp"
 mkdir -p "$UII3_TMP"
 
 # ╭───┤ Expose scripts and libs

@@ -1,6 +1,7 @@
 #!/usr/bin/env dash
 
 export UI_HOME="$(dirname "$0")"
+
 export LOG_NAMESPACE=" ui"
 export LOG_LEVEL=info
 
@@ -58,14 +59,4 @@ fi
 if is_process_running "Xorg" && ! is_process_running "dunst"; then 
   fancy-log info -v name dunst "Starting background process ..."
   nohup dunst > /dev/null 2>&1 &
-fi
-
-if does_command_exist i3; then 
-  fancy-log info "i3 Window Manager detected, loading ..."
-  . "$UI_HOME/i3/.init"
-elif does_command_exist sway; then 
-  fancy-log info "sway Window Manager detected, loading ..."
-  . "$UI_HOME/sway/.init"
-else
-  fancy-log warn "No Window manager detected"
 fi
