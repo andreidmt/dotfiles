@@ -11,9 +11,6 @@ xset r rate 220 20
 # Extended mouse gestures
 libinput-gestures-setup start
 
-# Audio daemon
-pulseaudio &
-
 # Music player daemon
 mpd &
 

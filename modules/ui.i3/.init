@@ -15,24 +15,28 @@ scripts_home="$UII3_HOME/scripts"
 export PATH="$scripts_home:$PATH"
 fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
 
-config_dirs="i3
+# ╭───┤ Link user configs 
+# ╰─
+
+while IFS="" read -r dir; do
+  fake="$HOME/.config/$dir"
+  real="$UII3_HOME/config/$dir"
+  ensure_symlink "$real" "$fake"
+done << EOF
+i3
 newsboat
 picom
 polybar
 redshift
 rofi
-sxiv"
+sxiv
+EOF
 
-echo "$config_dirs" | while IFS="" read -r dir; do
-  config_path="$HOME/.config/$dir"
+ensure_symlink \
+  "$UII3_HOME/config/.xinitrc" \
+  "$HOME/.xinitrc"
 
-  if is_symlink_broken "$config_path"; then
-    fancy-log warn -v path "$config_path" "Removing broken config symlink ..."
-    rm "$config_path"
-  fi
+ensure_symlink \
+  "$UII3_HOME/config/.Xresources" \
+  "$HOME/.Xresources"
 
-  if [ ! -d "$config_path" ]; then
-    fancy-log info -v to "$config_path" "Creating config symlink ..."
-    ln -s "$UII3_HOME/config/$dir" "$config_path"
-  fi
-done
