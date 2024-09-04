@@ -1,0 +1,94 @@
+#!/usr/bin/env sh
+
+# NAME
+#  install-from-csv - Script to install packages listed in a CSV file
+#
+# SYNOPSIS
+#   install-from-csv <csv_path>
+#
+# DESCRIPTION
+#   This script reads a CSV file with package information and installs the
+#   packages using the appropriate package manager.
+#
+# SEE ALSO
+#  fancy-log(1)
+
+export LOG_NAMESPACE="󰏖 install-from-csv"
+export LOG_LEVEL="info"
+
+if [ "$#" -eq 0 ]; then
+  fancy-log error "No package CSV path provided"
+  exit 1
+fi
+
+if [ ! -f "$1" ]; then
+  fancy-log error -v path "$1" "File not found"
+  exit 1
+fi
+
+# ╭───┤ Functions
+# ╰─
+
+# Group all packages by their package manager. 
+#
+# Example:
+#  dunst, pacman, "Notification deamon"
+#  nvim, pacman, "The Editor"
+#  prettier, npm, "Prettify all the things"
+#
+# Output:
+#  pacman: dunst nvim
+#  npm: prettier
+group_by_package_manager() {
+  awk -F, '
+  {
+    gsub(/^[ \t]+|[ \t]+$/, "", $1);  # Trim spaces
+    gsub(/^[ \t]+|[ \t]+$/, "", $2);  # Trim spaces
+    packages[$2] = packages[$2] ? packages[$2] " " $1 : $1
+  }
+  END {
+    for (pm in packages) {
+      print pm ":" packages[pm]
+    }
+  }'
+}
+
+# Install groups of packages grouped by package manager
+install_by_package_manager() {
+  while IFS= read -r line; do
+    package_manager=$(echo "$line" | awk -F: '{print $1}')
+    packages=$(echo "$line" | awk -F: '{print $2}')
+
+    fancy-log info \
+      -v package_manager "$package_manager" \
+      -v packages "$packages" \
+      "Installing ..."
+
+    case "$package_manager" in
+      pacman)
+        sudo pacman --sync --noconfirm $packages
+      ;;
+      aur)
+        yay --sync --noconfirm $packages
+      ;;
+      npm)
+        npm install --global $packages
+      ;;
+      *)
+        fancy-log warn -v name "$package_manager" \
+          "Package manager not recognized"
+      ;;
+    esac
+  done
+}
+
+remove_comments_and_empty_lines() {
+  sed '/^\s*#/d; /^\s*$/d' "$1"
+}
+
+# ╭───┤ Main
+# ╰─
+
+remove_comments_and_empty_lines "$1" \
+  | group_by_package_manager \
+  | install_by_package_manager

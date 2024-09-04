@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+
+# NAME
+#   has-file-changed - Check if a file has changed based on its hash
+#
+# SYNOPSIS
+#   has-file-changed <file_path>
+#
+# DESCRIPTION
+#   This script computes the hash of a specified file and checks if it has changed.
+#   It uses a temporary file with the hash as its name to track changes.
+#
+# EXAMPLES
+#   has-file-changed myfile.txt
+#
+# SEE ALSO
+
+export LOG_NAMESPACE="󱇻 has-file-changed"
+export LOG_LEVEL="info"
+
+# ╭───┤ Parse arguments
+# ╰─
+
+if [ "$#" -eq 0 ]; then
+  fancy-log error "No file path provided"
+  exit 1
+fi
+
+if [ ! -f "$1" ]; then
+  fancy-log error -v path "$1" "File not found"
+  exit 1
+fi
+
+# ╭───┤ Main
+# ╰─
+
+file_path=$(realpath "$1")
+last_modified=$(stat -c %Y "$file_path")
+file_id=$(echo "$file_path" | sha256sum | awk '{print $1}')
+temp_file="/tmp/has-file-changed_$file_id"
+
+if [ -f "$temp_file" ]; then
+  last_checked=$(cat "$temp_file")
+  if [ "$last_modified" -le "$last_checked" ]; then
+    exit 1
+  fi
+fi
+
+echo "$last_modified" > "$temp_file"
+exit 0
