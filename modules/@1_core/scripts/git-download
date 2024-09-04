@@ -1,4 +1,4 @@
-#!/usr/bin/env dash
+#!/usr/bin/env sh
 
 # -e: exit on error, -u: error on undefined variable
 set -eu 

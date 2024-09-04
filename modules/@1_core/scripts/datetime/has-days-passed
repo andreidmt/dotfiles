@@ -66,14 +66,15 @@ name="${name:-$1}"
 count="${count:-$2}"
 
 if [ -z "$name" ]; then
-  die '"--name" is required.'
+  fancy-log error '"--name" is required.'
+  exit 1
 fi
 
 if [ -z "$count" ] || [ "$count" -lt 1 ]; then 
   count=1
 fi
 
-past_value_file="$CORE_TMP/hdp_$name"
+past_value_file="/tmp/hdp_$name"
 past_value=$(cat "$past_value_file" 2> /dev/null || echo 0)
 now_in_seconds=$(date +%s)
 seconds_in_a_day=86400
