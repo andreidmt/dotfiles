@@ -42,31 +42,4 @@ add-zsh-hook chpwd switch_node
 # export NVMM_DEFAULT_VERSION=$(nvm version default)
 export NVMM_DEFAULT_VERSION="v20.10.0" # save ~200ms on terminal start time
 
-# Install or upgrade global npm packages
-
-if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
-  fancy-log info "Installing global npm packages..."
-
-  npm install -g --prefer-offline --no-progress --no-audit \
-    npm \
-    yarn \
-    bash-language-server \
-    dockerfile-language-server-nodejs \
-    graphql-language-service-cli \
-    markdownlint-cli \
-    npm-check-updates \
-    prettier \
-    remark \
-    remark-cli \
-    remark-parse \
-    remark-stringify \
-    remark-language-server \
-    stylelint \
-    stylelint-lsp \
-    typescript \
-    typescript-language-server \
-    vscode-langservers-extracted \
-    yaml-language-server
-fi
-
 fancy-log info -v version "$(node --version)" "Current Node.js"

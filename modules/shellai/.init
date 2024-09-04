@@ -7,8 +7,8 @@
 export SHELLAI_HOME="$(dirname "$0")"
 export SHELLAI_DEFAULT_AGENT_ID="2"
 
-export LOG_NAMESPACE="󱚥 shellai"
-export LOG_LEVEL=info
+LOG_NAMESPACE="󱚥 shellai"
+LOG_LEVEL=info
 
 # ╭───┤ Prepare module directories
 # ╰─

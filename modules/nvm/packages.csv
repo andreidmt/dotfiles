@@ -17,3 +17,6 @@ typescript-language-server, npm, "LSP server for TypeScript"
 vscode-langservers-extracted, npm, "LSP servers for HTML, CSS, JSON"
 yaml-language-server, npm, "LSP server for YAML"
 sql-language-server, npm, "SQL Language Server Command Line Interface"
+
+nvm-sh/nvm, git, ""
+lukechilds/zsh-better-npm-completion, git, ""

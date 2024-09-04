@@ -1,14 +1,14 @@
 #!/usr/bin/env sh
 
-# shellcheck source=../@0_fancy-cli/functions/predicates
+# shellcheck source=../@0_fancy-posix-utils/functions/predicates
 . "$FCLI_FUNCTIONS/predicates"
 
 export SSHM_HOME="$(dirname "$0")"
 export SSHM_SCRIPTS="$SSHM_HOME/scripts"
 export SSHM_LOCAL="$SSHM_HOME/.local"
 
-export LOG_NAMESPACE="󱕴 ssh"
-export LOG_LEVEL=info
+LOG_NAMESPACE="󱕴 ssh"
+LOG_LEVEL=info
 
 export PATH="$SSHM_HOME/scripts:$PATH"
 export SSH_ASKPASS="${SSHM_SCRIPTS}/ssh-askpass"

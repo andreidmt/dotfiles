@@ -7,8 +7,8 @@
 PIPEWIRE_HOME="$(dirname "$0")"
 PIPEWIRE_MODULE_NAME="pipewire"
 
-export LOG_NAMESPACE="󰟥 $PIPEWIRE_MODULE_NAME"
-export LOG_LEVEL=info
+LOG_NAMESPACE="󰟥 $PIPEWIRE_MODULE_NAME"
+LOG_LEVEL=info
 
 # ╭───┤ Start module specific services 
 # ╰─
