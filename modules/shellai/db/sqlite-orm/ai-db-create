@@ -1,6 +1,6 @@
 #!/usr/bin/env dash
 
-# shellcheck source=../../../@0_fancy-cli/functions/stdin-or
+# shellcheck source=../../../@0_fancy-posix-utils/functions/stdin-or
 . "$FCLI_FUNCTIONS/stdin-or"
 
 # NAME
