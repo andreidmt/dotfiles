@@ -67,7 +67,7 @@ return {
         vim.cmd("write")
       end
 
-      local function replaceAllInFiles()
+      function replaceAllInFiles()
         local old_text = vim.fn.input('Old text: ')
         local new_text = vim.fn.input('New text: ')
 
