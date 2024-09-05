@@ -1,0 +1,217 @@
+###
+### Sway config file
+### Please see https://swaywm.org/docs/usermanual.html for a complete reference!
+###
+
+##
+## Basic
+##
+
+# workaround for https://github.com/i3/i3/issues/5149
+# for_window [all] border pixel 3  # sway does not support this
+
+# Distance between tiled windows
+
+
+# Default floating windows
+for_window [title="such-important"] floating enable
+for_window [title="such-important"] resize set width 1000px, resize set height 900px, move position center
+
+# Preset for aligning float windows to parts of the screen
+for_window [title="^layout-center-right *"] floating enable, resize set width 40ppt, resize set height 80ppt, move position center, move right 25ppt
+for_window [title="^layout-center-left *"] floating enable, resize set width 40ppt, resize set height 80ppt, move position center, move left 25ppt
+for_window [title="^layout-center *"] floating enable, resize set width 65ppt, resize set height 70ppt, move position center
+for_window [class="center-float"] floating enable, resize set width 65ppt, resize set height 70ppt, move position center
+for_window [title="^layout-center-wide *"] floating enable, resize set width 90ppt, resize set height 80ppt, move position center
+
+for_window [title="^ffplay-thumb *"] floating enable, move position 1580 785, resize set 320 240, sticky enable
+
+for_window [title="Steam - Update News"] floating enable
+for_window [window_role="messages"] floating enable  # sway does not support this
+for_window [window_role="pop-up"] floating enable  # sway does not support this
+for_window [window_role="task_dialog"] floating enable  # sway does not support this
+
+##
+## Application menus
+##
+
+bindsym $mod+p      exec --no-startup-id rofi -show run
+bindsym $mod+grave  exec --no-startup-id sys_menu
+
+bindsym $mod+n       exec --no-startup-id terminal-center notes create
+bindsym $mod+Shift+n exec --no-startup-id obsidian
+bindsym $mod+Shift+p exec --no-startup-id terminal-center notes ask
+
+bindsym $mod+s       exec --no-startup-id terminal-center snippets copy
+bindsym $mod+Shift+s exec --no-startup-id terminal-center snippets upsert
+
+bindsym $mod+b       exec --no-startup-id terminal-center bookmarks open
+bindsym $mod+Shift+b exec --no-startup-id terminal-center bookmarks upsert
+
+##
+## Fn keys
+##
+
+# Volume and Mic adjust
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && pkill -RTMIN+12 waybar
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% && pkill -RTMIN+12 waybar
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && pkill -RTMIN+12 waybar
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && pkill -RTMIN+11 waybar
+
+# Screen brightness
+bindsym XF86MonBrightnessDown	exec --no-startup-id brightnessctl set 5%-  # sway does not support xbacklight
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%  # sway does not support xbacklight
+
+# Print screen
+bindsym Print exec --no-startup-id screenshot all
+bindsym $mod+Print exec --no-startup-id screenshot region
+bindsym $mod+Shift+Print exec --no-startup-id screenshot region
+
+##
+## Navigation
+##
+
+# Change container layout (stacked, tabbed, toggle split)
+# bindsym $mod+s layout stacking
+# bindsym $mod+w layout tabbed
+# bindsym $mod+e layout toggle split
+
+# Toggle floating centered mode
+bindsym $mod+Shift+f exec --no-startup-id $UII3_HOME/scripts/toggle-main-window
+
+# Focus the parent container
+bindsym $mod+a focus parent 		
+
+# Focus the child container
+bindsym $mod+d focus child 		
+
+# Define names for default workspaces for which we configure key bindings later on.
+# We use variables to avoid repeating the names in multiple places.
+
+set $wsZettelkasten " Zettelkasten"
+workspace $wsZettelkasten output eDP-1
+
+set $wsOpenAI "󰧑 OpenAI"
+workspace $wsOpenAI output eDP-1
+
+set $wsBackground "󰕼 Background"
+workspace $wsBackground output eDP-1
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+
+# Switch to workspace
+bindsym $mod+z workspace $wsZettelkasten
+bindsym $mod+o workspace $wsOpenAI
+bindsym $mod+g workspace $wsBackground
+bindsym $mod+Shift+o exec --no-startup-id openai
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+
+# Move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+
+# reload the configuration file
+bindsym $mod+Shift+c reload 	
+
+# restart sway inplace (preserves your layout/session, can be used to upgrade sway)
+bindsym $mod+Shift+r restart 	
+
+# exit sway (logs you out of your session)
+bindsym $mod+Shift+e exec "swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your session.' -B 'Yes, exit sway' 'swaymsg exit'"
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+  # These bindings trigger as soon as you enter the resize mode
+
+  # Pressing left will shrink the window’s width.
+  # Pressing right will grow the window’s width.
+  # Pressing up will shrink the window’s height.
+  # Pressing down will grow the window’s height.
+  bindsym j resize shrink width 15 px
+  bindsym k resize grow height 15 px
+  bindsym l resize shrink height 15 px
+  bindsym semicolon resize grow width 15 px
+
+  # same bindings, but for the arrow keys
+  bindsym Left resize shrink width 15 px
+  bindsym Down resize grow height 15 px
+  bindsym Up resize shrink height 15 px
+  bindsym Right resize grow width 15 px
+
+  # back to normal: Enter or Escape or $mod+r
+  bindsym Return mode "default"
+  bindsym Escape mode "default"
+  bindsym $mod+r mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+##
+## Startup applications
+##
+
+exec_always --no-startup-id $UISWAY_HOME/config/waybar/launch  # change from polybar to waybar
+# exec_always --no-startup-id $UII3_HOME/config/picom/launch
+# exec_always --no-startup-id $UII3_HOME/config/redshift/launch
+# exec_always --no-startup-id $UI_HOME/config/dunst/launch
+exec_always --no-startup-id wallpaper reload
+exec_always --no-startup-id gromit-mpx
+exec --no-startup-id syncthing -no-browser -no-restart
+
+# swaylock is the equivalent of i3lock in sway
+# exec --no-startup-id xss-lock --transfer-sleep-lock -- swaylock --nofork
+bindsym $mod+x exec --no-startup-id swaylock --nofork
+
+##
+## Xresources colors
+##
+
+# sway does not support set_from_resource, so manual setting is required
+set $darkblack    #000000
+set $black        #000000
+set $darkred      #000000
+set $red          #000000
+set $darkgreen    #000000
+set $green        #000000
+set $darkyellow   #000000
+set $yellow       #000000
+set $darkblue     #000000
+set $blue         #000000
+set $darkmagenta  #000000
+set $magenta      #000000
+set $darkcyan     #000000
+set $cyan         #000000
+set $darkwhite    #000000
+set $white        #000000
+set $transparent  #00000000
+
+# Window decorations
+#                       BORDER        BACKGR   TEXT      INDICATOR      CHILD_BORDER
+client.focused          $red          $red     $white    $darkmagenta   $white
+client.unfocused        $transparent  $blue    $white    $darkblue      $transparent
+client.focused_inactive $transparent  $blue    $white    $darkblue      $darkblack
+client.urgent           $darkred      $darkred $black    $darkred       $darkred
+client.background       $black
