@@ -1,3 +1,4 @@
+libnotify, pacman, ""
 dunst, pacman, "Notification daemon"
 fontconfig, pacman, "Font configuration"
 gnu-free-fonts, pacman, "Fonts"
@@ -7,4 +8,6 @@ ttf-firacode-nerd, pacman, "Nerd fonts patched FiraCode"
 ttf-hack-nerd, pacman, "Nerd fonts patched Hack"
 ttf-jetbrains-mono-nerd, pacman, "Nerd fonts patched JetBrains Mono"
 ttf-font-nerd, pacman, "Nerd fonts"
-espeak, pacman, ""
+espeak-ng, pacman, ""
+
+zen-browser-bin, aur, ""

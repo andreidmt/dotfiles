@@ -6,6 +6,17 @@ UI_CONFIG="$UI_HOME/common"
 LOG_NAMESPACE=" ui"
 LOG_LEVEL=info
 
+if [ -f "$UI_HOME/.env" ]; then
+  . "$UI_HOME/.env"
+fi
+
+# ╭───┤ Expose scripts and libs
+# ╰─
+
+scripts_home="$UI_HOME/scripts"
+export PATH="$scripts_home:$PATH"
+fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
+
 # ╭───┤ Link user configs 
 # ╰─
 
