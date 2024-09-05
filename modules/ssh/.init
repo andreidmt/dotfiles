@@ -29,15 +29,6 @@ if ! is_process_running ssh-agent; then
   echo "$SSH_AGENT_PID" > "$tmp_pid_file"
   echo "$SSH_AUTH_SOCK" > "$tmp_sock_file"
 
-  # Add the SSH keys to the agent. Sending the commands to the background
-  # since they will prompt for the passphrase and don't want to block the
-  # main loop loading modules.
-  ssh-add "$HOME/.ssh/t440p" > /dev/null 2>&1 
-  ssh-add "$HOME/.ssh/do.t440p" > /dev/null 2>&1
-  ssh-add "$HOME/.ssh/asd14__andreid" > /dev/null 2>&1
-  ssh-add "$HOME/.ssh/asd14__ci" > /dev/null 2>&1
-  ssh-add "$HOME/.ssh/abcam-gitlab.t440p" > /dev/null 2>&1
-
   fancy-log success -v keys_count "$(ssh-add -l | wc --lines)" \
     "SSH agent started"
 else
@@ -48,3 +39,6 @@ else
     "SSH agent already running"
 fi
 
+if [ -f "$SSHM_HOME/.env" ]; then
+  . "$SSHM_HOME/.env"
+fi
