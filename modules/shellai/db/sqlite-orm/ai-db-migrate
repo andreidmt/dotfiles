@@ -87,12 +87,12 @@ run() {
     | ai-db-create --table _migrations
 
   if [ ! -f "$SHELLAI_MIGRATIONS_DIR/$1/up.sql" ]; then
-    print-error "Migration $(stylize underline "$1") does not have an up.sql file" "$CMD_NAME" >&2
+    fancy-log error -v name "$1" "Migration does not have an up.sql file"
     exit 1
   fi
 
   if ! sqlite3 "$SHELLAI_DB_FILE" < "$SHELLAI_MIGRATIONS_DIR/$1/up.sql"; then
-    print-error "Migration $(stylize underline "$1") up script failed" "$CMD_NAME" >&2
+    fancy-log error -v name "$1" "Migration up script failed"
     ai-db-delete --no-confirm --table _migrations --where "name='$1'"
     exit 1
   fi
@@ -108,12 +108,12 @@ run() {
 # Returns 0 if the rollback was successful, 1 otherwise
 rollback() {
   if [ ! -f "$SHELLAI_MIGRATIONS_DIR/$1/down.sql" ]; then
-    print-error "Migration $(stylize underline "$1") does not have a down.sql file" "$CMD_NAME" >&2 
+    fancy-log error -v name "$1" "Migration does not have a down.sql file"
     exit 1
   fi
 
   if ! sqlite3 "$SHELLAI_DB_FILE" < "$SHELLAI_MIGRATIONS_DIR/$1/down.sql"; then
-    print-error "Migration $(stylize underline "$1") down script failed" "$CMD_NAME" >&2
+    fancy-log error -v name "$1" "Migration down script failed"
     exit 1
   fi
 
