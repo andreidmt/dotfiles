@@ -1,0 +1,14 @@
+@import "gruvbox-core"
+
+configuration {
+	window-format: "{w} · {c} · {t}";
+}
+
+mainbox {
+  children: ["inputbar", "message", "listview", "mode-switcher"];
+}
+
+listview {
+  columns: 2;
+}
+

@@ -1,0 +1,238 @@
+/*
+ * Color Definitions
+ */
+
+@define-color cyan-light    #8ec07c;
+@define-color cyan-dark     #689d6a;
+@define-color green-dark    #98971a;
+@define-color mangeta-light #d3869b;
+@define-color magenta-dark  #b16286;
+@define-color red-dark      #cc241d;
+@define-color blue-dark     #458588;
+@define-color foreground    #ebdbb2;
+@define-color background    #282828;
+
+/*
+ * Global Styles
+ */
+
+* {
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+button {
+  border: none;
+  /* Use box-shadow instead of border so the text isn't offset */
+  /* box-shadow: inset 0 -3px transparent; */
+}
+
+tooltip {
+  background-color: @background;
+  border: 1px solid @foreground;
+}
+
+tooltip label {
+  padding: 0 5px;
+  color: @foreground;
+  font-family: mono;
+}
+
+/* 
+ * Waybar Window Styles 
+ */
+
+window#waybar {
+  font-family: monospace;
+  background-color: transparent;
+  border-bottom: 0px;
+  color: @foreground;
+  transition-property: background-color;
+  transition-duration: .5s;
+}
+
+window#waybar.bottom {
+}
+
+window#waybar.top {
+}
+
+window#waybar.hidden {
+  opacity: 0.2;
+}
+
+window#waybar.empty #window {
+  background-color: transparent;
+}
+
+/* 
+ * Module Positioning
+ */
+
+window#waybar.top .module {
+  margin-top: 15px;
+  margin-bottom: 0;
+}
+
+window#waybar.bottom .module {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.modules-right {
+  margin-right: 15px;
+}
+
+.modules-left {
+  margin-left: 15px;
+}
+
+/* If workspaces is the leftmost module, omit left margin */
+.modules-left > widget:first-child > #workspaces {
+  margin-left: 0;
+}
+
+/* If workspaces is the rightmost module, omit right margin */
+.modules-right > widget:last-child > #workspaces {
+  margin-right: 0;
+}
+
+/* 
+ * Module-Specific Styles
+ */
+
+#power-profiles-daemon {
+  background-color: @cyan-dark; 
+}
+
+#power-profiles-daemon.performance {
+  background-color: @red-dark; 
+}
+
+#power-profiles-daemon.balanced {
+  background-color: @blue-dark; 
+}
+
+#power-profiles-daemon.power-saver {
+  background-color: @green-dark; 
+}
+
+#workspaces {
+  background-color: @background;
+}
+
+#workspaces button {
+  padding: 0 5px;
+  background-color: transparent;
+  color: @foreground;
+  border-radius: 0;
+}
+
+#workspaces button:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+#workspaces button:last-child {
+  border-radius: 0 5px 5px 0;
+}
+
+#workspaces button:hover {
+  box-shadow: inset 0 -3px @cyan-light;
+  background-color: @background;
+  color: @foreground;
+}
+
+#workspaces button.focused {
+  color: @foreground;
+  background-color: @cyan-dark;
+  box-shadow: inset 0 -3px @cyan-light;
+  font-weight: bold;
+}
+
+#workspaces button.urgent {
+  background-color: @red-dark;
+}
+
+#bluetooth,
+#privacy,
+#disk,
+#idle_inhibitor,
+#scratchpad,
+#mode,
+#window,
+#clock,
+#battery,
+#backlight,
+#wireplumber,
+#pulseaudio,
+#tray,
+#power-profiles-daemon,
+#temperature,
+#cpu,
+#network,
+#memory,
+#load {
+  padding: 5px 10px;
+  background-color: @background;
+  color: @foreground;
+}
+
+#mode {
+  background-color: @magenta-dark;
+  color: @foreground;
+  box-shadow: inset 0 -3px @magenta-light;
+  font-weight: bold;
+}
+
+#battery.charging, #battery.plugged {
+  background-color: @green-dark;
+  color: @background;
+}
+
+/* Battery Critical Blink Animation */
+@keyframes blink {
+  to {
+    background-color: @background;
+    color: @foreground;
+  }
+}
+
+/* Using steps() instead of linear as a timing function to limit cpu usage */
+#battery.critical:not(.charging) {
+  background-color: @red-dark;
+  color: @foreground;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: steps(5);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* Miscellaneous Styles */
+
+#wireplumber.muted,
+#pulseaudio.output.muted,
+#pulseaudio.input.source-muted {
+  background-color: @red-dark;
+}
+
+#network.disabled,
+#network.disconnected {
+  background-color: @red-dark;
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+}
+
+#tray menu {
+  font-family: sans-serif;
+}
+
+#scratchpad.empty {
+  background: transparent;
+}

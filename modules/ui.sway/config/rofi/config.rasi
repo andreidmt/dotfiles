@@ -1,0 +1,13 @@
+configuration {
+  matching:   "glob";
+  font:       "mono 13";
+  show-icons: false;
+
+	modi:                "drun,run,filebrowser";
+  display-drun:        " ";
+  display-run:         " ";
+  display-filebrowser: " ";
+	drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+}
+
+@theme "gruvbox-single"

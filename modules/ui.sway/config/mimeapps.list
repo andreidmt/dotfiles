@@ -1,0 +1,130 @@
+[Default Applications]
+
+x-scheme-handler/ftp=zen-browser.desktop
+x-scheme-handler/chrome=zen-browser.desktop
+x-scheme-handler/msteams=teams.desktop
+
+x-scheme-handler/http=zen-browser.desktop
+x-scheme-handler/https=zen-browser.desktop
+x-scheme-handler/chrome=zen-browser.desktop
+
+application/x-extension-htm=zen-browser.desktop
+application/x-extension-html=zen-browser.desktop
+application/x-extension-shtml=zen-browser.desktop
+application/xhtml+xml=zen-browser.desktop
+application/x-extension-xhtml=zen-browser.desktop
+application/x-extension-xht=zen-browser.desktop
+
+/*
+ * Image viewer
+ */
+
+image/png=swayimg.desktop
+image/webp=swayimg.desktop
+image/jpeg=swayimg.desktop
+image/x-portable-anymap=swayimg.desktop
+image/x-portable-bitmap=swayimg.desktop
+image/gif=swayimg.desktop
+image/x-xpixmap=swayimg.desktop
+image/x-tga=swayimg.desktop
+image/tiff=swayimg.desktop
+image/x-portable-graymap=swayimg.desktop
+image/bmp=swayimg.desktop
+image/svg+xml=swayimg.desktop
+
+/*
+ * PDF
+ */
+
+application/postscript=pdf.desktop;
+application/oxps=pdf.desktop
+application/epub+zip=pdf.desktop
+application/x-fictionbook+xml=pdf.desktop
+application/pdf=pdf.desktop
+
+/*
+ * Open folders
+ */
+
+inode/directory=nnn.desktop
+
+/*
+ * Edit text files
+ */
+
+text/plain=nvim.desktop
+text/html=nvim.desktop
+text/x-shellscript=nvim.desktop
+text/x-chdr=nvim.desktop
+text/x-makefile=nvim.desktop
+text/tcl=nvim.desktop
+text/x-java=nvim.desktop
+text/x-c++src=nvim.desktop
+text/x-csrc=nvim.desktop
+text/x-tex=nvim.desktop
+text/x-pascal=nvim.desktop
+text/x-moc=nvim.desktop
+text/x-c++hdr=nvim.desktop
+application/x-pem-file=nvim.desktop
+application/pkix-crl=nvim.desktop
+application/pkix-cert=nvim.desktop
+application/pkcs7-mime+pem=nvim.desktop
+application/x-spkac+base64=nvim.desktop
+application/pkcs10=nvim.desktop
+application/x-pkcs12=nvim.desktop
+application/pkix-crl+pem=nvim.desktop
+application/pkcs10+pem=nvim.desktop
+application/x-pem-key=nvim.desktop
+application/pkcs8+pem=nvim.desktop
+application/pkcs8=nvim.desktop
+application/pkix-cert+pem=nvim.desktop
+application/pkcs12=nvim.desktop
+application/pkcs7-mime=nvim.desktop
+application/x-spkac=nvim.desktop
+application/pkcs12+pem=nvim.desktop
+application/x-shellscript=nvim.desktop
+application/json=nvim.desktop
+application/xml=nvim.desktop
+
+/*
+ * View video files
+ */
+
+video/x-msvideo=mpv.desktop
+video/vnd.rn-realvideo=mpv.desktop
+video/dv=mpv.desktop
+video/mp4=mpv.desktop
+video/x-flv=mpv.desktop
+video/3gpp=mpv.desktop
+video/ogg=mpv.desktop
+video/quicktime=mpv.desktop
+video/mp2t=mpv.desktop
+video/webm=mpv.desktop
+video/x-matroska=mpv.desktop
+video/3gpp2=mpv.desktop
+video/mpeg=mpv.desktop
+video/vnd.mpegurl=mpv.desktop
+video/x-theora+ogg=mpv.desktop
+video/x-ogm+ogg=mpv.desktop
+video/x-ms-wmv=mpv.desktop
+video/x-flic=mpv.desktop
+application/sdp=mpv.desktop
+application/vnd.rn-realmedia=mpv.desktop
+application/vnd.apple.mpegurl=mpv.desktop
+application/smil+xml=mpv.desktop
+application/ogg=mpv.desktop
+application/x-matroska=mpv.desktop
+application/vnd.ms-asf=mpv.desktop
+application/x-cue=mpv.desktop
+application/mxf=mpv.desktop
+application/x-shorten=mpv.desktop
+
+/*
+ * Edit images
+ */
+
+image/vnd.adobe.photoshop=gimp.desktop
+
+x-scheme-handler/postman=Postman.desktop
+x-scheme-handler/sgnl=signal.desktop
+x-scheme-handler/signalcaptcha=signal.desktop

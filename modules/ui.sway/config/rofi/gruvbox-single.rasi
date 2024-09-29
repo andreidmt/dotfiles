@@ -1,0 +1,10 @@
+@import "gruvbox-core"
+
+listview {
+  columns: 2;
+}
+
+mainbox {
+  children: ["inputbar", "message", "listview"];
+}
+

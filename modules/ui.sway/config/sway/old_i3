@@ -21,12 +21,9 @@ for_window [title="such-important"] resize set width 1000px, resize set height 9
 for_window [title="^layout-center-right *"] floating enable, resize set width 40ppt, resize set height 80ppt, move position center, move right 25ppt
 for_window [title="^layout-center-left *"] floating enable, resize set width 40ppt, resize set height 80ppt, move position center, move left 25ppt
 for_window [title="^layout-center *"] floating enable, resize set width 65ppt, resize set height 70ppt, move position center
-for_window [class="center-float"] floating enable, resize set width 65ppt, resize set height 70ppt, move position center
 for_window [title="^layout-center-wide *"] floating enable, resize set width 90ppt, resize set height 80ppt, move position center
 
-for_window [title="^ffplay-thumb *"] floating enable, move position 1580 785, resize set 320 240, sticky enable
 
-for_window [title="Steam - Update News"] floating enable
 for_window [window_role="messages"] floating enable  # sway does not support this
 for_window [window_role="pop-up"] floating enable  # sway does not support this
 for_window [window_role="task_dialog"] floating enable  # sway does not support this
@@ -133,8 +130,6 @@ bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 
-# reload the configuration file
-bindsym $mod+Shift+c reload 	
 
 # restart sway inplace (preserves your layout/session, can be used to upgrade sway)
 bindsym $mod+Shift+r restart 	
