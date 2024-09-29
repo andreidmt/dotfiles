@@ -1,0 +1,15 @@
+#!/usr/bin/sh
+
+prompt="Select display:"
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -p|--prompt) prompt="$2"; shift ;;
+    *) fancy-error -v name "$1" "Unknown parameter"; exit 1 ;;
+  esac
+  shift
+done
+
+swaymsg -t get_outputs \
+  | jq -r '.[].name' \
+  | rofi -dmenu -p "$prompt"

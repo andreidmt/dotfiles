@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+
+SCRIPT_NAME=$(basename "$0")
+NOW=$(date +"%Y-%B-%d-%A-%R:%S")
+
+SCREENSHOT_HOME="$HOME/Pictures/Screenshots"; 
+mkdir -pv "$SCREENSHOT_HOME"
+
+case $1 in
+  pick-color)
+    colorpicker --short --one-shot --preview \
+      | wl-copy
+  ;;
+
+  # Capture only the region of an active window
+  window)
+    geometry=$(swaymsg -t get_tree \
+      | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' \
+      | slurp -r)
+
+  ;;
+
+  # Capture an arbitrary region of the screen 
+  region)
+    geometry=$(slurp)
+  ;;
+
+  # Capture all the screens
+  all)
+    geometry=$(swaymsg -t get_outputs | jq -r '.[0].rect | "\(.x),\(.y) \(.width)x\(.height)"')
+  ;;
+
+  *) 
+    fancy-log error -v cmd "$1" "Unknown command"
+    exit 1 
+  ;;
+esac
+
+if [ -z "$geometry" ]; then
+  beep_cancel
+  exit 1
+fi
+
+screenshot_path="$SCREENSHOT_HOME/$1_$NOW.png"
+grim -g "$geometry" "$screenshot_path"
+wl-copy < "$screenshot_path"
+
+beep_success
+doomst "$SCRIPT_NAME $1" "$screenshot_path"

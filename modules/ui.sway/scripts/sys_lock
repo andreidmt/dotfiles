@@ -1,0 +1,42 @@
+#!/usr/bin/sh
+
+BLUR_TYPE="0x8"
+SCREENSHOT_FILE="/tmp/lockscreen.png"
+
+# Take a screenshot and blur it
+grim "$SCREENSHOT_FILE"
+magick "$SCREENSHOT_FILE" -blur $BLUR_TYPE "$SCREENSHOT_FILE"
+
+# Lock the screen and make it look fancy
+swaylock --daemonize \
+  --image "$SCREENSHOT_FILE" \
+  --font monospace \
+  --font-size 20 \
+  --show-keyboard-layout \
+  --show-failed-attempts \
+  --line-uses-ring \
+  --indicator-caps-lock \
+  --indicator-radius 100 \
+  --indicator-thickness 15 \
+  --layout-bg-color "$SYS_COLOR_BG" \
+  --layout-text-color "$SYS_COLOR_FG" \
+  --ring-color "$SYS_COLOR_BG" \
+  --ring-caps-lock-color "$SYS_COLOR_BG" \
+  --key-hl-color "$SYS_COLOR_GREEN_DARK" \
+  --caps-lock-key-hl-color "$SYS_COLOR_GREEN_DARK" \
+  --bs-hl-color "$SYS_COLOR_RED_DARK" \
+  --caps-lock-bs-hl-color "$SYS_COLOR_RED_DARK" \
+  --inside-color "$SYS_COLOR_BG" \
+  --inside-caps-lock-color "$SYS_COLOR_BG" \
+  --separator-color 00000000 \
+  --text-color "$SYS_COLOR_FG" \
+  --ring-wrong-color "$SYS_COLOR_RED_DARK" \
+  --inside-wrong-color "$SYS_COLOR_BG" \
+  --text-wrong-color "$SYS_COLOR_FG" \
+  --ring-ver-color "$SYS_COLOR_BLUE_DARK" \
+  --inside-ver-color "$SYS_COLOR_BG" \
+  --text-ver-color "$SYS_COLOR_FG" \
+  --ring-clear-color "$SYS_COLOR_YELLOW_DARK" \
+  --inside-clear-color "$SYS_COLOR_BG" \
+  --text-clear-color "$SYS_COLOR_FG"
+
