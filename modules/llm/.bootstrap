@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+LLM_HOME=$(dirname "$0")
+export LLM_BIN="$LLM_HOME/.bin"
+
+export LOG_NAMESPACE="󱚥 llm"
+export LOG_LEVEL=info
+
