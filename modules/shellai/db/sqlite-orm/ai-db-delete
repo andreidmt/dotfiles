@@ -46,7 +46,7 @@ while [ "$#" -gt 0 ]; do
       if [ "$2" ] && [ "${2#-}" = "$2" ]; then
         table=$2; shift
       else
-        print-error "Flag -t|--table requires a value" "$CMD_NAME" >&2
+        fancy-log error "Flag -t|--table requires a value"
         exit 1
       fi
     ;;
@@ -54,25 +54,25 @@ while [ "$#" -gt 0 ]; do
       if [ "$2" ] && [ "${2#-}" = "$2" ]; then
         where=$2; shift
       else
-        print-error "Flag -w|--where requires a value" "$CMD_NAME" >&2
+        fancy-log error "Flag -w|--where requires a value"
         exit 1
       fi
     ;;
     --no-confirm) no_confirm=true ;; 
     --) shift; break ;;
-    -?*) print-error "Unknown flag $1" "$CMD_NAME" >&2; exit 1 ;;
+    -?*) fancy-log error -v name "$1" "Unknown flag"; exit 1 ;;
     *) break ;;
   esac
   shift
 done
 
 if [ -z "$table" ]; then
-  print-error "Flag -t|--table is required" "$CMD_NAME" >&2
+  fancy-log error "Flag -t|--table is required"
   exit 1
 fi
 
 if [ -z "$where" ]; then
-  print-error "Flag -w|--where is required" "$CMD_NAME" >&2
+  fancy-log error "Flag -w|--where is required"
   exit 1
 fi
 
@@ -84,17 +84,18 @@ delete_count=$(sqlite3 "$SHELLAI_DB_FILE" \
   "SELECT COUNT(*) FROM $table WHERE $where")
 
 if [ $? -ne 0 ]; then
-  print-error "$delete_count" "$CMD_NAME > sqlite3" >&2
+  fancy-log error "$delete_count"
   exit 1
 fi
 
 if [ "$delete_count" -eq 0 ]; then
-  print-error "No records in $(bold "$table") found where $(bold "$where")" "$CMD_NAME" >&2
+  fancy-log error -v table "$table" -v where "$where" \
+    "No records found"
   exit 2
 fi
 
 if [ "$no_confirm" != "true" ]; then
-  if ! confirm "Delete $delete_count record(s) from $(underline "$table") table, where $(underline "$where")?" "$CMD_NAME"; then
+  if ! confirm "Delete $delete_count record(s) from \"$table\" table, where \"$where\"?" "$CMD_NAME"; then
     exit 3
   fi
 fi
@@ -103,6 +104,6 @@ result=$(sqlite3 "$SHELLAI_DB_FILE" \
   "DELETE FROM $table WHERE $where; SELECT changes() AS changes")
 
 if [ $? -ne 0 ]; then
-  print-error "$result" "$CMD_NAME > sqlite3" >&2
+  fancy-log error "$result"
   exit 1
 fi

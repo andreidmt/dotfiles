@@ -40,7 +40,7 @@ parse_flags() {
         if [ "$2" ] && [ "${2#-}" = "$2" ]; then
           where=$2; shift
         else
-          print-error "-w|--where flag requires a value" "$CMD_NAME" >&2
+          fancy-log error "-w|--where flag requires a value"
           exit 1
         fi
       ;;
@@ -48,7 +48,7 @@ parse_flags() {
         if [ "$2" ] && [ "${2#-}" = "$2" ]; then
           table=$2; shift
         else
-          print-error "-t|--table flag requires a value" "$CMD_NAME" >&2
+          fancy-log error "-t|--table flag requires a value"
           exit 1
         fi
       ;;
@@ -56,7 +56,7 @@ parse_flags() {
         if [ "$2" ] && [ "${2#-}" = "$2" ]; then
           MODE=$2; shift
         else
-          print-error "-m|--mode flag requires a value" "$CMD_NAME" >&2
+          fancy-log error "-m|--mode flag requires a value"
           exit 1
         fi
       ;;
@@ -76,12 +76,12 @@ parse_flags() {
 parse_flags "$@"
 
 if [ -z "$where" ]; then
-  print-error "Flag -w|--where is required" "$CMD_NAME" >&2
+  fancy-log error "Flag -w|--where is required"
   exit 1
 fi
 
 if [ -z "$table" ]; then
-  print-error "Flag -t|--table is required" "$CMD_NAME" >&2
+  fancy-log error "Flag -t|--table is required"
   exit 1
 fi
 
@@ -93,13 +93,15 @@ count=$(ai-db-count -w "$where" -m csv "$table")
 data=$(ai-db-find-many "$@")
 
 if [ "$count" -eq 0 ]; then
-  print-error "No records in table $(underline "$table") with where $(underline "$where")" "$CMD_NAME" >&2
+  fancy-log error -v table "$table" -v where "$where" \
+    "No records found"
   exit 2
 fi
 
 if [ "$MODE" = "json" ]; then
   if [ "$count" -gt 1 ]; then
-    print-error "More than one record found in table $(underline "$table") with where $(underline "$where")" "$CMD_NAME" >&2
+    fancy-log error -v table "$table" -v where "$where" \
+      "More than one record found"
     exit 3
   fi
 
