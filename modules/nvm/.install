@@ -1,0 +1,14 @@
+#!/usr/bin/env zsh
+
+git-download nvm-sh/nvm "$NVMM_LOCAL/nvm"
+git-download lukechilds/zsh-better-npm-completion "$NVMM_LOCAL/zsh-better-npm-completion"
+
+# export NVMM_DEFAULT_VERSION=$(nvm version default)
+export NVMM_DEFAULT_VERSION="v20.17.0" # save ~200ms on terminal start time
+
+if ! which node; then
+  fancy-log warn "No default version set, installing ..."
+
+  nvm install "$NVMM_DEFAULT_VERSION"
+  nvm alias default "$NVMM_DEFAULT_VERSION"
+fi

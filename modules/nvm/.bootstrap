@@ -1,0 +1,15 @@
+#!/usr/bin/env zsh
+
+NVMM_HOME=$(dirname "$0")
+
+export LOG_NAMESPACE=" nvm"
+export LOG_LEVEL=info
+
+export NVMM_LOCAL="$NVMM_HOME/.local"
+mkdir -p "$NVMM_LOCAL"
+
+export NVMM_FUNCTIONS="$NVMM_HOME/functions"
+export NVMM_CONFIG="$NVMM_HOME/config"
+
+# export NVMM_DEFAULT_VERSION=$(nvm version default)
+export NVMM_DEFAULT_VERSION="v20.17.0" # save ~200ms on terminal start time

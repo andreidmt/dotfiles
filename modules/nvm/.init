@@ -1,53 +1,24 @@
 #!/usr/bin/env zsh
 
-export NVMM_HOME=$(dirname "$0")
-export NVMM_FUNCTIONS="$NVMM_HOME/functions"
-export NVMM_CONFIG="$NVMM_HOME/config"
-export NVMM_SCRIPTS="$NVMM_HOME/scripts"
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
-LOG_NAMESPACE=" nvm"
-LOG_LEVEL=info
-
-## Upgrade dependencies. Coordinated by the HMVC system via global 
-## $HMVC_SHOULD_UPGRADE variable.
-
-export NVMM_LOCAL="$NVMM_HOME/.local"
-mkdir -p "$NVMM_LOCAL"
-
-if [ -n "$HMVC_SHOULD_UPGRADE" ] || [ ! -d "$NVMM_LOCAL/nvm" ]; then
-  git-download nvm-sh/nvm "$NVMM_LOCAL/nvm"
-  git-download lukechilds/zsh-better-npm-completion "$NVMM_LOCAL/zsh-better-npm-completion"
-fi
-
-## Main
-
-# Load nvm/npm plugins
+# Config nvm
 export NVM_COMPLETION=true
 export NVM_DIR="$NVMM_LOCAL/nvm"
 
+# Load nvm plugins
 source "$NVMM_LOCAL/nvm/nvm.sh"
 source "$NVMM_LOCAL/zsh-better-npm-completion/zsh-better-npm-completion.plugin.zsh"
 
-# Expose all module functions to the shell environment
+fancy-log info -v version "$(node --version)" "Current Node.js"
 
-functions_files=$(find "$NVMM_FUNCTIONS" -type f)
-config_files=$(find "$NVMM_CONFIG" -type f)
-
-echo "$functions_files\n$config_files" | while read -r file; do
-  source "$file"
-done
+# Expose functions
+source "$NVMM_CONFIG/aliases"
+source "$NVMM_FUNCTIONS/nvm-lts"
+source "$NVMM_FUNCTIONS/switch-node"
 
 # Auto switch node version when changing directories
 add-zsh-hook chpwd switch_node
-
-# export NVMM_DEFAULT_VERSION=$(nvm version default)
-export NVMM_DEFAULT_VERSION="v20.17.0" # save ~200ms on terminal start time
-
-if ! which node; then
-  fancy-log warn "No default version set, installing ..."
-
-  nvm install "$NVMM_DEFAULT_VERSION"
-  nvm alias default "$NVMM_DEFAULT_VERSION"
-fi
-
-fancy-log info -v version "$(node --version)" "Current Node.js"
