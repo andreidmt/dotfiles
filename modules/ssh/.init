@@ -1,36 +1,28 @@
 #!/usr/bin/env sh
 
-# shellcheck source=../@0_fancy-posix-utils/functions/predicates
-. "$FCLI_FUNCTIONS/predicates"
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
-export SSHM_HOME="$(dirname "$0")"
-export SSHM_SCRIPTS="$SSHM_HOME/scripts"
-export SSHM_LOCAL="$SSHM_HOME/.local"
-
-LOG_NAMESPACE="󱕴 ssh"
-LOG_LEVEL=info
-
-export PATH="$SSHM_HOME/scripts:$PATH"
+export PATH="$SSHM_SCRIPTS:$PATH"
 export SSH_ASKPASS="${SSHM_SCRIPTS}/ssh-askpass"
+
+# Make sure a ssh-agent is running
 
 tmp_pid_file="$SSHM_LOCAL/ssh-agent.pid"
 tmp_sock_file="$SSHM_LOCAL/ssh-agent.sock"
 
-# Since this will be sourced every time a new shell is opened, we need to
-# check if an SSH agent is already running for the current user. If not, we
-# start one, add our SSH keys to it and persist the PID and socket path for
-# future terminals.
 if ! is_process_running ssh-agent; then
   fancy-log info "SSH agent not detected, starting ..."
   eval "$(ssh-agent -s)" > /dev/null
 
-  # Persist the SSH agent PID and socket path for future terminals
+  # Persist the SSH agent PID and socket path for future terminal sessions
   mkdir -p "$SSHM_LOCAL"
   echo "$SSH_AGENT_PID" > "$tmp_pid_file"
   echo "$SSH_AUTH_SOCK" > "$tmp_sock_file"
 
-  fancy-log success -v keys_count "$(ssh-add -l | wc --lines)" \
-    "SSH agent started"
+  fancy-log success "SSH agent started"
 else
   export SSH_AGENT_PID="$(cat "$tmp_pid_file")"
   export SSH_AUTH_SOCK="$(cat "$tmp_sock_file")"
@@ -39,6 +31,4 @@ else
     "SSH agent already running"
 fi
 
-if [ -f "$SSHM_HOME/.env" ]; then
-  . "$SSHM_HOME/.env"
-fi
+[ -f "$SSHM_HOME/.env" ] && . "$SSHM_HOME/.env"

@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+###
+# Module bootstraping script, sourced with every terminal session before
+# .init and/or .install.
+# Use it to set common varables that both script will need.
+###
+
+SSHM_HOME="$(dirname "$0")"
+export SSHM_SCRIPTS="$SSHM_HOME/scripts"
+export SSHM_LOCAL="$SSHM_HOME/.local"
+
+export LOG_NAMESPACE="󱕴 ssh"
+export LOG_LEVEL=info
+
