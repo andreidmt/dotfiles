@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+
+# -u: error on undefined variable
+set -u 
+
+script_name=$(basename "$0")
+SCREENSHOT_HOME="$HOME/Pictures/Screenshots"
+now=$(date +"%Y-%B-%d-%A-%R:%S")
+
+mkdir -pv "$SCREENSHOT_HOME"
+
+case $1 in
+  pick-color)
+    colorpicker --short --one-shot --preview \
+      | xclip -selection clipboard
+  ;;
+
+  region)
+    tmpfile=$(mktemp "$SCREEN_TMP/slop-XXXXXX")
+    path="$SCREENSHOT_HOME/region_$now.png"
+
+    slop --format "%x %y %w %h" --color=0.5,0.5,0.5,0.5 --highlight > "$tmpfile"
+
+    if [ $? -ne 0 ]; then
+      beep_cancel
+      exit 1
+    fi
+
+    read -r offset_x offset_y width height < "$tmpfile"
+    rm -f "$tmpfile"
+
+    shotgun -g "${width}x${height}+${offset_x}+${offset_y}" "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst --title "$script_name region" --message "$width x $height $path"
+  ;;
+
+  all)
+    filename=${2:-"screen_$now.png"}
+    path="$SCREENSHOT_HOME/$filename"
+
+    shotgun "$path"
+    xclip -t 'image/png' -selection clipboard < "$path"
+    doomst --title "$script_name - screen" --message "$path"
+  ;;
+
+  *) echo "Unknown command: $1" >&2; exit 1 ;;
+esac

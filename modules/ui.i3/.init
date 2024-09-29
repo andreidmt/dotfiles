@@ -18,12 +18,15 @@ fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
 # ╭───┤ Link user configs 
 # ╰─
 
+UII3_CONFIG="$UII3_HOME/config"
+
 while IFS="" read -r dir; do
+  real="$UII3_CONFIG/$dir"
   fake="$HOME/.config/$dir"
-  real="$UII3_HOME/config/$dir"
   ensure_symlink "$real" "$fake"
 done << EOF
 i3
+dunst
 newsboat
 picom
 polybar
@@ -32,11 +35,15 @@ rofi
 sxiv
 EOF
 
-ensure_symlink \
-  "$UII3_HOME/config/.xinitrc" \
+ensure_symlink "$UII3_CONFIG/applications" \
+  "$HOME/.local/share/applications"
+
+ensure_symlink "$UII3_CONFIG/mimeapps.list" \
+  "$HOME/.config/mimeapps.list"
+
+ensure_symlink "$UII3_CONFIG/.xinitrc" \
   "$HOME/.xinitrc"
 
-ensure_symlink \
-  "$UII3_HOME/config/.Xresources" \
+ensure_symlink "$UII3_CONFIG/.Xresources" \
   "$HOME/.Xresources"
 
