@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+PIPEWIRE_HOME="$(dirname "$0")"
+
+export LOG_NAMESPACE="󰟥 pipewire"
+export LOG_LEVEL=info
+
+export PIPEWIRE_CONFIG="$PIPEWIRE_HOME/config"
+export PIPEWIRE_SERVICES="$PIPEWIRE_HOME/services"
+
+export PIPEWIRE_LOGS="$PIPEWIRE_HOME/.logs"; 
+mkdir -p "$PIPEWIRE_LOGS"
+
+export PIPEWIRE_RUNSV="$HOME/.runit/pipewire-service"; 
+mkdir -p "$PIPEWIRE_RUNSV"
+

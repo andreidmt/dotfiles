@@ -1,0 +1,4 @@
+#!/bin/sh
+
+exec mpd --no-daemon --stderr 2>&1 \
+  | sed 's/^/[mpd] /'

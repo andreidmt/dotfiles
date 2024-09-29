@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+# Module install script, runs every 24 hours.
+# Use this file to keep dependencies updated and ensure system integration.
+
+# Link module configs into ~/.config expected folders
+while IFS="" read -r dir; do
+  real="$PIPEWIRE_CONFIG/$dir"
+  fake="$HOME/.config/$dir"
+  ensure_symlink "$real" "$fake"
+done << EOF
+mpd
+EOF
+
+# Configure MPD 
+if [ ! -f "$PIPEWIRE_CONFIG/mpd/database" ]; then
+  touch "$PIPEWIRE_CONFIG/mpd/database"
+fi
+
+if [ ! -d "$PIPEWIRE_CONFIG/mpd/playlists" ]; then
+  mkdir "$PIPEWIRE_CONFIG/mpd/playlists"
+fi
+
+# Configure User level runit services
+ensure_symlink "$PIPEWIRE_SERVICES/pipewire" "$PIPEWIRE_RUNSV/pipewire" 
+ensure_symlink "$PIPEWIRE_SERVICES/wireplumber" "$PIPEWIRE_RUNSV/wireplumber" 
+ensure_symlink "$PIPEWIRE_SERVICES/pipewire-pulse" "$PIPEWIRE_RUNSV/pipewire-pulse" 
+ensure_symlink "$PIPEWIRE_SERVICES/mpd" "$PIPEWIRE_RUNSV/mpd" 
+

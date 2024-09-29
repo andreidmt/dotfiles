@@ -1,10 +1,7 @@
 #!/bin/sh
 
-# The directory will be created for you, if logging is enabled.
-LOG_DIR="$HOME/var/log/wireplumber"
+export WIREPLUMBER_DEBUG=2
 
-# Set the pipewire log level.
-# See: https://docs.pipewire.org/page_daemon.html#sec_logging
-export PIPEWIRE_DEBUG="1"
+exec wireplumber 2>&1 \
+  | sed 's/^/[wireplumber] /'
 
-exec wireplumber 2>&1

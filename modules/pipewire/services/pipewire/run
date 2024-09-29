@@ -1,10 +1,8 @@
 #!/bin/sh
 
-# The directory will be created for you, if logging is enabled.
-LOG_DIR="$HOME/var/log/pipewire"
-
 # Set the pipewire log level.
 # See: https://docs.pipewire.org/page_daemon.html#sec_logging
-export PIPEWIRE_DEBUG="1"
+export PIPEWIRE_DEBUG="2"
 
-exec pipewire 2>&1
+exec pipewire 2>&1 \
+  | sed 's/^/[pipewire] /'
