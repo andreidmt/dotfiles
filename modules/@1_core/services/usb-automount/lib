@@ -1,0 +1,110 @@
+#!/usr/bin/sh
+
+###############################################################################
+# This file contains the common functions used by the usb_mount, usb_unmount 
+# and usb_automount scripts.
+#
+# Requirements: 
+# - lsblk, udevadm
+# - mount, umount
+# - grep, awk
+#
+# Terminology:
+# - Device: A physical device, such as a USB drive, SD card, etc. It's name
+#   or path is something like /dev/sda, /dev/sdb, etc.
+# - Partition: A logical division of a device. It's name or path is something
+#   like /dev/sda1, /dev/sda2, etc.
+# - Mount point: A directory where a device is mounted to.
+###############################################################################
+
+# Predicate checking if a device is mounted
+# 
+# Arguments:
+# $1: Device name
+#
+# Return: Exit code 0 if true, 1 otherwise
+checkIsMounted() {
+  mount | grep -q "$1"
+}
+
+# Predicate checking if a device is a USB device
+#
+# Arguments:
+# $1: Device name
+# 
+# Return: Exit code 0 if true, 1 otherwise
+checkIsUSB() {
+  udevadm info --query=property --name="$1" | grep -q "ID_BUS=usb"
+}
+
+# Construct the mount point path based on the device partition path
+#
+# Arguments:
+# $1: Device partition path
+#
+# Return: The mount point path, including the partition label if one exists
+constructMountPoint() {
+  partition=$(basename "$1")
+  partitionLabel=$(lsblk -o PATH,LABEL | grep "$1" | awk '{print $2}')
+
+  if [ -n "$partitionLabel" ]; then
+    echo "$MOUNT_ROOT_DIR/${partition}_${partitionLabel}"
+  else
+    echo "$MOUNT_ROOT_DIR/$partition"
+  fi
+}
+
+# Get the list of USB partitions
+#
+# Return:
+# /dev/sda1 
+# /dev/sda2
+getAllUSBPartitions() {
+  partitions=$(lsblk -o PATH,TYPE | grep 'part' | awk '{print $1}')
+
+  for partition in $partitions; do
+    checkIsUSB "$partition" && echo "$partition"
+  done
+}
+
+# Get the mount point of a device
+#
+# Arguments:
+# $1: Device path
+getMountPoint() {
+  mount | grep "$1" | awk '{print $3}'
+}
+
+# Mount a device partition to a folder
+#
+# Arguments:
+# $1: Device partition
+# $2: User to mount the device as
+mountPartition() {
+  currentMountPoint=$(getMountPoint "$1")
+
+  if [ -z "$currentMountPoint" ]; then
+    newMountPoint=$(constructMountPoint "$1")
+
+    mkdir -p "$newMountPoint"
+    mount -o "uid=$(id -u "$2"),gid=$(id -g "$2")" \
+      "$1" "$newMountPoint"
+  else
+    echo "Device $1 is already mounted at $currentMountPoint"
+  fi
+}
+
+# Unmount a device and delete the folder it was mounted to
+#
+# Arguments:
+# $1: Device partition
+unmountPath() {
+  mountPoint="$(getMountPoint "$1")"
+  umount "$1"
+
+  if [ -d "$mountPoint" ]; then
+    rmdir "$mountPoint"
+  else
+    echo "Mount point $mountPoint does not exist"
+  fi
+}
