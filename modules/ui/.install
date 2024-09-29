@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+# Module install script, runs every 24 hours.
+# Use this file to keep dependencies updated and ensure system integration.
+
+# Link module configs into ~/.config expected folders
+while IFS="" read -r dir; do
+  fake="$HOME/.config/$dir"
+  real="$UI_CONFIG/$dir"
+  ensure_symlink "$real" "$fake"
+done << EOF
+fontconfig
+gtk-3.0
+terminal-colors.d
+EOF
+

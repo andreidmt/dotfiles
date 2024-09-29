@@ -1,40 +1,15 @@
-#!/usr/bin/env dash
+#!/usr/bin/env sh
 
-UI_HOME="$(dirname "$0")"
-UI_CONFIG="$UI_HOME/common"
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
-LOG_NAMESPACE=" ui"
-LOG_LEVEL=info
+export PATH="$UI_SCRIPTS:$PATH"
 
-if [ -f "$UI_HOME/.env" ]; then
-  . "$UI_HOME/.env"
-fi
+[ -f "$UI_HOME/.env" ] && . "$UI_HOME/.env"
 
-# ╭───┤ Expose scripts and libs
-# ╰─
+#shellcheck source=./functions/sys-theme
+. "$UI_FUNCTIONS/sys-theme"
+sys_theme_set_gruvbox
 
-scripts_home="$UI_HOME/scripts"
-export PATH="$scripts_home:$PATH"
-fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
-
-# ╭───┤ Link user configs 
-# ╰─
-
-while IFS="" read -r dir; do
-  fake="$HOME/.config/$dir"
-  real="$UI_CONFIG/$dir"
-  ensure_symlink "$real" "$fake"
-done << EOF
-fontconfig
-dunst
-gtk-3.0
-terminal-colors.d
-EOF
-
-ensure_symlink \
-  "$UI_CONFIG/applications" \
-  "$HOME/.local/share/applications"
-
-ensure_symlink \
-  "$UI_CONFIG/mimeapps.list" \
-  "$HOME/.config/mimeapps.list"

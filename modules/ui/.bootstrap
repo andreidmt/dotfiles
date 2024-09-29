@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+UI_HOME="$(dirname "$0")"
+
+export UI_CONFIG="$UI_HOME/common"
+export UI_FUNCTIONS="$UI_HOME/functions"
+export UI_SCRIPTS="$UI_HOME/scripts"
+
+export LOG_NAMESPACE=" ui"
+export LOG_LEVEL=info
+
