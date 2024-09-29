@@ -17,20 +17,22 @@ set -eu
 #  git(1)
 
 if [ "$#" -ne 2 ]; then
-  echo "Usage: git-download <git_address> <install_path>" >&2
+  fancy-log error "Usage: git-download <git_address> <install_path>" >&2
   exit 1
 fi
+
+export LOG_NAMESPACE=" git-download"
+export LOG_LEVEL="info"
 
 git_address=$1
 path=$2
 
 if [ -d "$path" ]; then
-  echo " Updating $git_address ..."
+  fancy-log info -v address "$git_address" "Updating ..."
 
-  cd "$path"
-  git pull
+  cd "$path" && git pull
 else
-  echo " Cloning $git_address ..."
+  fancy-log info -v address "$git_address" "Cloning ..."
 
   mkdir -p "$path"
   git clone --depth 1 "https://github.com/$git_address" "$path"

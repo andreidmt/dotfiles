@@ -3,8 +3,6 @@
 # -e: exit on error
 set -e 
 
-. "$CORE_FUNCTIONS/die"
-
 # NAME
 #  has-days-passed - Checks if the current time is older than the last time 
 #                    this script was called.
@@ -34,26 +32,21 @@ while [ "$#" -gt 0 ]; do
       if [ "$2" ]; then
         name=$2; shift
       else
-        die '"--name" requires a non-empty option argument.'
+        fancy-log error -v name "$1" "Option requires a value"
+        exit 1
       fi
     ;;
     -c|--count)
       if [ "$2" ]; then
         count=$2; shift
       else
-        die '"--count" requires a non-empty option argument.'
+        fancy-log error -v name "$1" "Option requires a value"
+        exit 1
       fi
     ;;
-    --)
-      shift
-      break 
-    ;;
-    -?*)
-      die "Unknown option: $1"
-    ;;
-    *) 
-      break
-    ;;
+    --) shift; break ;;
+    -?*) fancy-log error -v name "$1" "Unknown option" ;;
+    *) break ;;
   esac
   shift
 done
@@ -74,7 +67,7 @@ if [ -z "$count" ] || [ "$count" -lt 1 ]; then
   count=1
 fi
 
-past_value_file="/tmp/hdp_$name"
+past_value_file="${TMPDIR:-/tmp}/hdp_$name"
 past_value=$(cat "$past_value_file" 2> /dev/null || echo 0)
 now_in_seconds=$(date +%s)
 seconds_in_a_day=86400

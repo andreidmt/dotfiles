@@ -37,22 +37,6 @@ while [ "$#" -gt 0 ]; do
         exit 1
       fi
     ;;
-    -t|--title)
-      if [ "$2" ]; then
-        title="$2"; shift
-      else
-        fancy-log error -v option "$2" "Option require a value"
-        exit 1
-      fi
-    ;;
-    -m|--message)
-      if [ "$2" ]; then
-        message="$2"; shift
-      else
-        fancy-log error -v option "$2" "Option require a value"
-        exit 1
-      fi
-    ;;
     *) break ;;
   esac
   shift
@@ -75,10 +59,4 @@ case ${type:-info} in
   ;;
 esac
 
-if is_process_running dunst; then
-  notify-send "$@" --icon "$icon" --urgency $urgency \
-    "$title" "$message"
-else
-  fancy-log error "Dunst is not running, skipping notification"
-  exit 1
-fi
+notify-send "$@" --icon "$icon" --urgency $urgency

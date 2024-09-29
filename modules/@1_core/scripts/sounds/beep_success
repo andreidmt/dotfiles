@@ -4,7 +4,6 @@
 #  beep_success - Confirm/success beep sound using the pc speaker 
 
 beep -f 800 -l 100 \
-  -n -f 1200 -l 100 \
-  -n -f 1600 -l 100 \
-  -n -f 2000 -l 100 \
-  -n -f 2400 -l 100 
+  -n -f 1200 -l 75 \
+  -n -f 2000 -l 50 \
+  -n -f 2400 -l 75 
