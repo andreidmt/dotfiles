@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 
-LOG_NAMESPACE=" ui-sway"
-LOG_LEVEL=info
-
 # shellcheck source=../@0_fancy-posix-utils/functions/predicates
 . "$FCLI_FUNCTIONS/predicates"
 
@@ -12,4 +9,5 @@ fi
 
 fancy-log warn -v cmd sway \
   "Command does not exit, skipping module" 
+
 exit 1

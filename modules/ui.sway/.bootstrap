@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+UISWAY_HOME="$(dirname "$0")"
+export UISWAY_CONFIG="$UISWAY_HOME/config"
+export UISWAY_SCRIPTS="$UISWAY_HOME/scripts"
+
+export UISWAY_LOGS="$UISWAY_HOME/.logs"; mkdir -p "$UISWAY_LOGS"
+
+export LOG_NAMESPACE=" ui-sway"
+export LOG_LEVEL=info
+

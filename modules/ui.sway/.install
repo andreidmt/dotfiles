@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+# Module install script, runs every 24 hours.
+# Use this file to keep dependencies updated and ensure system integration.
+
+# Link module configs into ~/.config expected folders
+while IFS="" read -r dir; do
+  real="$UISWAY_CONFIG/$dir"
+  fake="$HOME/.config/$dir"
+  ensure_symlink "$real" "$fake"
+done << EOF
+sway
+dunst
+rofi
+gammastep
+waybar
+mako
+xdg-desktop-portal-wlr
+EOF
+
+ensure_symlink "$UISWAY_CONFIG/applications" \
+  "$HOME/.local/share/applications"
+
+ensure_symlink "$UISWAY_CONFIG/mimeapps.list" \
+  "$HOME/.config/mimeapps.list"
+

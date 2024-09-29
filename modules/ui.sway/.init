@@ -1,33 +1,13 @@
 #!/usr/bin/env sh
 
-UISWAY_HOME="$(dirname "$0")"
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
-LOG_NAMESPACE=" ui-sway"
-LOG_LEVEL=info
+export PATH="$UISWAY_SCRIPTS:$PATH"
 
-# ╭───┤ Expose scripts 
-# ╰─
+# Needed for pipewire and xdg-desktop-portal (screensharing)
 
-scripts_home="$UISWAY_HOME/scripts"
-export PATH="$scripts_home:$PATH"
+export XDG_CURRENT_DESKTOP=sway
 
-fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
- 
-# ╭───┤ Link module config folder to ~/.config 
-# ╰─
-
-config_dirs="sway"
-
-echo "$config_dirs" | while IFS="" read -r dir; do
-  config_path="$HOME/.config/$dir"
-
-  if is_symlink_broken "$config_path"; then
-    fancy-log warn -v path "$config_path" "Removing broken config symlink ..."
-    rm "$config_path"
-  fi
-
-  if [ ! -d "$config_path" ]; then
-    fancy-log info -v to "$config_path" "Creating config symlink ..."
-    ln -s "$UISWAY_HOME/config/$dir" "$config_path"
-  fi
-done
