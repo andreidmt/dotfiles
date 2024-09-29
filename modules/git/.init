@@ -1,20 +1,15 @@
 #!/usr/bin/env sh
 
-GITUTILS_HOME="$(dirname "$0")"
+GITM_HOME="$(dirname "$0")"
 
-LOG_NAMESPACE="󰊢 git"
-LOG_LEVEL=info
+export LOG_NAMESPACE="󰊢 git"
+export LOG_LEVEL=info
 
-# ╭───┤ Expose scripts 
-# ╰─
+# Expose scripts 
+GITM_SCRIPTS="$GITM_HOME/scripts"
+export PATH="$GITM_SCRIPTS:$PATH"
 
-scripts_home="$GITUTILS_HOME/scripts"
-fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
-export PATH="$scripts_home:$PATH"
-
-# ╭───┤ Link user configs 
-# ╰─
-
+# Link user configs 
 ensure_symlink \
-  "$GITUTILS_HOME/config/.gitconfig" \
+  "$GITM_HOME/config/.gitconfig" \
   "$HOME/.gitconfig"
