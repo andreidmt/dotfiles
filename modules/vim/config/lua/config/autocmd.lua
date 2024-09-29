@@ -1,5 +1,13 @@
 local vim_utils = require("utils.vim")
 
+-- Neovim Lua configuration for auto-formatting Lua with stylua on save
+vim.api.nvim_create_augroup("FormatAutogroup", { clear = true })
+vim.api.nvim_create_autocmd("BufWritePost", {
+  group = "FormatAutogroup",
+  pattern = "*.lua",
+  command = "silent! !stylua %",
+})
+
 -- Define filetypes and their patterns
 vim_utils.create_autocmds({
   html = "*.ejs",
@@ -12,6 +20,7 @@ vim_utils.create_autocmds({
     "*.flow"
   },
   json = {
+    ".d41rc",
     ".c8rc",
     ".zerobootrc",
     ".remarkrc",

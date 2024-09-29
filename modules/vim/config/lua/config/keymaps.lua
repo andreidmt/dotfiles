@@ -9,10 +9,10 @@ vim.keymap.set("v", "<leader>q", ":norm! @q<CR>", { noremap = true, silent = tru
 vim.keymap.set("v", "<leader>w", ":norm! @w<CR>", { noremap = true, silent = true })
 
 -- Surround current word
-local surrounds = { '_', '"', '*', '(', '[', '{' }
+local surrounds = { "`", "_", '"', "*", "(", "[", "{" }
 for _, char in ipairs(surrounds) do
-    vim.keymap.set("n", "<leader>"..char, "bi"..char.."<Esc>ea"..char, { noremap = true, silent = true })
-    vim.keymap.set("v", "<leader>"..char, "c"..char..char.."<Esc>P", { noremap = true, silent = true })
+	vim.keymap.set("n", "<leader>" .. char, "bi" .. char .. "<Esc>ea" .. char, { noremap = true, silent = true })
+	vim.keymap.set("v", "<leader>" .. char, "c" .. char .. char .. "<Esc>P", { noremap = true, silent = true })
 end
 
 -- Markdown mappings
@@ -34,4 +34,3 @@ vim.keymap.set("n", "<M-l>", "<C-w>l", { noremap = true, silent = true })
 -- Auto fix prev/next spelling error without changing position
 vim.keymap.set("n", "<leader>s", "mm[s1z=`m<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>S", "mm]s1z=`m<CR>", { noremap = true, silent = true })
-
