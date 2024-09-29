@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+AWSM_HOME="$(dirname "$0")"
+
+export AWSM_BIN="$AWSM_HOME/.bin"; mkdir -p "$AWSM_BIN"
+export AWSM_LOCAL="$AWSM_HOME/.local"; mkdir -p "$AWSM_LOCAL"
+export AWSM_FUNCTIONS="$AWSM_HOME/functions"
+export AWSM_SCRIPTS="$AWSM_HOME/scripts"
+
+export LOG_NAMESPACE="󰸏 aws"
+export LOG_LEVEL=info
+

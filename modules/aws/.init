@@ -1,59 +1,15 @@
 #!/usr/bin/env sh
 
-# ╭──────────────────────
-# │ Entry point for the AWS shell module.
-# ╰────────
+# Expose scripts 
+export PATH="$AWSM_BIN:$AWSM_SCRIPTS:$PATH"
 
-AWSM_HOME="$(dirname "$0")"
-export AWSM_BIN="$AWSM_HOME/.bin"
+# Source functions
+. "$AWSM_FUNCTIONS/awswitch"
 
-export AWSM_FUNCTIONS="$AWSM_HOME/functions"
-export AWSM_SCRIPTS="$AWSM_HOME/scripts"
-
-LOG_NAMESPACE="󰸏 aws"
-LOG_LEVEL=info
-
-# ╭───┤ Source functions
-# ╰─
-
+# Config AWS 
 export AWS_PROFILE="r3wy"
 export AWS_REGION="eu-west-1"
 export AWS_PAGER=""
-
-export PATH="$AWSM_BIN:$AWSM_SCRIPTS:$PATH"
-
-# Expose all module functions to the shell environment
-find "$AWSM_FUNCTIONS" -type f | while IFS= read -r function_file; do 
-  . "$function_file"
-done
-
-## Upgrade dependencies. Coordinated by the HMVC system via global 
-## $HMVC_SHOULD_UPGRADE variable.
-
-export AWSM_TMP="$AWSM_HOME/.tmp"
-export AWSM_LOCAL="$AWSM_HOME/.local"
-
-upgrade_dependencies() {
-  fancy-log info "Updating AWS CLI ..."
-
-  zip_file="$AWSM_TMP/awscliv2.zip"
-  mkdir -p "$AWSM_TMP" "$AWSM_LOCAL/aws-cli" "$AWSM_BIN"
-
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$zip_file" 
-  unzip -oq "$zip_file" -d "$AWSM_TMP"
-
-  "$AWSM_TMP"/aws/install --update \
-    --bin-dir "$AWSM_BIN" \
-    --install-dir "$AWSM_LOCAL/aws-cli"
-
-  rm -rf "$AWSM_TMP"
-
-  fancy-log info -v version "$(aws --version)" "AWS CLI updated"
-}
-
-if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
-  upgrade_dependencies
-fi
 
 fancy-log info \
   -v count "$(aws-profile-utils list | wc --lines)" \

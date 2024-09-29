@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+fancy-log info "Updating AWS CLI ..."
+
+tmp_dir="${TMPDIR:-/tmp}/aws-cli"
+zip_file="$tmp_dir/awscliv2.zip"
+
+install_dir="$AWSM_LOCAL/aws-cli"
+mkdir -p "$install_dir"
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$zip_file" 
+unzip -oq "$zip_file" -d "$tmp_dir"
+
+"$tmp_dir"/aws/install --update \
+  --bin-dir "$AWSM_BIN" \
+  --install-dir "$install_dir"
+
+rm -rf "$tmp_dir"
+
+fancy-log info -v version "$(aws --version)" "AWS CLI updated"
