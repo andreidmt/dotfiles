@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+###
+# Module bootstraping script, sourced with every terminal session before
+# .init and/or .install.
+# Use it to set common varables that both script will need.
+###
+
+TERMINALM_HOME="$(dirname "$0")"
+
+export TERMINALM_CONFIG="$TERMINALM_HOME/config"; 
+export TERMINALM_LOCAL="$TERMINALM_HOME/.local"
+mkdir -p "$TERMINALM_LOCAL"
+
+export LOG_NAMESPACE=" @terminal"
+export LOG_LEVEL=info

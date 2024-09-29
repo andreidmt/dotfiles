@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+
+###
+# Module install script, runs every 24 hours.
+# Use this file to keep dependencies updated and ensure system integration.
+###
+
+zsh_plugins="Aloxaf/fzf-tab
+zsh-users/zsh-syntax-highlighting
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-history-substring-search"
+
+fancy-log info "Upgrading ZSH plugins..."
+
+while IFS= read -r git_address; do
+  name=$(basename "$git_address")
+
+  git-download "$git_address" "$TERMINALM_LOCAL/$name"
+done <<EOF
+$zsh_plugins
+EOF
+
+# Link module configs into ~/.config, or other system expected folders
+
+while IFS="" read -r dir; do
+  fake="$HOME/.config/$dir"
+  real="$TERMINALM_CONFIG/$dir"
+  ensure_symlink "$real" "$fake"
+done << EOF
+alacritty
+bat
+neofetch
+starship
+EOF
+

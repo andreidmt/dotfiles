@@ -1,76 +1,24 @@
-#!/usr/bin/env sh
+#!/usr/bin/env zsh
 
-TERMINALM_HOME="$(dirname "$0")"
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
-LOG_NAMESPACE=" @terminal"
-LOG_LEVEL=info
+# ZSH 
 
-##
-## Load local/secret environment variables
-##
+source "$TERMINALM_CONFIG/zsh/config"
+source "$TERMINALM_CONFIG/zsh/aliases"
+source "$TERMINALM_CONFIG/zsh/plugins"
+source "$TERMINALM_CONFIG/zsh/vars"
 
-dotenv_path="$TERMINALM_HOME/.env"
-if [ -f "$dotenv_path" ]; then
-  . "$dotenv_path"
-fi
-
-##
-## Upgrade dependencies. Coordinated by the HMVC system via global 
-## $HMVC_SHOULD_UPGRADE variable.
-##
-
-export TERMINALM_LOCAL="${TERMINALM_HOME}/.local"
-mkdir -p "$TERMINALM_LOCAL"
-
-zsh_plugins="Aloxaf/fzf-tab
-zsh-users/zsh-syntax-highlighting
-zsh-users/zsh-autosuggestions
-zsh-users/zsh-history-substring-search"
-
-if [ -n "$HMVC_SHOULD_UPGRADE" ] || [ ! -e "$TERMINALM_LOCAL/fzf-tab" ]; then
-  fancy-log info "Upgrading ZSH plugins..."
-
-  while IFS= read -r git_address; do
-    name=$(basename "$git_address")
-
-    git-download "$git_address" "$TERMINALM_LOCAL/$name"
-  done <<EOF
-$zsh_plugins
-EOF
-fi
-
-##
-## ZSH
-##
-
-ZSHM_HOME="$TERMINALM_HOME/config/zsh"
-
-. "${ZSHM_HOME}/config"
-. "${ZSHM_HOME}/aliases"
-. "${ZSHM_HOME}/plugins"
-. "${ZSHM_HOME}/vars"
-
-# ╭───┤ Link user configs 
-# ╰─
-
-while IFS="" read -r dir; do
-  fake="$HOME/.config/$dir"
-  real="$TERMINALM_HOME/config/$dir"
-  ensure_symlink "$real" "$fake"
-done << EOF
-alacritty
-bat
-neofetch
-starship
-EOF
-
-## Starship
+# Starship
 
 # Default config is ~/.config/starship.toml
 export STARSHIP_CONFIG="$HOME/.config/starship/config.toml"
 eval "$(starship init zsh)"
 
-## BAT
+# BAT
 
 export BAT_THEME="gruvbox-dark"
 
