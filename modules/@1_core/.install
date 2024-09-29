@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+# Module install script, runs every 24 hours.
+# Use this file to keep dependencies updated and ensure system integration.
+
+# Configure User level runit services
+ensure_symlink "$CORE_SERVICES/syncthing" "$CORE_RUNSV/syncthing"
+ensure_symlink "$CORE_SERVICES/usb-automount" "$CORE_RUNSV/usb-automount"

@@ -1,38 +1,26 @@
 #!/usr/bin/env sh
 
-# ╭──────────────────────
-# │ Entry point for the Core shell module.
-# ╰────────
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
-CORE_HOME="$(dirname "$0")"
-
-LOG_NAMESPACE=" @core"
-LOG_LEVEL=info
-
-# ╭───┤ Load Xresources (colors, fonts) and make available in shell
-# ╰─
-
+# Load Xresources (colors, fonts) and make available in shell
 if [ -n "$DISPLAY" ]; then 
   xrdb -merge ~/.Xresources
 fi
 
-# ╭───┤ Expose scripts 
-# ╰─
+# Expose scripts 
+export PATH="$CORE_SCRIPTS:$PATH"
+export PATH="$CORE_SCRIPTS/datetime:$PATH"
+export PATH="$CORE_SCRIPTS/sounds:$PATH"
+export PATH="$CORE_SCRIPTS/sys:$PATH"
+export PATH="$CORE_SCRIPTS/tui:$PATH"
 
-scripts_home="$CORE_HOME/scripts"
-export PATH="$scripts_home:$PATH"
-export PATH="$scripts_home/datetime:$PATH"
-export PATH="$scripts_home/sounds:$PATH"
-export PATH="$scripts_home/sys:$PATH"
-export PATH="$scripts_home/tui:$PATH"
-
-fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
-
-# ╭───┤ Source functions
-# ╰─
-
-# Other script might want to source
-export CORE_FUNCTIONS="$CORE_HOME/functions"
-
-fancy-log info -v path "$CORE_FUNCTIONS" "Functions sourced"
-
+# Configure User level runit services
+if ! is_process_running "runsvdir" "$CORE_RUNSV"; then
+  fancy-log info -v dir "$CORE_RUNSV" "Starting services" 
+  
+  runsvdir "$CORE_RUNSV" \
+    > "$CORE_LOGS/runsvdir.log" 2>&1 &
+fi

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+CORE_HOME="$(dirname "$0")"
+
+export LOG_NAMESPACE=" @core"
+export LOG_LEVEL=info
+
+export CORE_SCRIPTS="$CORE_HOME/scripts"
+export CORE_FUNCTIONS="$CORE_HOME/functions"
+export CORE_SERVICES="$CORE_HOME/services"
+
+export CORE_LOGS="$CORE_HOME/.logs"; 
+mkdir -p "$CORE_LOGS"
+
+export CORE_RUNSV="$HOME/.runit/core-service"
+mkdir -p "$CORE_RUNSV"
+
