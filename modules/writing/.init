@@ -1,9 +1,14 @@
 #!/usr/bin/env dash
 
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
+
 WRITING_HOME="$(dirname "$0")"
 
-LOG_NAMESPACE="󱅄 writing"
-LOG_LEVEL=info
+export LOG_NAMESPACE="󱅄 writing"
+export LOG_LEVEL=info
 
 WRITING_SCRIPTS="$WRITING_HOME/scripts"
 export PATH="$WRITING_SCRIPTS:$PATH"

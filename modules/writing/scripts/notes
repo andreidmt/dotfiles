@@ -5,7 +5,7 @@
 export LOG_NAMESPACE="󱅄 writing"
 export LOG_LEVEL=info
 
-create() {
+notes_create() {
   draftsPath="$NOTES_DATA/draft"
   path="$draftsPath/$(date +%y-%j).md"
 
@@ -24,8 +24,8 @@ create() {
   nvim -c "norm G" -c "norm zz" -c "set spell" "$path"
 }
 
-open() {
-  notePath=$(readStdinOr "$1")
+notes_open() {
+  notePath=$(stdin_or "$1")
 
   if [ -f "$notePath" ]; then
     cd "$NOTES_DATA"
@@ -36,13 +36,10 @@ open() {
   fi
 }
 
-list() {
-  notes=$(rg --files --sortr modified "$NOTES_DATA" \
-    | rg .md \
-  )
+notes_list() {
+  notes=$(rg --files --sortr modified "$NOTES_DATA" | rg .md)
 
-  for path in $notes
-  do
+  for path in $notes; do
     title=$(rg "^# " --max-count 1 "$path" | sed -e "s/# //g")
     type=$(sed --quite '/^```toml/,/^```/p' < "$path" \
       | grep --ignore-case "type" \
@@ -59,29 +56,19 @@ list() {
 }
 
 ask() {
-  note=$(notes list \
-    | rofi -dmenu \
-      -eh 2 \
-      -sep '|' \
-      -p " :" \
-      -i \
-      -markup-rows \
-      -case-sensitive false \
-  )
+  note=$(rg --files --sortr modified "$NOTES_DATA" \
+    | fzf --height 100% --border --preview "bat {}")
 
-  if [ -n "$note" ]; then
-    echo "$note" \
-      | sanitize html \
-      | tail -n 1 \
-      | xargs "$TERMINAL" -t such-important -e notes open
-  fi
+  [ -n "$note" ] && exec notes open "$note"
+
+  fancy-log error "No note selected"
 }
 
 case "${1-ask}" in
   ask) ask ;;
-  create) create ;;
-	list) list ;;
-	open) open "$2" ;;
+  create) notes_create ;;
+	list) notes_list ;;
+	open) notes_open "$2" ;;
   *) 
     fancy-log error \
       -v cmd "$1" \
