@@ -2,5 +2,9 @@
 .bin
 .local
 .logs
+*.log
 .cache
 .env
+
+# runit services state files
+supervise
