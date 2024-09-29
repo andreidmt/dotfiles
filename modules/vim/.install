@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# Module install script, runs every 24 hours.
+# Use this file to keep dependencies updated and ensure system integration.
+
+git-download "folke/lazy.nvim" "$NVIM_LOCAL/lazy.nvim"
+
+# Required by the nvim lua config
+export NVIM_LAZY_HOME="$NVIM_LOCAL/lazy.nvim"
+
+# Link module configs into ~/.config or other system expected folders
+ensure_symlink "$NVIM_HOME/config" "$HOME/.config/nvim"
+

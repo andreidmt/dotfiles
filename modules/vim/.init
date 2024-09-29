@@ -1,23 +1,7 @@
 #!/usr/bin/env sh
 
-NVIM_HOME="$(dirname "$0")"
-NVIM_LOCAL="$NVIM_HOME/.local"
-
-LOG_NAMESPACE=" nvim"
-LOG_LEVEL=info
-
-if [ -n "$HMVC_SHOULD_UPGRADE" ] || [ ! -d "$NVIM_LOCAL/lazy.nvim" ]; then
-  mkdir -p "$NVIM_LOCAL"
-  git-download "folke/lazy.nvim" "$NVIM_LOCAL/lazy.nvim"
-fi
-
-# Required by the nvim lua config
-export NVIM_LAZY_HOME="$NVIM_LOCAL/lazy.nvim"
-
-# ╭───┤ Link user configs 
-# ╰─
-
-ensure_symlink \
-  "$NVIM_HOME/config" \
-  "$HOME/.config/nvim"
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 

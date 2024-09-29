@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+NVIM_HOME="$(dirname "$0")"
+
+export NVIM_LOCAL="$NVIM_HOME/.local"
+export NVIM_LAZY_HOME="$NVIM_LOCAL/lazy.nvim"
+
+export LOG_NAMESPACE=" nvim"
+export LOG_LEVEL=info
