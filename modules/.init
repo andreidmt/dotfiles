@@ -29,7 +29,9 @@
 #    config/
 #    scripts/
 #    .env
+#    .bootstrap
 #    .init
+#    .install
 #   ui/
 #    i3/
 #     config/
@@ -52,131 +54,145 @@
 #
 #  source /path/to/modules/.init
 #
-# REQUIREMENTS
-#   <.init>    Entry point file to the module's functionality. Automatically 
-#              detected and sourced by this file.
+# SPECIAL FILES (listing also describes also the order of sourcing)
+#  [.should-load]
+#   Control whether or not to load the module.
 #
-# RECOMMENDED FOLDER STRUCTURE
-#   .env       File for private env data, such as API keys, passwords, etc.
-#              Ignored by git.
-#   .local/    Directory for temporary files and other data. Ignored by git.
-#   .cache/    Directory for cache files. Ignored by git.
-#   .tmp/      Directory for temporary files. Ignored by git.
-#   scripts/   Directory for scripts. Use module .init to include in $PATH and
-#              expose shell scripts to the outside world.
-#   libs/      Directory for libraries. Keep reusable functions ment to be
-#              imported in other scripts, for ex. a "die" function which
-#              outputs to stderr and exits with a non-zero code.
-#   functions/ Directory for functions. Use module .init to source and expose
-#              to the outside world.
-#   config/    Directory for config files.
+#  [.bootstrap]
+#   File source before .install and/or .init. Use it to store common env vars
+#   etc.
 #
-# PRECEDENCE
-#  Modules whose name starts with "@" are loaded first, in alphabetical order.
-#  The rest of the modules are loaded after, also in alphabetical order.
-#  This a very light weight way of defining module dependencies.
+#  <.init>
+#   Entry point file to the module's functionality. Automatically detected
+#   and sourced by this file.
 #
-#  A folder structure might be:
-#   modules/
-#     @core/
-#     aws/
-#     i3/
-#     ssh/
+# INSTALL PHASE
+#  Every 24 hours, an "upgrade lock" is aquired. The terminal with the lock
+#  will trigger the processing of extra files. These files are ment to keep the
+#  system and modules up to date.
 #
-#  The @core module is loaded first, then the rest of the modules, in 
-#  alphabetical order.
+#  [packages.csv]
+#   Pacman or AUR package with module dependencies.
+
+#  [.install]
+#   Logic ment to keep the module updated and functioning, logic that's not
+#   required to run every terminal session.
 #
-#  While this will not give the granularity of a full blown dependency manager,
-#  and not allow you to specify if "nvm" depends on "ssh", it should strike a
-#  good 80/20 balance between simplicity and functionality.
+# RECOMMENDED FOLDERS
+#  .env       File for private env data, such as API keys, passwords, etc.
+#             Ignored by git.
+#  .local/    Directory for temporary files and other data. Ignored by git.
+#  .cache/    Directory for cache files. Ignored by git.
+#  .tmp/      Directory for temporary files. Ignored by git.
+#  scripts/   Directory for scripts. Use module .init to include in $PATH and
+#             expose shell scripts to the outside world.
+#  functions/ Directory for functions. Use module .init to source and expose
+#             to the outside world.
+#  config/    Directory for config files.
+#
+# ORDER OF MODULE LOADING
+#  Modules are loaded alphabeticaly but the order should not be relied upon 
+#  when creting modules.
 #
 # IGNORED
 #  Modules whose name starts with "_" are ignored and not loaded. This is
 #  useful when you want to temporarily disable a module.
 
-HMVC_HOME="$(dirname "$0")"
+export LOG_NAMESPACE="󰺔 ddd+hmvc" 
+export LOG_LEVEL=info
+
+HMVC_HOME="$(dirname "$(realpath "$0")")"
 HMVC_LOG="$HMVC_HOME/.logs"
 
-mkdir -p "$HMVC_LOG" 
-start_time_main=$(date +%s)
+mkdir -p "$HMVC_LOG"
+start_time_main=$(date +%s%3N)
 
-# ╭───┤ Upgrade modules and packages every 24hours 
-# ╰─
+# ╭──────────────────────
+# │ Upgrade modules and packages every 24 hours
+# ╰────────
 
-HMVC_UPGRADE_LOCK="/tmp/hmvc_ddd_upgrade.lock"
+HMVC_UPGRADE_LOCK="${TMPDIR:-/tmp}/hmvc_ddd_upgrade-$(id -u).lock"
 
-# Aquire an upgrade lock by creating a file in the .tmp directory.
-# RETURN
-#  The path to the lock file if the lock was aquired, empty string otherwise.
-aquire_upgrade_lock() {
-  if [ -f "$HMVC_UPGRADE_LOCK" ]; then
+acquire_upgrade_lock() {
+  if mkdir "$HMVC_UPGRADE_LOCK" 2>/dev/null; then
+    echo "$HMVC_UPGRADE_LOCK"
+  else
     return 1
   fi
-
-  echo "$$" > "$HMVC_UPGRADE_LOCK"
-  echo "$HMVC_UPGRADE_LOCK"
 }
 
 release_upgrade_lock() {
-  rm -f "$HMVC_UPGRADE_LOCK" >&2
+  rmdir "$HMVC_UPGRADE_LOCK" 2>/dev/null
 }
 
 trap release_upgrade_lock EXIT
 
-upgrade_lock=$(aquire_upgrade_lock)
+upgrade_lock=$(acquire_upgrade_lock)
 if has-days-passed --name "hmvc-upgrade" --count 1 && [ -n "$upgrade_lock" ]; then
-  export HMVC_SHOULD_UPGRADE="true"
+  export HMVC_SHOULD_UPGRADE=true
 else 
-  # Since this init script runs also on login, we need to reset the variable 
-  # in case the lock was aquired then and the exported variable was set.
-  # In that case HMVC_SHOULD_UPGRADE would be set to "true" in the root
-  # shell, and would be inherited by all child shells.
-  export HMVC_SHOULD_UPGRADE=""
+  export HMVC_SHOULD_UPGRADE=false
 fi
 
 # ╭──────────────────────
 # │ Manually load modules that must be in a certain order 
 # ╰────────
 
-if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
-  install-from-csv "$HMVC_HOME/@0_fancy-posix-utils/packages.csv"
-  install-from-csv "$HMVC_HOME/@1_core/packages.csv"
-  install-from-csv "$HMVC_HOME/@2_terminal/packages.csv"
-fi
+install_module() {
+  module_dir="$1"
 
-. "$HMVC_HOME/@0_fancy-posix-utils/.init"
-. "$HMVC_HOME/@1_core/.init"
-. "$HMVC_HOME/@2_terminal/.init"
+  should_load_path="$module_dir/.should-load"
+  [ -f "$should_load_path" ] && ! "$should_load_path" && return;
+
+  bootstrap_path="$module_dir/.bootstrap"
+  [ -f "$bootstrap_path" ] && . "$bootstrap_path"
+
+  package_csv_path="$module_dir/packages.csv"
+  [ -f "$package_csv_path" ] && install-from-csv "$package_csv_path"
+
+  install_path="$module_dir/.install"
+  [ -f "$install_path" ] && . "$install_path"
+}
+
+load_module() {
+  module_dir="$1"
+
+  should_load_path="$module_dir/.should-load"
+  [ -f "$should_load_path" ] && ! "$should_load_path" && return;
+
+  bootstrap_path="$module_dir/.bootstrap"
+  [ -f "$bootstrap_path" ] && . "$bootstrap_path"
+
+  init_path="$module_dir/.init"
+  [ -f "$init_path" ] && . "$init_path"
+}
+
+load_module "$HMVC_HOME/@0_fancy-posix-utils"
+load_module "$HMVC_HOME/@1_core"
+load_module "$HMVC_HOME/@2_terminal"
+
+if [ "$HMVC_SHOULD_UPGRADE" = true ]; then
+  install_module "$HMVC_HOME/@0_fancy-posix-utils"
+  install_module "$HMVC_HOME/@1_core"
+  install_module "$HMVC_HOME/@2_terminal"
+fi
 
 # ╭──────────────────────
 # │ Helper functions 
 # ╰────────
 
-# Find the paths of all defined modules. 
-# Modules whose name start with a "@" or "_" are ignored. 
-# The alphabetical sorting has no functional purpose, it's there for easier
-# human parsing.
 detect_modules() {
-  find "$HMVC_HOME"/* -mindepth 1 -maxdepth 1 \
-    -name ".init" -o -name "load" -o -name "load.sh" -type f \
-    | grep --invert-match "@.*" \
-    | sort --ignore-case \
-    | grep --invert-match "_.*"
+  find "$HMVC_HOME" -mindepth 1 -maxdepth 1 -type d \
+      ! -name "@*" ! -name "_*" \
+      -exec test -f "{}/.init" \; -print \
+    | sort
 }
 
-# Calculate the duration in milliseconds between two nanoseconds timestamps
-# 
-# SYNOPSIS:
-#  calculate_duration <start_ns> <end_ns>
+# Calculate the duration in milliseconds
 calculate_duration() {
-  echo "$(( ($2 - $1) / 1000000 ))"
+  echo "$(($2 - $1))"
 }
 
-# Colorize the duration, passed in seconds, based on the time it took to load
-# the module
-#
-# SYNOPSIS:
-#  colorize_duration <duration_ms>
 colorize_duration() {
   if [ "$1" -ge 100 ] && [ "$1" -le 250 ]; then
     printf "\033[33m%dms\033[0m" "$1"  # Orange
@@ -187,65 +203,42 @@ colorize_duration() {
   fi
 }
 
-# Output the time it took for the manual modules to load
-
-export LOG_NAMESPACE="󰺔 ddd+hmvc" 
-export LOG_LEVEL=info
-
-duration=$(calculate_duration "$start_time_main" "$(date +%s)")
+duration=$(calculate_duration "$start_time_main" "$(date +%s%3N)")
 fancy-log success \
   -v modules "fancy-cli,core,terminal" \
   -v duration "$(colorize_duration "$duration")" \
   "Core modules loaded"
 
-# ╭───┤ Source each module's .init file
-# ╰─
+# ╭──────────────────────
+# │ Install and load shell modules
+# ╰────────
 
-init_files=$(detect_modules)
-while IFS= read -r init_file; do
-  module_dir=$(dirname "$init_file")
+all_modules=$(detect_modules)
+while IFS= read -r module_dir; do
+  start_time=$(date +%s%3N)
+  load_module "$module_dir"
+  end_time=$(date +%s%3N)
 
-  # Check whether to load the module 
-  should_load_path="$module_dir/.should-load"
-  if [ -f "$should_load_path" ] && ! "$should_load_path"; then
-    continue
-  fi
-
-  # Install module dependencies 
-  packages_path="$module_dir/packages.csv"
-  if [ -f "$packages_path" ] && ([ -n "$HMVC_SHOULD_UPGRADE" ] || has-file-changed "$packages_path"); then 
-    install-from-csv "$packages_path"
-  fi
-
-  # Source module
-  start_time=$(date +%s)
-  . "$init_file"
-  end_time=$(date +%s)
-  delta_ms=$(calculate_duration "$start_time" "$end_time")
-
-  fancy-log success \
-    -v duration "$(colorize_duration "$delta_ms")" \
-    "Module loaded"
+  duration_ms=$(calculate_duration "$start_time" "$end_time")
+  fancy-log success -v duration "$(colorize_duration "$duration_ms")" "Module loaded"
 done <<EOF
-$init_files
+$all_modules
 EOF
 
-if [ -n "$upgrade_lock" ]; then
-  release_upgrade_lock
-fi
-
-if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
-  # System wide package upgrades for any packages missed in module's own
-  # package.csv
+if [ "$HMVC_SHOULD_UPGRADE" = true ]; then
+  while IFS= read -r module_dir; do
+    install_module "$module_dir"
+  done <<EOF
+$all_modules
+EOF
   sys_upgrade packages
 fi
 
-delta_ms=$(calculate_duration "$start_time_main" "$(date +%s)")
-count=$(echo "$init_files" | wc --lines)
-
-echo "╭───────────┤ Loaded $count modules"
+total_duration=$(calculate_duration "$start_time_main" "$(date +%s%3N)")
+module_count=$(echo "$all_modules" | wc -l | tr -d ' ')
+echo "╭───────────┤ Loaded $module_count modules"
 echo "│  ┓ ┓ ┓   ┓           ┏┏┓"
 echo "│ ┏┫┏┫┏┫ + ┣┓┏┳┓┓┏┏━ = ┫ ┫"
 echo "│ ┗┻┗┻┗┻   ┛┗┛┗┗┗┛┗━   ┗┗┛"
-echo "╰──┤ $(colorize_duration "$delta_ms")"
+echo "╰──┤ $(colorize_duration "$total_duration")"
 
