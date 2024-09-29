@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+LLM_HOME=$(dirname "$0")
+LLM_BIN="$LLM_HOME/.bin"
+
+export LOG_NAMESPACE="󱚥 llm"
+export LOG_LEVEL=info
+
+# ╭───┤ Source private env vars, secrets, API keys, etc. Not tracked by git.
+# ╰─
+
+if [ -f "$LLM_HOME/.env" ]; then
+  . "$LLM_HOME/.env"
+fi
+
+ollama_tmp="/tmp/ollama-linux-amd64.tgz"
+if [ -n "$HMVC_SHOULD_UPGRADE" ] && [ ! -f "$ollama_tmp" ]; then
+  curl -L https://ollama.com/download/ollama-linux-amd64.tgz -o "$ollama_tmp"
+  tar -C "$LLM_BIN" -xzf "$ollama_tmp"
+fi
