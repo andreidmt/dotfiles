@@ -1,9 +1,9 @@
 #!/usr/bin/env dash
 
-# shellcheck source=../../functions/stdin-or
+# shellcheck source=../functions/stdin-or
 . "$FCLI_FUNCTIONS/stdin-or"
 
-# shellcheck source=../../functions/predicates
+# shellcheck source=../functions/predicates
 . "$FCLI_FUNCTIONS/predicates"
 
 # NAME
@@ -82,7 +82,7 @@ parse_options() {
         shift
         ;;
       --) shift; break ;;
-      -?*) fancy-log error "unknown flag: $1"; exit 1 ;;
+      -?*) fancy-log error -v name "$1" "Unknown flag"; exit 1 ;;
       *) break ;;
     esac
   done
@@ -98,7 +98,7 @@ decide_tmp_file() {
     TMP_FILE=$(mktemp /tmp/jot.XXXXXX)
 
     if [ -z "$TMP_FILE" ]; then
-      fancy-log error "could not create temporary file, exiting"
+      fancy-log error "could not create temporary file"
       exit 1
     fi
   fi
@@ -121,7 +121,7 @@ add_stdin_to_file() {
 # This is the main interaction point with the user.
 edit_note() {
   alacritty --title "$TMP_FILE - jot" \
-    --class "center-float" \
+    --class "jot-center-float" \
     --command nvim \
       -c "setlocal syntax=markdown" \
       -c "setlocal wrap" \

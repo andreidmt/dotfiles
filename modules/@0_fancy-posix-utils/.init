@@ -1,32 +1,16 @@
 #!/usr/bin/env sh
 
-# ╭──────────────────────
-# │ Entry point for the FancyCLI shell module.
-# ╰────────
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
-FCLI_HOME="$(dirname "$0")"
+# Expose scripts 
+export PATH="$FCLI_SCRIPTS:$PATH"
 
-LOG_NAMESPACE=" @fancy-posix-utils"
-LOG_LEVEL=info
-
-# ╭───┤ Expose scripts 
-# ╰─
-
-scripts_home="$FCLI_HOME/scripts"
-export PATH="$scripts_home:$PATH"
-
-fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
-
-# ╭───┤ Source functions
-# ╰─
-
-# Other script might want to source
-export FCLI_FUNCTIONS="$FCLI_HOME/functions"
-
+# Expose functions
 . "$FCLI_FUNCTIONS/guards"
 . "$FCLI_FUNCTIONS/predicates"
 . "$FCLI_FUNCTIONS/stdin-or"
 . "$FCLI_FUNCTIONS/symlinks"
-
-fancy-log info -v path "$FCLI_FUNCTIONS" "Functions sourced"
 

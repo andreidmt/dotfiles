@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+FCLI_HOME="$(dirname "$0")"
+
+export FCLI_SCRIPTS="$FCLI_HOME/scripts"
+export FCLI_FUNCTIONS="$FCLI_HOME/functions"
+
+export LOG_NAMESPACE=" @fancy-posix-utils"
+export LOG_LEVEL=info
+

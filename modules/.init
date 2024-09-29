@@ -98,7 +98,7 @@ HMVC_HOME="$(dirname "$0")"
 HMVC_LOG="$HMVC_HOME/.logs"
 
 mkdir -p "$HMVC_LOG" 
-start_time_main=$(date +%s%N)
+start_time_main=$(date +%s)
 
 # ╭───┤ Upgrade modules and packages every 24hours 
 # ╰─
@@ -192,7 +192,7 @@ colorize_duration() {
 export LOG_NAMESPACE="󰺔 ddd+hmvc" 
 export LOG_LEVEL=info
 
-duration=$(calculate_duration "$start_time_main" "$(date +%s%N)")
+duration=$(calculate_duration "$start_time_main" "$(date +%s)")
 fancy-log success \
   -v modules "fancy-cli,core,terminal" \
   -v duration "$(colorize_duration "$duration")" \
@@ -218,9 +218,9 @@ while IFS= read -r init_file; do
   fi
 
   # Source module
-  start_time=$(date +%s%N)
+  start_time=$(date +%s)
   . "$init_file"
-  end_time=$(date +%s%N)
+  end_time=$(date +%s)
   delta_ms=$(calculate_duration "$start_time" "$end_time")
 
   fancy-log success \
@@ -240,7 +240,7 @@ if [ -n "$HMVC_SHOULD_UPGRADE" ]; then
   sys_upgrade packages
 fi
 
-delta_ms=$(calculate_duration "$start_time_main" "$(date +%s%N)")
+delta_ms=$(calculate_duration "$start_time_main" "$(date +%s)")
 count=$(echo "$init_files" | wc --lines)
 
 echo "╭───────────┤ Loaded $count modules"

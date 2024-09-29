@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    -ls|--list) show_only_list="true" ;;
+    --) shift; break ;;
+    -?*) fancy-log error -v name "$1" "Unknown parameter"; exit 2 ;;
+    *) break ;;
+  esac
+  shift
+done
+
+if [ -n "$show_only_list" ]; then
+  ps -eo pid,comm,%cpu --sort=-%cpu | head -n 6 | tail -n 5
+  exit 0
+fi
+
+# Get the top 5 processes by CPU usage
+TOP_PROCESSES=$(ps -eo pid,comm,%cpu --sort=-%cpu | head -n 6 | tail -n 5 | awk '{print $1}')
+
+# Display the process tree for each of the top 5 processes
+for PID in $TOP_PROCESSES; do
+    pstree -ps "$PID"
+done
+
