@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Zero Wing
-Comment=Play this game on Steam
-Exec=steam steam://rungameid/2011900
-Icon=steam_icon_2011900
-Terminal=false
-Type=Application
-Categories=Game;

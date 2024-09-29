@@ -1,0 +1,18 @@
+#!/usr/bin/env dash
+
+# DESCRIPTION
+#  Show a calendar for the current and next month as a dunst notification.
+
+convert_ansi_to_pango() {
+  sed -e 's/\x1b\[0m/<\/span>/g' \
+      -e "s/\x1b\[1;41m/<span background=\"$SYS_COLOR_RED_DARK\">/g" \
+      -e "s/\x1b\[35m/<span foreground=\"$SYS_COLOR_MAGENTA_LIGHT\">/g" \
+      -e "s/\x1b\[33m/<span foreground=\"$SYS_COLOR_YELLOW_LIGHT\">/g" \
+      -e "s/\x1b\[1;33m/<span foreground=\"$SYS_COLOR_YELLOW_LIGHT\">/g"
+}
+
+two_months=$(cal --color=always --months 2 --monday --week \
+  | convert_ansi_to_pango)
+
+doomst " Calendar" "$two_months" --expire-time 0
+

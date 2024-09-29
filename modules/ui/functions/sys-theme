@@ -1,0 +1,61 @@
+#!/usr/bin/env sh
+
+sys_theme_set_aliases() {
+  export SYS_COLOR_BG="$SYS_COLOR_BLACK_DARK"
+  export SYS_COLOR_FG="$SYS_COLOR_WHITE_LIGHT"
+
+  export SYS_COLOR_DISABLED="$SYS_COLOR_BLACK_LIGHT"
+  export SYS_COLOR_SELECTION="$SYS_COLOR_BLUE_DARK"
+  export SYS_COLOR_ERROR="$SYS_COLOR_RED_DARK"
+  export SYS_COLOR_WARN="$SYS_COLOR_YELLOW_DARK"
+  export SYS_COLOR_SUCCESS="$SYS_COLOR_GREEN_DARK"
+}
+
+sys_theme_set_gruvbox() {
+  export SYS_THEME="gruvbox"
+
+  export SYS_COLOR_BLACK_DARK="#282828"
+  export SYS_COLOR_RED_DARK="#cc241d"
+  export SYS_COLOR_GREEN_DARK="#98971a"
+  export SYS_COLOR_YELLOW_DARK="#d79921"
+  export SYS_COLOR_BLUE_DARK="#458588"
+  export SYS_COLOR_MAGENTA_DARK="#b16286"
+  export SYS_COLOR_CYAN_DARK="#689d6a"
+  export SYS_COLOR_WHITE_DARK="#a89984"
+
+  export SYS_COLOR_BLACK_LIGHT="#928374"
+  export SYS_COLOR_RED_LIGHT="#fb4934"
+  export SYS_COLOR_GREEN_LIGHT="#b8bb26"
+  export SYS_COLOR_YELLOW_LIGHT="#fabd2f"
+  export SYS_COLOR_BLUE_LIGHT="#83a598"
+  export SYS_COLOR_MAGENTA_LIGHT="#d3869b"
+  export SYS_COLOR_CYAN_LIGHT="#8ec07c"
+  export SYS_COLOR_WHITE_LIGHT="#ebdbb2"
+
+  sys_theme_set_aliases
+}
+
+sys_theme_set_palenight() {
+  export SYS_THEME="palenight"
+  
+  export SYS_COLOR_BLACK_DARK="#292D3E"
+  export SYS_COLOR_RED_DARK="#F07178"
+  export SYS_COLOR_GREEN_DARK="#C3E88D"
+  export SYS_COLOR_YELLOW_DARK="#FFCB6B"
+  export SYS_COLOR_BLUE_DARK="#82AAFF"
+  export SYS_COLOR_MAGENTA_DARK="#C792EA"
+  export SYS_COLOR_CYAN_DARK="#89DDFF"
+  export SYS_COLOR_WHITE_DARK="#D0D0D0"
+
+  export SYS_COLOR_BLACK_LIGHT="#676E95"
+  export SYS_COLOR_RED_LIGHT="#FF8F88"
+  export SYS_COLOR_GREEN_LIGHT="#DDFFA7"
+  export SYS_COLOR_YELLOW_LIGHT="#FFD47E"
+  export SYS_COLOR_BLUE_LIGHT="#A1C3FF"
+  export SYS_COLOR_MAGENTA_LIGHT="#D1AFFF"
+  export SYS_COLOR_CYAN_LIGHT="#A3EEFF"
+  export SYS_COLOR_WHITE_LIGHT="#FFFFFF"
+
+  sys_theme_set_aliases
+}
+

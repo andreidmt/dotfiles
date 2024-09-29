@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
 if [ "$TERMINAL" = "alacritty" ]; then
-  exec alacritty --class center-float --command "$@"
+  exec alacritty --class generic-center-float --command "$@"
 fi
 
