@@ -1,21 +1,19 @@
 #!/usr/bin/env sh
 
-# ╭──────────────────────
-# │ Entry point for the Screen shell module. 
-# ╰────────
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
 
 SCREEN_HOME="$(dirname "$0")"
+
 export SCREEN_LOCAL="$SCREEN_HOME/.local"
 export SCREEN_TMP="$SCREEN_HOME/.tmp"
-
-LOG_NAMESPACE=" screen"
-LOG_LEVEL=info
-
 mkdir -p "$SCREEN_LOCAL" "$SCREEN_TMP"
 
-# ╭───┤ Expose scripts and libs
-# ╰─
+export LOG_NAMESPACE=" screen"
+export LOG_LEVEL=info
 
-scripts_home="$SCREEN_HOME/scripts"
-export PATH="$scripts_home:$PATH"
-fancy-log info -v path "$scripts_home" "Scripts exposed in \$PATH"
+# Expose scripts
+SCREEN_SCRIPTS="$SCREEN_HOME/scripts"
+export PATH="$SCREEN_SCRIPTS:$PATH"
