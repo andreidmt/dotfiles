@@ -38,6 +38,7 @@ get_syntax() {
     "text/plain")
       case "$path" in
         *.py) echo "python" ;;
+        *.lua) echo "lua" ;;
         *.js) echo "javascript" ;;
         *.jsx) echo "jsx" ;;
         *.ts) echo "typescript" ;;
