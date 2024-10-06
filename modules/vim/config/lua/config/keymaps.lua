@@ -9,10 +9,32 @@ vim.keymap.set("v", "<leader>q", ":norm! @q<CR>", { noremap = true, silent = tru
 vim.keymap.set("v", "<leader>w", ":norm! @w<CR>", { noremap = true, silent = true })
 
 -- Surround current word
-local surrounds = { "`", "_", '"', "*", "(", "[", "{" }
-for _, char in ipairs(surrounds) do
-	vim.keymap.set("n", "<leader>" .. char, "bi" .. char .. "<Esc>ea" .. char, { noremap = true, silent = true })
-	vim.keymap.set("v", "<leader>" .. char, "c" .. char .. char .. "<Esc>P", { noremap = true, silent = true })
+local surrounding_chars = { "`", "_", '"', "*", "(", "[", "{" }
+for _, char in ipairs(surrounding_chars) do
+	-- Single wrap over cursor text
+	vim.keymap.set("n", "<leader>" .. char, "bi" .. char .. "<Esc>ea" .. char, {
+		noremap = true,
+		silent = true,
+		desc = "Wrap with " .. char,
+	})
+	-- Double wrap over cursor text
+	vim.keymap.set("n", "<leader>" .. char .. char, "bi" .. char .. char .. "<Esc>ea" .. char .. char, {
+		noremap = true,
+		silent = true,
+		desc = "Double wrap with " .. char,
+	})
+	-- Single wrap over selected text
+	vim.keymap.set("v", "<leader>" .. char, "c" .. char .. char .. "<Esc>P", {
+		noremap = true,
+		silent = true,
+		desc = "Wrap with " .. char,
+	})
+	-- Double wrap over selected text
+	vim.keymap.set("v", "<leader>" .. char .. char, "c" .. char .. char .. char .. char .. "<Esc>hP", {
+		noremap = true,
+		silent = true,
+		desc = "Double wrap with " .. char,
+	})
 end
 
 -- Markdown mappings
