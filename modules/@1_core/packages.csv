@@ -7,6 +7,7 @@ procps-ng, pacman, ""
 cowsay, pacman, ""
 jq, pacman, ""
 vifm, pacman, ""
+inotify-tools, pacman, "Utilities for monitoring filesystem events"
 
 syncthing, pacman, "Cross device file synchronization"
 networkmanager, pacman, "Network connection manager (nmcli, nmtui)"

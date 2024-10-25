@@ -11,7 +11,7 @@
 #   code blocks, together with file name, syntax 
 # 
 # SEE ALSO
-#   md-syntax, cowsay, xclip, rofi, ripgrep
+#   md-syntax, xclip, rofi, ripgrep
 
 parse_arguments() {
   if [ "$#" -eq 0 ]; then
@@ -83,7 +83,12 @@ if [ -t 1 ]; then
   char_count=$(echo "$buffer_content" | wc --chars)
   token_count=$((char_count / 4))
 
-  cowsay -f tux "Copied ${file_count} files, ${line_count} lines, ~${token_count} promt tokens, to clipboard."
+  fancy-log success \
+    -v file_count "$file_count" -v lines "$line_count" -v tokens "$token_count" \
+    "Files copied and decorated with path and markdown syntax"
+
+  echo "$selected_files" >&2
+
   exit 0
 fi
 
