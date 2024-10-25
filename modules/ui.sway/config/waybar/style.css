@@ -153,6 +153,8 @@ window#waybar.bottom .module {
   background-color: @red-dark;
 }
 
+#custom-gpu,
+#mpd,
 #bluetooth,
 #privacy,
 #disk,

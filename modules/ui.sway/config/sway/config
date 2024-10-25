@@ -29,7 +29,7 @@ input "type:keyboard" {
 # You can get the names of your outputs by running: swaymsg -t get_outputs
 
 output eDP-1 {
-  bg ~/Pictures/Wallpapers/cherry-tree.jpg fill
+  bg ~/Pictures/Wallpapers/paths_.png fill
   resolution 1920x1080
 }
 
@@ -111,10 +111,6 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
 #
 # Notes:
 #
-  bindsym $mod+n \
-    exec alacritty --class notes-center-float --command notes create
-  bindsym $mod+Shift+n \
-    exec alacritty --class notes-center-float --command notes ask
 
   bindsym $mod+s \
     exec alacritty --class snippets-center-float --command snippets copy
@@ -142,7 +138,7 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
 
   # Start your launcher
   bindsym $mod+p exec rofi -show run
-  bindsym $mod+Shift+p exec rofi -show drun
+  bindsym $mod+grave exec rofi -show drun
 
   # Drag floating windows by holding down $mod and left mouse button.
   # Resize them with right mouse button + $mod.
@@ -181,14 +177,14 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
 #
 # Workspaces:
 #
-  set $wsZettelkasten " Zettelkasten"
-  workspace $wsZettelkasten output eDP-1
+  set $wsWrite " "
+  workspace $wsWrite output eDP-1
 
-  set $wsAI "󰧑 AI"
+  set $wsAI "󰧑 "
   workspace $wsAI output eDP-1
 
   # Switch to workspace
-  bindsym $mod+z workspace $wsZettelkasten
+  bindsym $mod+w workspace $wsWrite
   bindsym $mod+o workspace $wsAI
   bindsym $mod+1 workspace number 1
   bindsym $mod+2 workspace number 2
@@ -212,11 +208,17 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
   bindsym $mod+Shift+8 move container to workspace number 8
   bindsym $mod+Shift+9 move container to workspace number 9
   bindsym $mod+Shift+0 move container to workspace number 10
-  bindsym $mod+Shift+z move container to workspace $wsZettelkasten
+  bindsym $mod+Shift+w move container to workspace $wsWrite
   bindsym $mod+Shift+o move container to workspace $wsAI
 
   # Note: workspaces can have any name you want, not just numbers.
   # We just use 1-10 as the default.
+
+  bindsym $mod+n \
+    workspace $wsWrite; exec alacritty --class notes-center-float --command notes create
+  bindsym $mod+Shift+n \
+    exec alacritty --class notes-center-float --command notes ask
+
 #
 # Layout stuff:
 #

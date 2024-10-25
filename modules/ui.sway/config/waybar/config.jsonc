@@ -231,6 +231,7 @@
     "spacing": 4,
     // Choose the order of the modules
     "modules-left": [
+      "power-profiles-daemon",
       "bluetooth",
       "network",
       "network#speed"
@@ -241,14 +242,20 @@
       "memory"
     ],
     "modules-right": [
-      "power-profiles-daemon",
       "load",
       "cpu",
+      "custom/gpu",
       "temperature",
-      "idle_inhibitor",
+      // "idle_inhibitor",
       "tray"
     ],
     // Modules configuration
+    "custom/gpu": {
+      "format": "󰍛 {}",
+      "exec": "nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader | sed 's/, / | /g'",
+      "tooltip-format": "GPU load and memory usage",
+      "interval": 2
+    },
     "idle_inhibitor": {
       "format": "{icon}",
       "format-icons": {
