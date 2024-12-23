@@ -123,7 +123,7 @@ application/x-shorten=mpv.desktop
  * Edit images
  */
 
-image/vnd.adobe.photoshop=gimp.desktop
+image/vnd.adobe.photoshop=pinta.desktop
 
 x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/sgnl=signal.desktop
