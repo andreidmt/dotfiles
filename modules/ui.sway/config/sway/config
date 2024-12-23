@@ -1,6 +1,7 @@
 ### Read `man 5 sway` for a complete reference.
 
 xwayland disable
+workspace_auto_back_and_forth yes
 
 ### Variables
 
@@ -8,12 +9,6 @@ xwayland disable
 # Mod1: Alt
 set $mod Mod4
 
-# Home row direction keys, like vim
-set $left h
-set $down j
-set $up k
-set $right l
- 
 # Your preferred terminal emulator
 set $term alacritty 
 
@@ -26,11 +21,14 @@ input "type:keyboard" {
 
 ### Output configuration
 
-# You can get the names of your outputs by running: swaymsg -t get_outputs
-
 output eDP-1 {
-  bg ~/Pictures/Wallpapers/paths_.png fill
-  resolution 1920x1080
+  bg ~/Pictures/Wallpapers/forest-2.jpg fill
+  resolution 1920x1080 position 2560 0
+}
+
+output HDMI-A-1 {
+  bg ~/Pictures/Wallpapers/forest-2.jpg fill
+  resolution 2560x1440@60Hz position 0 0
 }
 
 ### Idle configuration
@@ -39,11 +37,11 @@ output eDP-1 {
 # your displays after another 300 seconds, and turn your screens back on when
 # resumed. It will also lock your screen before your computer goes to sleep.
 exec swayidle -w \
-  timeout 300 'sys_lock' \
+  timeout 300 'sys-lock' \
   timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-  before-sleep 'sys_lock'
+  before-sleep 'sys-lock'
 
-bindsym $mod+x exec sys_lock
+bindsym $mod+x exec sys-lock
 
 ### Reload or Exit sway
 
@@ -138,6 +136,7 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
 
   # Start your launcher
   bindsym $mod+p exec rofi -show run
+  bindsym $mod+Shift+p exec sys_menu 
   bindsym $mod+grave exec rofi -show drun
 
   # Drag floating windows by holding down $mod and left mouse button.
@@ -154,22 +153,12 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
 # Moving around:
 #
   # Move your focus around
-  bindsym $mod+$left focus left
-  bindsym $mod+$down focus down
-  bindsym $mod+$up focus up
-  bindsym $mod+$right focus right
-  # Or use $mod+[up|down|left|right]
   bindsym $mod+Left focus left
   bindsym $mod+Down focus down
   bindsym $mod+Up focus up
   bindsym $mod+Right focus right
 
   # Move the focused window with the same, but add Shift
-  bindsym $mod+Shift+$left move left
-  bindsym $mod+Shift+$down move down
-  bindsym $mod+Shift+$up move up
-  bindsym $mod+Shift+$right move right
-  # Ditto, with arrow keys
   bindsym $mod+Shift+Left move left
   bindsym $mod+Shift+Down move down
   bindsym $mod+Shift+Up move up
@@ -180,11 +169,15 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
   set $wsWrite " "
   workspace $wsWrite output eDP-1
 
+  set $wsWeb "󰖟 "
+  workspace $wsWeb output eDP-1
+
   set $wsAI "󰧑 "
   workspace $wsAI output eDP-1
 
   # Switch to workspace
   bindsym $mod+w workspace $wsWrite
+  bindsym $mod+l workspace $wsWeb
   bindsym $mod+o workspace $wsAI
   bindsym $mod+1 workspace number 1
   bindsym $mod+2 workspace number 2
@@ -209,6 +202,7 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
   bindsym $mod+Shift+9 move container to workspace number 9
   bindsym $mod+Shift+0 move container to workspace number 10
   bindsym $mod+Shift+w move container to workspace $wsWrite
+  bindsym $mod+Shift+l move container to workspace $wsWeb
   bindsym $mod+Shift+o move container to workspace $wsAI
 
   # Note: workspaces can have any name you want, not just numbers.
@@ -261,12 +255,6 @@ mode "resize" {
   # right will grow the containers width
   # up will shrink the containers height
   # down will grow the containers height
-  bindsym $left resize shrink width $gridSpacing
-  bindsym $down resize grow height $gridSpacing
-  bindsym $up resize shrink height $gridSpacing
-  bindsym $right resize grow width $gridSpacing
-
-  # Ditto, with arrow keys
   bindsym Left resize shrink width $gridSpacing
   bindsym Down resize grow height $gridSpacing
   bindsym Up resize shrink height $gridSpacing

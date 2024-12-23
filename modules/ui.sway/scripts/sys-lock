@@ -1,15 +1,46 @@
 #!/usr/bin/sh
 
+# NAME
+#  sys-lock - Fancyfy swaylock with blured bg images and system level theme
+#
+# DESCRIPTION
+#  Take screenshots of all available displays, blur them, 
+#  and set them as background images for the screen locker.
+#
+# SYNOPSIS
+#  sys-lock
+#
+# ENVIRONMENT
+#   SYS_COLOR_* - Exposed by sys-theme
+#
+# FILES
+#   /tmp/lockscreen-*.png - Temporary screenshot files for each display
+#
+# SEE ALSO
+#  sway(1), swaylock(1), sys-theme(1), grim(1), magick(1), jq(1), fancy-log(1)
+
 BLUR_TYPE="0x8"
-SCREENSHOT_FILE="/tmp/lockscreen.png"
+DISPLAYS=$(swaymsg -t get_outputs | jq -r '.[].name')
 
-# Take a screenshot and blur it
-grim "$SCREENSHOT_FILE"
-magick "$SCREENSHOT_FILE" -blur $BLUR_TYPE "$SCREENSHOT_FILE"
+# Ensure required dependencies are available
+for cmd in grim magick swaylock jq swaymsg; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    fancy-log error -v name "$cmd" "Required dependency not found"
+    exit 1
+  fi
+done
 
-# Lock the screen and make it look fancy
+# Take a screenshots for each display
+SWAYLOCK_IMAGE_ARG=""
+for display in $DISPLAYS; do
+  tmp_path="/tmp/lockscreen-$display.png"
+  grim -o "$display" "$tmp_path"
+  magick "$tmp_path" -blur $BLUR_TYPE "$tmp_path"
+  SWAYLOCK_IMAGE_ARG="$SWAYLOCK_IMAGE_ARG --image $display:$tmp_path"
+done
+
 swaylock --daemonize \
-  --image "$SCREENSHOT_FILE" \
+  $SWAYLOCK_IMAGE_ARG \
   --font monospace \
   --font-size 20 \
   --show-keyboard-layout \
