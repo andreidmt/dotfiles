@@ -1,0 +1,26 @@
+#!/usr/bin/sh
+
+# Start sway with various tweaks for making NVidia drivers work
+
+# export WLR_BACKENDS=drm
+export WLR_NO_HARDWARE_CURSORS=1
+export WLR_DRM_NO_ATOMIC=1
+# export WLR_RENDERER=vulkan
+
+export GBM_BACKEND=nvidia-drm
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export __GL_GSYNC_ALLOWED=0
+
+export LIBVA_DRIVER_NAME=nvidia
+export XDG_SESSION_TYPE=wayland
+export MOZ_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM=wayland
+export SDL_VIDEODRIVER=wayland
+
+# Reduce flickering ... not working :(
+# export __GL_MaxFramesAllowed=1
+# export CLUTTER_DEFAULT_FPS=60
+# export __GL_YIELD=USLEEP
+
+# Start sway
+dbus-run-session sway --unsupported-gpu > "$UISWAY_LOGS/sway_2.log" 2>&1
