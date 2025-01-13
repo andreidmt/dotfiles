@@ -1,0 +1,3 @@
+nvidia-utils, pacman, ""
+nvidia-open-dkms, pacman, ""
+nvidia-settings, pacman, ""

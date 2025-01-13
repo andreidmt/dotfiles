@@ -1,0 +1,7 @@
+#!/bin/sh
+
+export OLLAMA_DEBUG=1
+
+exec ollama serve 2>&1 \
+ | sed 's/^/[ollama] /'
+

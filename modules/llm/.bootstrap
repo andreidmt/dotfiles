@@ -1,7 +1,13 @@
 #!/usr/bin/env sh
 
 LLM_HOME=$(dirname "$0")
-export LLM_BIN="$LLM_HOME/.bin"
+
+export LLM_LOCAL="$LLM_HOME/.local"
+export LLM_LOGS="$LLM_HOME/.logs"; 
+export LLM_RUNSV="$HOME/.runit/llm-service"; 
+mkdir -p "$LLM_LOCAL" "$LLM_LOGS" "$LLM_RUNSV"
+
+export LLM_SERVICES="$LLM_HOME/services"
 
 export LOG_NAMESPACE="󱚥 llm"
 export LOG_LEVEL=info

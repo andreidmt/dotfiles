@@ -1,6 +1,23 @@
 #!/usr/bin/env sh
 
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
+
 if [ -f "$LLM_HOME/.env" ]; then
   . "$LLM_HOME/.env"
+fi
+
+PATH="$LLM_LOCAL/bin:$PATH"
+
+# Configure User level runit services
+if ! is_process_running "runsvdir" "$LLM_RUNSV"; then
+  fancy-log info -v dir "$LLM_RUNSV" "Starting services" 
+
+  ensure_symlink "$LLM_SERVICES/ollama" "$LLM_RUNSV/ollama" 
+  
+  runsvdir "$LLM_RUNSV" \
+    > "$LLM_LOGS/runsvdir.log" 2>&1 &
 fi
 
