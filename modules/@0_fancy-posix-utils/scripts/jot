@@ -3,9 +3,6 @@
 # shellcheck source=../functions/stdin-or
 . "$FCLI_FUNCTIONS/stdin-or"
 
-# shellcheck source=../functions/predicates
-. "$FCLI_FUNCTIONS/predicates"
-
 # NAME
 #  jot - Quickly write text in Neovim and echo it to the terminal.
 #
@@ -44,18 +41,18 @@
 export LOG_NAMESPACE="jot"
 export LOG_LEVEL="info"
 
-if ! does_command_exist alacritty; then
+# ╭───┤ Globals + Bootstraping
+# ╰─
+
+if ! command -v alacritty >/dev/null 2>&1; then
   fancy-log error "alacritty is not installed, exiting"
   exit 1
 fi
 
-if ! does_command_exist nvim; then
+if ! command -v nvim >/dev/null 2>&1; then
   fancy-log error "nvim is not installed, exiting"
   exit 1
 fi
-
-# ╭───┤ Globals
-# ╰─
 
 JOT_HOME="${HOME}/.jot"
 SHOULD_CONTINUE=false
@@ -82,13 +79,14 @@ parse_options() {
         shift
         ;;
       --) shift; break ;;
-      -?*) fancy-log error -v name "$1" "Unknown flag"; exit 1 ;;
+      -?*) fancy-log error -v name "$1" "Unknown flag."; exit 1 ;;
       *) break ;;
     esac
   done
 }
 
 # Decide the temporary file path to store content in.
+# Either create a new temporary file or continue editing the last one.
 decide_tmp_file() {
   if [ "$SHOULD_CONTINUE" = true ] && [ -f "$PREV_NOTE_PATH" ]; then
     TMP_FILE=$(cat "$PREV_NOTE_PATH" 2>/dev/null)
@@ -98,7 +96,7 @@ decide_tmp_file() {
     TMP_FILE=$(mktemp /tmp/jot.XXXXXX)
 
     if [ -z "$TMP_FILE" ]; then
-      fancy-log error "could not create temporary file"
+      fancy-log error "Could not create temporary file."
       exit 1
     fi
   fi
@@ -110,7 +108,7 @@ decide_tmp_file() {
 #
 # EXAMPLE:
 #  cat some-function.js | jot "explain the following function:" | ai
-add_stdin_to_file() {
+append_stdin_to_file() {
   input=$(stdin_or "")
   if [ -n "$input" ]; then
     printf "%s" "$input" >> "$TMP_FILE"
@@ -119,6 +117,9 @@ add_stdin_to_file() {
 
 # Open the file in Neovim inside an Alacritty terminal. 
 # This is the main interaction point with the user.
+#
+# The "jot-center-float" class needs to be handled by i3, sway or any other 
+# window manager to center the floating window.
 edit_note() {
   alacritty --title "$TMP_FILE - jot" \
     --class "jot-center-float" \
@@ -138,21 +139,20 @@ persist_and_output_note() {
     printf "%s" "$text"
     echo "$TMP_FILE" > "$PREV_NOTE_PATH"
   else
-    fancy-log info -v exit_code 0 "No text entered, nothing to do"
+    fancy-log info -v exit_code 0 "No text entered, nothing to do."
     exit 0
   fi
 }
 
-# ╭──────────────────────
-# │ Main. Start here.
-# ╰────────
+# ╭───┤ Main. Start here.
+# ╰─
 
 # Begining
 parse_options "$@"
 decide_tmp_file
 
 # Middle
-add_stdin_to_file
+append_stdin_to_file
 edit_note
 
 # End
