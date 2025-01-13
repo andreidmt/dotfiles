@@ -3,33 +3,43 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     dependencies = {
-      "nvim-tree/nvim-web-devicons"
+      "nvim-tree/nvim-web-devicons",
     },
     cmd = { "NvimTreeToggle", "NvimTreeFocus" },
     keys = {
       {
         "<F1>",
         "<cmd>NvimTreeFindFile<cr>",
-        desc = "Open file explorer with current buffer focused"
+        desc = "Open file explorer with current buffer focused",
       },
     },
     config = function()
       require("nvim-tree").setup({
         on_attach = function(bufnr)
-          local api = require('nvim-tree.api')
+          local api = require("nvim-tree.api")
           local ops = function(desc)
             return {
-              desc = 'nvim-tree: ' .. desc,
+              desc = "nvim-tree: " .. desc,
               buffer = bufnr,
               noremap = true,
               silent = true,
-              nowait = true
+              nowait = true,
             }
           end
 
           api.config.mappings.default_on_attach(bufnr)
-          vim.keymap.set('n', 's', api.node.open.vertical, ops("Open: Vertical Split"))
-          vim.keymap.set('n', 'o', api.node.open.horizontal, ops("Open: Horizontal Split"))
+          vim.keymap.set(
+            "n",
+            "s",
+            api.node.open.vertical,
+            ops("Open: Vertical Split")
+          )
+          vim.keymap.set(
+            "n",
+            "o",
+            api.node.open.horizontal,
+            ops("Open: Horizontal Split")
+          )
         end,
         filters = {
           dotfiles = false,
@@ -114,5 +124,5 @@ return {
         },
       })
     end,
-  }
+  },
 }

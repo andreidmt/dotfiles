@@ -15,7 +15,7 @@ return {
 
       vim.opt.termguicolors = true
       vim.opt.background = "dark"
-      vim.cmd('colorscheme gruvbox-material')
+      vim.cmd("colorscheme gruvbox-material")
     end,
   },
 }

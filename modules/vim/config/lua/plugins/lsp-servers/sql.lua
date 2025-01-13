@@ -1,6 +1,6 @@
 -- "sqlls" lsp configuration
 return function(on_attach)
-  local lspconfig = require('lspconfig')
+  local lspconfig = require("lspconfig")
 
   lspconfig.sqlls.setup({
     on_attach = on_attach,

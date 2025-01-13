@@ -4,8 +4,14 @@ return {
   {
     "tpope/vim-fugitive",
     cmd = {
-      "Git", "Gdiffsplit", "Gread", "Gwrite",
-      "Ggrep", "GMove", "GDelete", "GBrowse"
+      "Git",
+      "Gdiffsplit",
+      "Gread",
+      "Gwrite",
+      "Ggrep",
+      "GMove",
+      "GDelete",
+      "GBrowse",
     },
   },
 
@@ -21,7 +27,7 @@ return {
         topdelete = { text = "" },
         changedelete = { text = "│" },
         untracked = { text = "│" },
-      }
-    }
-  }
+      },
+    },
+  },
 }
