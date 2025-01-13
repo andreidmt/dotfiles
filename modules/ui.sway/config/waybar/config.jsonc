@@ -47,7 +47,7 @@
       ]
     },
     "sway/workspaces": {
-      "all-outputs": true,
+      "output": "eDP-1",
       "warp-on-scroll": false,
       "enable-bar-scroll": true,
       "disable-scroll-wraparound": true,
