@@ -1,0 +1,4 @@
+terraform-ls, aur, "HashiCorp Language Server for Terraform configuration files"
+tflint, pacman, "A Terraform linter focused on possible errors and best practices"
+tenv-bin, aur, "Terraform version manager, allows switching between different versions"
+cosign, pacman, "Tool for container signing, verification and storage in an OCI registry"

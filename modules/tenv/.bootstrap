@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+###
+# Module bootstraping script, sourced with every terminal session before
+# .init and/or .install.
+# Use it to set common varables that both script will need.
+###
+
+TENV_HOME="$(dirname "$0")"
+export TENV_FUNCTIONS="$TENV_HOME/functions"
+export TENV_SCRIPTS="$TENV_HOME/scripts"
+export TENV_LOCAL="$TENV_HOME/.local"
+
+mkdir -p "$TENV_LOCAL"
+
+export LOG_NAMESPACE=" terraform"
+export LOG_LEVEL=info
+
+# tenv vars
+
+# The path to a directory where the local OpenTofu versions, Terraform versions,
+# Terragrunt versions and tenv configuration files exist.
+export TENV_ROOT="$TENV_LOCAL"
+
+# ??? major v4 crashes if not set
+export TENV_DETACHED_PROXY=false
+
+# If true, tenv will automatically install missing versions when switching
+export TENV_AUTO_INSTALL=true

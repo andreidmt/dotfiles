@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+###
+# Module loading script, sourced with every terminal session.
+# Use it to initialize and kickstart module's responsabilities.
+###
+
+# Configure ZSH autocompletion
+
+zsh_completion_helper_file="$TENV_LOCAL"/.tenv.completion.zsh
+if [ ! -f "$zsh_completion_helper_file" ]; then
+  tenv completion zsh > "$zsh_completion_helper_file"
+fi
+source "$zsh_completion_helper_file"
+
+# Install default version
+
+tf_version=$(terraform --version 2>/dev/null \
+  | grep "Terraform" \
+  | cut -d " " -f 2)
+
+if [ -z "$tf_version" ]; then
+  fancy-log warn "Default Terraform not found, installing $TENV_DEFAULT_VERSION version..."
+  tenv tf install "$TENV_DEFAULT_VERSION"
+else 
+  fancy-log info -v version "$tf_version"  "Default Terraform installed"
+fi
+
