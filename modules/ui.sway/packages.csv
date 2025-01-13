@@ -1,7 +1,8 @@
 wayland, pacman, "Wayland compositor infrastructure"
 xorg-xlsclients, pacman, "List client applications running under XWayland"
-qt5-wayland, pacman, "Qt5 bindings for Wayland "
+qt6-wayland, pacman, "Qt5 bindings for Wayland "
 glfw-wayland, pacman, "Library for OpenGL, OpenGL ES, Vulkan, window and input"
+wlr-randr, pacman, "Utility for managing outputs of a Wayland compositor"
 
 sway, pacman, "i3-compatible Wayland compositor"
 swayidle, pacman, "Idle management daemon for Wayland"
@@ -16,4 +17,4 @@ grim, pacman, "Grab images from a Wayland compositor"
 
 otf-font-awesome, pacman, "Iconic font designed for Bootstrap (waybar optional dependency)"
 rofi-lbonn-wayland-git, aur, "Rofi launcher with Wayland patch"
-gromit-mpx, pacman, "Draw on screen"
+pinta, pacman, "Image editor"
