@@ -1,0 +1,64 @@
+#!/usr/bin/env sh
+
+# NAME
+#  select-clipboard - Script to list copy/paste buffers using fzf
+#
+# SYNOPSIS
+#   select-clipboard
+#
+# DESCRIPTION
+#   This script uses fzf to present a UI for listing all copy/paste buffers
+#   and allows previewing their contents.
+#
+# SEE ALSO
+#  wl-clipboard(1), fancy-log(1)
+
+export LOG_NAMESPACE="󰏖 select-clipboard"
+export LOG_LEVEL="info"
+
+# ╭───┤ Globals + Bootstraping
+# ╰─
+
+if ! command -v fzf >/dev/null 2>&1; then
+  fancy-log error -v name "fzf" "Command not found"
+  exit 1
+fi
+
+if ! command -v wl-paste >/dev/null 2>&1; then
+  fancy-log error -v name "wl-clipboard" "Command not found"
+  exit 1
+fi
+
+# ╭───┤ Functions
+# ╰─
+
+# List available clipboards
+list_clipboards() {
+  echo "clipboard:Clipboard (Ctrl+C)"
+  echo "primary:Primary Selection (Selected Text)"
+}
+
+# Choose clipboard type
+select_clipboard_with_preview() {
+  list_clipboards \
+    | fzf \
+      --prompt "Select clipboard:" \
+      --layout reverse \
+      --delimiter ":" --with-nth 2 \
+      --preview "if [ {1} = 'primary' ]; then wl-paste --primary; else wl-paste; fi" \
+      --preview-label "Contents" \
+      --preview-window "right:wrap" \
+    | cut -d: -f1
+}
+
+# ╭───┤ Main. Start here.
+# ╰─
+
+
+clipboard=$(select_clipboard_with_preview)
+if [ -z "$clipboard" ]; then
+  fancy-log error "No clipboard selected"
+  exit 1
+fi
+
+echo "$clipboard"
