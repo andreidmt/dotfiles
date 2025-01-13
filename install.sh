@@ -255,68 +255,10 @@ echo_success "Core directories created"
 wait_for_key_press
 
 ################################################
-echo_title "4. Install Alacritty terminal and fonts"
+echo_title "5. Install ZSH & set as default shell"
 ################################################
 
-alacritty_packages=(
-  alacritty               # GPU-accelerated terminal emulator
-  fontconfig              # Font configuration and customization library
-  ttf-liberation          # Fonts from the Liberation family
-  gnu-free-fonts          # Free TrueType fonts from the Freefont project
-  otf-hasklig-nerd        # Typeface fonts designed for
-  ttf-hack-nerd           # Source code augmented with ligatures and nerd icons
-  ttf-jetbrains-mono-nerd # https://www.nerdfonts.com
-  ttf-firacode-nerd       # 
-)
-
-install_pacman_package "${alacritty_packages[@]}"
-
-echo_success "Alacritty terminal and fonts installed"
-wait_for_key_press
-
-################################################
-echo_title "5. Install Wayland, Sway and friends"
-################################################
-
-wayland_packages=(
-  wayland           # Wayland compositor infrastructure
-  xorg-xlsclients   # List client applications running under XWayland
-  qt5-wayland       # Qt5 bindings for Wayland 
-  glfw-wayland      # Library for OpenGL, OpenGL ES, Vulkan, window and input
-  wl-clipboard      # Clipboard manager for Wayland
-  sway              # i3-compatible Wayland compositor
-  waybar            # Wayland bar for Sway and Wlroots based compositors
-  otf-font-awesome  # Iconic font designed for Bootstrap (waybar optional dependency)
-  swayidle          # Idle management daemon for Wayland
-  swaylock          # Screen locker for Wayland
-  shotgun           # Screenshot utility for Wayland
-  hacksaw           # Select Rectangle utility for Wayland
-  slop              # Select Window utility for Wayland 
-  wofi              # Launcher/menu program for wlroots-based compositors
-  gromit-mpx        # Draw on screen
-)
-
-install_pacman_package "${wayland_packages[@]}"
-
-echo_success "Wayland, Sway and friends installed"
-wait_for_key_press
-
-################################################
-echo_title "5. Install ZSH & Starship"
-################################################
-
-zsh_packages=(
-  zsh       # The Z shell
-  starship  # The minimal, blazing-fast, and infinitely customizable prompt
-)
-
-install_pacman_package "${zsh_packages[@]}"
-
-echo_success "ZSH & Staship installed"
-
-################################################
-echo_title "5.1 Set ZSH as default shell"
-################################################
+install_pacman_package zsh 
 
 sudo chsh -s "$(which zsh)" "$USER"
 
@@ -325,15 +267,28 @@ echo "source \"$DOTFILES_HOME/.init\"" > "$HOME/.zshrc"
 wait_for_key_press "Press any key to continue or Ctrl+C to abort and restart the system into ZSH. You dont need to do this for the install process to finish" 
 
 ################################################
-echo_title "6. Install NVim"
+echo_title "6. Link sh to dash"
 ################################################
 
-nvim_packages=(
-  neovim    # Vim-fork focused on extensibility and usability 
-)
+install_pacman_package dash
 
-install_pacman_package "${nvim_packages[@]}"
+CURRENT_SH=$(readlink -f /bin/sh)
+DASH_PATH=$(command -v dash)
 
-echo_success "NVim installed"
+if [ "$CURRENT_SH" != "$DASH_PATH" ]; then
+  sudo ln -sf "$DASH_PATH" /bin/sh
+fi
+
+echo_success "sh linked to dash"
 wait_for_key_press
 
+################################################
+echo_title "7. Install and setup docker and docker-compose with runit"
+################################################
+
+install_pacman_package docker docker-compose docker-runit
+sudo usermod -aG docker "$USER"
+sudo ln -s /etc/runit/sv/docker /run/runit/service/
+
+echo_success "Docker installed and configured with runit"
+wait_for_key_press
