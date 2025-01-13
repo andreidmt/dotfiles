@@ -1,2 +1,2 @@
 neovim, pacman, "Vim-fork focused on extensibility and usability"
-
+taplo, pacman, "Language support for TOML files (formatting,syntax highlighting, diagnostics)"

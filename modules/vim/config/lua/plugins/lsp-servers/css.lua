@@ -6,13 +6,11 @@ return function(on_attach)
     filetypes = { "css", "less", "scss", "sugarss" },
     settings = {
       stylelintplus = {
-        autoFixOnSave = true,
-        autoFixOnFormat = true,
         cssInJs = true,
-      }
+      },
     },
     flags = {
-      debounce_text_changes = 150
+      debounce_text_changes = 150,
     },
   })
 end

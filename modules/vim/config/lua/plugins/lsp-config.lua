@@ -1,182 +1,176 @@
 -- Open definition in a split
 local open_definition_split = function()
-	local def = vim.lsp.buf.implementation()
-	-- local def = vim.lsp.buf.declaration()
-	-- local def = vim.lsp.buf.definition()
-	if def == nil then
-		return
-	end
+  local params = vim.lsp.util.make_position_params()
+  local result =
+    vim.lsp.buf_request_sync(0, "textDocument/definition", params, 1000)
 
-	local def_win = vim.fn.win_findbuf(def.bufnr)[1]
-	if def_win ~= nil then
-		vim.fn.win_gotoid(def_win)
-		return
-	end
+  if not result or vim.tbl_isempty(result) then
+    vim.notify("Definition not found", vim.log.levels.WARN)
+    return
+  end
 
-	vim.cmd("vsplit")
-	vim.api.nvim_win_set_buf(0, def.bufnr)
-	vim.api.nvim_win_set_cursor(0, def.range.start)
-end
+  local def
+  for _, value in pairs(result) do
+    def = value.result and value.result[1]
+    if def ~= nil then
+      break
+    end
+  end
 
--- Format buffer with a specific client
-local format_buffer_with_client = function(opts)
-	local params = vim.lsp.util.make_formatting_params()
-	local result, err = opts.client.request_sync("textDocument/formatting", params, 5000, opts.bufnr)
-	local encoding = opts.client and opts.client.offset_encoding or "utf-16"
+  if not def then
+    vim.notify("Definition not found", vim.log.levels.WARN)
+    return
+  end
 
-	if err then
-		local err_msg = type(err) == "string" and err or err.message
-		vim.notify("lsp-config formatting buffer: " .. err_msg, vim.log.levels.WARN)
-		return
-	end
+  local uri = def.uri or def.targetUri
+  local range = def.range or def.targetSelectionRange
 
-	if result and result.result then
-		vim.lsp.util.apply_text_edits(result.result, opts.bufnr, encoding)
-	end
-end
+  local bufnr = vim.uri_to_bufnr(uri)
+  vim.fn.bufload(bufnr)
 
--- Format buffer with all available clients
-local format_buffer = function(opts)
-	local rejected_formatting_clients = {
-		"yamlls",
-		"tsserver",
-		"typescript-tools",
-		"copilot",
-		-- Using autocmd with stylua
-		"lua_ls",
-	}
-	local current_clients = vim.lsp.get_active_clients({ bufnr = opts.bufnr })
-	local selected_clients = {}
+  local existing_win = vim.fn.win_findbuf(bufnr)[1]
+  if existing_win then
+    vim.fn.win_gotoid(existing_win)
+  else
+    vim.cmd("vsplit")
+    vim.api.nvim_win_set_buf(0, bufnr)
+  end
 
-	for _, client in ipairs(current_clients) do
-		if not vim.tbl_contains(rejected_formatting_clients, client.name) then
-			table.insert(selected_clients, client)
-		end
-	end
-
-	if #selected_clients == 0 then
-		return
-	end
-
-	for _, client in ipairs(selected_clients) do
-		-- print("Formatting buffer with " .. client.name)
-		format_buffer_with_client({ bufnr = opts.bufnr, client = client })
-	end
+  local pos = { range.start.line + 1, range.start.character }
+  vim.api.nvim_win_set_cursor(0, pos)
 end
 
 return {
-	-- neoconf: A NeoVim configuration plugin written in Lua
-	{
-		"folke/neoconf.nvim",
-		cmd = "Neoconf",
-		config = false,
-		dependencies = { "nvim-lspconfig" },
-	},
+  -- neoconf: A NeoVim configuration plugin written in Lua
+  {
+    "folke/neoconf.nvim",
+    cmd = "Neoconf",
+    dependencies = { "neovim/nvim-lspconfig" },
+  },
 
-	-- neodev: Development tools for neovim plugins
-	{
-		"folke/neodev.nvim",
-		opts = {},
-	},
+  -- neodev: Development tools for neovim plugins
+  {
+    "folke/neodev.nvim",
+    opts = {},
+  },
 
-	{
-		"neovim/nvim-lspconfig",
-		cmd = { "LspInfo", "LspStart", "LspStop", "LspRestart" },
-		event = "BufReadPre",
-		dependencies = {
-			"folke/neodev.nvim",
-			"folke/neoconf.nvim",
-		},
-		config = function()
-			--
-			-- Customizing how diagnostics are displayed
-			--
+  -- nvim-lspconfig: Collection of common configurations for Neovim's built-in LSP client
+  {
+    "neovim/nvim-lspconfig",
+    event = "BufReadPre",
+    dependencies = {
+      "folke/neodev.nvim",
+      "folke/neoconf.nvim",
+    },
+    config = function()
+      --
+      -- Customizing how diagnostics are displayed
+      --
 
-			vim.diagnostic.config({
-				virtual_text = {
-					prefix = "❯",
-					spacing = 2,
-				},
-				float = {
-					source = "always",
-				},
-				signs = true,
-				underline = true,
-				update_in_insert = true,
-			})
+      vim.diagnostic.config({
+        virtual_text = {
+          prefix = "❯",
+          spacing = 2,
+        },
+        float = {
+          source = "always",
+        },
+        signs = true,
+        underline = true,
+        update_in_insert = true,
+      })
 
-			--
-			-- Set diagnostic symbols in the sign column (gutter)
-			--
+      --
+      -- Set diagnostic symbols in the sign column (gutter)
+      --
 
-			local diagnostic_signs = {
-				{ name = "DiagnosticSignError", icon = "" },
-				{ name = "DiagnosticSignWarn", icon = "" },
-				{ name = "DiagnosticSignInfo", icon = "" },
-				{ name = "DiagnosticSignHint", icon = "" },
-			}
+      local diagnostic_signs = {
+        { name = "DiagnosticSignError", icon = "" },
+        { name = "DiagnosticSignWarn", icon = "" },
+        { name = "DiagnosticSignInfo", icon = "" },
+        { name = "DiagnosticSignHint", icon = "" },
+      }
 
-			for _, sign in ipairs(diagnostic_signs) do
-				vim.fn.sign_define(sign.name, { text = sign.icon, texthl = sign.name })
-			end
+      for _, sign in ipairs(diagnostic_signs) do
+        vim.fn.sign_define(sign.name, { text = sign.icon, texthl = sign.name })
+      end
 
-			--
-			-- LSP specific keymaps
-			--
+      --
+      -- LSP specific keymaps
+      --
 
-			vim.keymap.set("n", "<M-CR>", function()
-				local ts_api = require("typescript-tools.api")
-				ts_api.go_to_source_definition(true)
-			end)
-			vim.keymap.set("n", "<leader>i", vim.diagnostic.open_float)
-			vim.keymap.set("n", "<leader>k", vim.lsp.buf.hover)
-			vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
-			vim.keymap.set("n", "<C-j>", vim.diagnostic.goto_next)
-			vim.keymap.set("n", "<C-k>", vim.diagnostic.goto_prev)
-			vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action)
+      vim.keymap.set("n", "<leader>gt", open_definition_split, {
+        desc = "[LSP] Go to definition in a split window",
+      })
+      vim.keymap.set(
+        "n",
+        "<leader>i",
+        vim.diagnostic.open_float,
+        { desc = "[LSP] Show line diagnostics" }
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>k",
+        vim.lsp.buf.hover,
+        { desc = "[LSP] Show hover information" }
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>rn",
+        vim.lsp.buf.rename,
+        { desc = "[LSP] Rename symbol" }
+      )
+      vim.keymap.set(
+        "n",
+        "<C-j>",
+        vim.diagnostic.goto_next,
+        { desc = "[LSP] Next diagnostic" }
+      )
+      vim.keymap.set(
+        "n",
+        "<C-k>",
+        vim.diagnostic.goto_prev,
+        { desc = "[LSP] Previous diagnostic" }
+      )
+      vim.keymap.set(
+        "n",
+        "<leader>ca",
+        vim.lsp.buf.code_action,
+        { desc = "[LSP] Code actions" }
+      )
 
-			--
-			-- LSP configuration
-			--
+      --
+      -- LSP configuration
+      --
 
-			local on_attach = function(client)
-				-- Format before saving, if the client supports it
-				-- print("Setting up format on save for " .. client.name)
-			end
+      local on_attach = function() end
 
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				pattern = "*",
-				callback = function()
-					format_buffer({ bufnr = vim.api.nvim_get_current_buf() })
-				end,
-			})
+      local lsp_configs = {
+        "bash",
+        "css",
+        "eslint",
+        "json",
+        "lua",
+        "terraform",
+        "sql",
+        -- "typescript",
+        "yaml",
+      }
 
-			local lsp_configs = {
-				"bash",
-				"css",
-				"eslint",
-				"json",
-				"lua",
-				"terraform",
-				"sql",
-				-- "typescript",
-				"yaml",
-			}
+      for _, server in ipairs(lsp_configs) do
+        require("plugins.lsp-servers." .. server)(on_attach)
+      end
+    end,
+  },
 
-			for _, server in ipairs(lsp_configs) do
-				require("plugins.lsp-servers." .. server)(on_attach)
-			end
-		end,
-	},
-
-	--
-	{
-		"pmizio/typescript-tools.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"neovim/nvim-lspconfig",
-		},
-		event = "BufReadPre",
-		opts = {},
-	},
+  --
+  {
+    "pmizio/typescript-tools.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "neovim/nvim-lspconfig",
+    },
+    event = "BufReadPre",
+    opts = {},
+  },
 }
