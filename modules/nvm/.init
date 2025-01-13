@@ -13,7 +13,7 @@ export NVM_DIR="$NVMM_LOCAL/nvm"
 source "$NVMM_LOCAL/nvm/nvm.sh"
 source "$NVMM_LOCAL/zsh-better-npm-completion/zsh-better-npm-completion.plugin.zsh"
 
-fancy-log info -v version "$(node --version)" "Current Node.js"
+fancy-log info -v version "$(node --version)" "Default Node.js installed"
 
 # Expose functions
 source "$NVMM_CONFIG/aliases"
