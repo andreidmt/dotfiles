@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+geometry=$(swaymsg -t get_tree \
+  | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' \
+  | slurp -r)
+
+output_file=${1:-recording.gif}
+
+wf-recorder --framerate 15 --codec gif \
+  --geometry "$geometry" \
+  --file "$output_file"
+
+fancy-log info -v file "$output_file" "Recording saved"
+
