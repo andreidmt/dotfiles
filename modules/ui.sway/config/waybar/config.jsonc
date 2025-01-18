@@ -13,9 +13,7 @@
       "sway/scratchpad",
       "sway/window"
     ],
-    "modules-center": [
-      "mpd"
-    ],
+    "modules-center": ["mpd"],
     "modules-right": [
       "pulseaudio#input",
       "pulseaudio#output",
@@ -75,16 +73,7 @@
       "noise_reduction": 0.77,
       "input_delay": 2,
       "hide_on_silence": true,
-      "format-icons": [
-        "▁",
-        "▂",
-        "▃",
-        "▄",
-        "▅",
-        "▆",
-        "▇",
-        "█"
-      ],
+      "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
       "actions": {
         "on-click-right": "mode"
       }
@@ -119,18 +108,13 @@
     "sway/scratchpad": {
       "format": "{icon} {count}",
       "show-empty": false,
-      "format-icons": [
-        "",
-        ""
-      ],
+      "format-icons": ["", ""],
       "tooltip": true,
       "tooltip-format": "{app}: {title}"
     },
     "clock": {
       "timezone": "Europe/Amsterdam",
-      "timezones": [
-        "Europe/Amsterdam"
-      ],
+      "timezones": ["Europe/Amsterdam"],
       "format": " {:L%A, %b %d %Y - %R (%Z)} ",
       "interval": 1,
       "tooltip": false,
@@ -155,17 +139,7 @@
     "backlight": {
       // "device": "acpi_video1",
       "format": "{icon} {percent}%",
-      "format-icons": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-      ]
+      "format-icons": ["", "", "", "", "", "", "", "", ""]
     },
     "battery": {
       "states": {
@@ -179,13 +153,7 @@
       "format-full": "{icon} {capacity}%",
       "format-charging": "  {capacity}% | 󰔚 {time}",
       "format-plugged": "  {capacity}%",
-      "format-icons": [
-        " ",
-        " ",
-        " ",
-        " ",
-        " "
-      ]
+      "format-icons": [" ", " ", " ", " ", " "]
     },
     "pulseaudio#output": {
       "format": "{icon} {volume}%",
@@ -199,11 +167,7 @@
         "phone": "",
         "portable": "",
         "car": "",
-        "default": [
-          "",
-          "",
-          ""
-        ]
+        "default": ["", "", ""]
       },
       "scroll-step": 5,
       "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
@@ -236,11 +200,7 @@
       "network",
       "network#speed"
     ],
-    "modules-center": [
-      "disk#root",
-      "disk#home",
-      "memory"
-    ],
+    "modules-center": ["disk#root", "disk#home", "memory"],
     "modules-right": [
       "load",
       "cpu",
@@ -276,16 +236,7 @@
     },
     "cpu": {
       "format": " {usage}% {avg_frequency}GHz | {icon0}{icon1}{icon2}{icon3}{icon4}{icon5}{icon6}{icon7}{icon8}{icon9}{icon10}{icon11}",
-      "format-icons": [
-        "▁",
-        "▂",
-        "▃",
-        "▄",
-        "▅",
-        "▆",
-        "▇",
-        "█"
-      ],
+      "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
       "interval": 2
     },
     "load": {
@@ -342,11 +293,7 @@
       "interval": 2,
       "critical-threshold": 80,
       "format": "{icon} {temperatureC}°C",
-      "format-icons": [
-        "",
-        "",
-        ""
-      ]
+      "format-icons": ["", "", ""]
     }
   }
 ]

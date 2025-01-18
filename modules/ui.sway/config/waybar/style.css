@@ -48,7 +48,7 @@ window#waybar {
   border-bottom: 0px;
   color: @foreground;
   transition-property: background-color;
-  transition-duration: .5s;
+  transition-duration: 0.5s;
 }
 
 window#waybar.bottom {
@@ -102,19 +102,19 @@ window#waybar.bottom .module {
  */
 
 #power-profiles-daemon {
-  background-color: @cyan-dark; 
+  background-color: @cyan-dark;
 }
 
 #power-profiles-daemon.performance {
-  background-color: @red-dark; 
+  background-color: @red-dark;
 }
 
 #power-profiles-daemon.balanced {
-  background-color: @blue-dark; 
+  background-color: @blue-dark;
 }
 
 #power-profiles-daemon.power-saver {
-  background-color: @green-dark; 
+  background-color: @green-dark;
 }
 
 #workspaces {
@@ -186,7 +186,8 @@ window#waybar.bottom .module {
   font-weight: bold;
 }
 
-#battery.charging, #battery.plugged {
+#battery.charging,
+#battery.plugged {
   background-color: @green-dark;
   color: @background;
 }
