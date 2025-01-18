@@ -1,6 +1,5 @@
 ## General
 export MAILTO="andrei.dumitrescu@pm.me"
-export EDITOR="nvim"
 export BROWSER="chromium"
 export READER="zathura"
 export FILE="nnn"

@@ -7,3 +7,6 @@ export NVIM_LAZY_HOME="$NVIM_LOCAL/lazy.nvim"
 
 export LOG_NAMESPACE=" nvim"
 export LOG_LEVEL=info
+
+export EDITOR="nvim"
+export VISUAL="nvim"
