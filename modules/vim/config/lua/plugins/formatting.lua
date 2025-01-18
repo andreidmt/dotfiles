@@ -8,6 +8,14 @@ return {
       local conform = require("conform")
 
       conform.setup({
+        formatters = {
+          prettier = {
+            prepend_args = {
+              "--trailing-comma",
+              "none",
+            },
+          },
+        },
         lsp_fallback = true,
         log_level = vim.log.levels.DEBUG,
         format_on_save = {
@@ -15,6 +23,10 @@ return {
           lsp_format = "fallback",
         },
         formatters_by_ft = {
+          typescript = { "eslint_d" },
+          typescriptreact = { "eslint_d" },
+          javascript = { "eslint_d" },
+          javascriptreact = { "eslint_d" },
           toml = { "taplo" },
           lua = { "stylua" },
           tf = { "terraform_fmt" },
