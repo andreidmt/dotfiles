@@ -6,3 +6,4 @@
 # Configure User level runit services
 ensure_symlink "$CORE_SERVICES/syncthing" "$CORE_RUNSV/syncthing"
 ensure_symlink "$CORE_SERVICES/usb-automount" "$CORE_RUNSV/usb-automount"
+ensure_symlink "$CORE_SERVICES/battery-alert" "$CORE_RUNSV/battery-alert"

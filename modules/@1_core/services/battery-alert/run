@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Redirect stderr to stdout for complete logging
+exec 2>&1
+
+{
+  # Check battery status every 10 seconds
+  while true; do
+    ./alert-battery
+    sleep 10
+  done &
+} | sed 's/^/[battery-alert] /'

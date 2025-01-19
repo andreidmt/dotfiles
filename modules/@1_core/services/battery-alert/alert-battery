@@ -1,0 +1,55 @@
+#!/usr/bin/env sh
+
+# NAME
+#   alert-battery - Monitor battery status and alert when critical
+#
+# SYNOPSIS
+#   alert-battery [battery-name=BAT0]
+#
+# DESCRIPTION
+#   Monitor battery status and alert when critical levels are reached.
+#   Supports customizable battery path and critical level threshold.
+#   Uses espeak for audio alerts and fancy-log for status reporting.
+#
+# EXAMPLES
+#   alert-battery
+#   alert-battery BAT1
+#
+# SEE ALSO
+#   espeak(1), fancy-log(1)
+
+# Default battery path - can be overridden by first argument
+BATTERY_PATH="/sys/class/power_supply/${1:-BAT0}"
+BATTERY_STATUS_FILE="/tmp/prev_battery_status"
+CRITICAL_BATTERY_LEVEL=15
+
+# Check if battery exists
+if [ ! -d "$BATTERY_PATH" ]; then
+  fancy-log error -v path "$BATTERY_PATH" "Battery not found"
+  exit 1
+fi
+
+# Get current battery charge level
+battery_charge=$(cat "$BATTERY_PATH/capacity" 2> /dev/null)
+if [ -z "$battery_charge" ]; then
+  fancy-log error -v path "$BATTERY_PATH/capacity" "Cannot read battery capacity"
+  exit 1
+fi
+
+# Read previous and current battery status
+previous_status=$(cat "$BATTERY_STATUS_FILE" 2> /dev/null)
+current_status=$(tee "$BATTERY_STATUS_FILE" < "$BATTERY_PATH/status" 2> /dev/null)
+
+# Check if battery was just plugged in
+is_just_plugged_in=$([ "$previous_status" = "Discharging" ] && [ "$current_status" = "Charging" ] && echo true || echo false)
+
+if [ "$is_just_plugged_in" = "true" ] && [ "$battery_charge" -lt "$CRITICAL_BATTERY_LEVEL" ]; then
+  espeak "Crisis averted, battery charging." 2> /dev/null &
+  exit 0
+fi
+
+if [ "$current_status" = "Discharging" ] && [ "$battery_charge" -lt "$CRITICAL_BATTERY_LEVEL" ]; then
+  espeak "Critical battery! Please recharge." 2> /dev/null &
+fi
+
+fancy-log info -v charge "$battery_charge" -v status "$current_status" "Battery status"
