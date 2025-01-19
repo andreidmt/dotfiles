@@ -9,6 +9,15 @@ return {
 
       conform.setup({
         formatters = {
+          shfmt = {
+            prepend_args = {
+              "--indent",
+              "2",
+              "--case-indent",
+              "--binary-next-line",
+              "--space-redirects",
+            },
+          },
           prettier = {
             prepend_args = {
               "--trailing-comma",
@@ -23,6 +32,7 @@ return {
           lsp_format = "fallback",
         },
         formatters_by_ft = {
+          sh = { "shfmt" },
           typescript = { "eslint_d" },
           typescriptreact = { "eslint_d" },
           javascript = { "eslint_d" },
