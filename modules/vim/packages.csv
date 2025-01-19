@@ -1,3 +1,5 @@
 neovim, pacman, "Vim-fork focused on extensibility and usability"
 taplo, pacman, "Language support for TOML files (formatting,syntax highlighting, diagnostics)"
 stylua, pacman, "Lua code formatter written in Rust"
+shellcheck, pacman, "Shell script analysis tool"
+shfmt, pacman, "Shell script formatter that supports POSIX, Bash, and mksh"
