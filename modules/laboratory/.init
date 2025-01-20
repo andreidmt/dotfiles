@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-APPSMITH_HOME="$(dirname "$0")"
-
-LOG_NAMESPACE="󰡨 laboratory"
-LOG_LEVEL=info
