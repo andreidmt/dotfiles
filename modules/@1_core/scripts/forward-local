@@ -204,6 +204,7 @@ update_etc_hosts() {
 forward_traffic() {
   from="tcp-listen:$FROM_PORT,reuseaddr,fork"
   if [ "$FROM_PROTOCOL" = "https" ]; then
+    setup_certificates
     from="openssl-listen:$FROM_PORT,reuseaddr,fork,cert=$FROM_DOMAIN_CERT_FILE,key=$FROM_DOMAIN_KEY_FILE,cafile=$ROOT_CA,verify=0"
   fi
 
@@ -224,6 +225,5 @@ forward_traffic() {
 # ╭───┤ Main. Start here.
 # ╰─
 
-setup_certificates
 update_etc_hosts
 forward_traffic
