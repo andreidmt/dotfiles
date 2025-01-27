@@ -1,0 +1,229 @@
+#!/usr/bin/env sh
+
+# NAME
+#   forward-local - Forward traffic from a local domain to an arbitrary destination
+#
+# SYNOPSIS
+#   forward-local -f|--from <entry_address> -t|--to <dest_address>
+#
+# OPTIONS
+#   --from <entry_address>
+#     Entry point to forward from (e.g., https://lorem.com)
+#     Protocol defaults to http, port defaults to 80.
+#     Will create local self-signed SSL certificates if protocol is https.
+#
+#   --to <dest_address>
+#     Destination to forward to (e.g., localhost)
+#     Protocol defaults to http, port defaults to 80
+#
+# DESCRIPTION
+#   A domain forwarding utility that forwards traffic between domains
+#   while (1) creating locally signed SSL certificates and (2) updating
+#   `/etc/hosts` file to enable domain resolution.
+#
+#   Forwards traffic between domains by (1) creating local self-signed SSL
+#   certificates if `--from` protocol is https and (2) updating
+#   /etc/hosts for domain resolution.
+#
+#   This is a developer tool, not for production or long running processes.
+#   It will ocuppy the port and prevent other processes from binding to it.
+#   For more complex scenarios, like multiple domains, load balancing,
+#   or persistent reverse proxies, consider nginx.
+#
+# ERROR CODES
+#  1 - Requires root privileges
+#  2 - Missing system dependency
+#  3 - Invalid arguments
+#
+# EXAMPLE
+#   forward-local --from https://lorem.ipsum --to localhost
+#
+# SEE ALSO
+#   socat(1), mkcert(1), fancy-log(1)
+
+export LOG_NAMESPACE="󰀽 forward-local"
+export LOG_LEVEL="info"
+
+# ╭───┤ Globals + Bootstraping
+# ╰─
+
+# Check root privileges
+if [ "$(id -u)" -ne 0 ]; then
+  fancy-log error "This script requires root privileges."
+  exit 1
+fi
+
+# Verify dependencies
+for cmd in socat mkcert; do
+  if ! command -v "$cmd" > /dev/null 2>&1; then
+    fancy-log error -v package "$cmd" "Dependency not found. Please install it first."
+    exit 2
+  fi
+done
+
+# Initialize certificate directories
+MKCERT_DIR="$HOME/.local/share/mkcert"
+CERT_DIR="$MKCERT_DIR/certs"
+mkdir -p "$CERT_DIR"
+
+FROM_PROTOCOL=
+FROM_DOMAIN=
+FROM_PORT=
+TO_DOMAIN=
+TO_PORT=
+
+# ╭───┤ Argument parsing
+# ╰─
+
+# Validate URL format: protocol://domain:port
+is_valid_url() {
+  echo "$1" | grep --quiet --extended-regexp '^(https?://)?[^/?#:]+(:[0-9]+)?$'
+}
+
+# Extract protocol, domain, and port from URL
+parse_url() {
+  # Extract protocol.
+  # `%%` - Remove longest match of pattern from end
+  protocol=${1%%://*}
+  if [ "$protocol" = "$1" ]; then protocol="http"; fi
+
+  # Remove protocol.
+  # `#*` -  Remove shortest match of pattern from start
+  domain=${1#*://}
+
+  # Extract port.
+  # `##*` -  Remove longest match of pattern from start
+  port=${domain##*:}
+  if [ "$port" = "$domain" ]; then
+    [ "$protocol" = "https" ] && port=443 || port=80
+  fi
+
+  # Remove port.
+  # `%` - Remove shortest match of pattern from end
+  domain=${domain%:*}
+
+  echo "$protocol" "$domain" "$port"
+}
+
+# Parse command line arguments
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -f | --from)
+      if ! is_valid_url "$2"; then
+        fancy-log error -v "-f|--from" "$2" "Invalid URL format"
+        exit 3
+      fi
+
+      # POSIX style variable deconstruction :)
+      IFS=' ' read -r FROM_PROTOCOL FROM_DOMAIN FROM_PORT << EOF
+$(parse_url "$2")
+EOF
+      shift 2
+      ;;
+    -t | --to)
+      if ! is_valid_url "$2"; then
+        fancy-log error -v "-t|--to" "$2" "Invalid URL format"
+        exit 3
+      fi
+
+      IFS=' ' read -r TO_PROTOCOL TO_DOMAIN TO_PORT << EOF
+$(parse_url "$2")
+EOF
+      shift 2
+      ;;
+    *)
+      fancy-log error -v name "$1" "Unknown option"
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z "$FROM_DOMAIN" ]; then
+  fancy-log error -v name "-f|--from" "Missing required argument"
+  exit 2
+fi
+
+if [ -z "$TO_DOMAIN" ]; then
+  fancy-log error -v name "-t|--to" "Missing required argument"
+  exit 2
+fi
+
+FROM_DOMAIN_CERT_FILE="$CERT_DIR/$FROM_DOMAIN.pem"
+FROM_DOMAIN_KEY_FILE="$CERT_DIR/$FROM_DOMAIN-key.pem"
+ROOT_CA="$MKCERT_DIR/rootCA.pem"
+
+# ╭───┤ Functions
+# ╰─
+
+has_certificates() {
+  if [ -f "$FROM_DOMAIN_CERT_FILE" ] && [ -f "$FROM_DOMAIN_KEY_FILE" ]; then
+    return 0
+  fi
+  return 1
+}
+
+# Prepare certificates CA and create FROM_DOMAIN certificates if needed
+setup_certificates() {
+  if [ ! -f "$ROOT_CA" ]; then
+    mkcert -install
+  fi
+
+  if ! has_certificates; then
+    fancy-log info -v from_domain "$FROM_DOMAIN" "Generating certificates"
+    mkcert -cert-file "$FROM_DOMAIN_CERT_FILE" \
+      -key-file "$FROM_DOMAIN_KEY_FILE" "$FROM_DOMAIN"
+  else
+    fancy-log info -v from_domain "$FROM_DOMAIN" -v dir "$CERT_DIR" \
+      "Using existing certificates"
+  fi
+}
+
+# Update /etc/hosts file to enable domain resolution
+update_etc_hosts() {
+  source_ip=$(getent hosts "$TO_DOMAIN" | awk '{ print $1 }')
+  if [ -z "$source_ip" ]; then
+    fancy-log error -v from_domain "$TO_DOMAIN" "Could not resolve IP"
+    exit 2
+  fi
+
+  # Mapping already exists, nothing to do
+  if grep --quiet "$FROM_DOMAIN" /etc/hosts; then
+    fancy-log info -v from_domain "$FROM_DOMAIN" -v file \
+      "/etc/hosts" "Domain mapping exists"
+    return 0
+  fi
+
+  # Create a backup and add the mapping
+  cp /etc/hosts /etc/hosts.backup
+  echo "$source_ip $FROM_DOMAIN" | tee -a /etc/hosts > /dev/null
+  fancy-log info -v from_domain "$FROM_DOMAIN" "Added domain to /etc/hosts"
+}
+
+# Forward traffic between --from, the entry address, to --to, the destination
+# address.
+forward_traffic() {
+  from="tcp-listen:$FROM_PORT,reuseaddr,fork"
+  if [ "$FROM_PROTOCOL" = "https" ]; then
+    from="openssl-listen:$FROM_PORT,reuseaddr,fork,cert=$FROM_DOMAIN_CERT_FILE,key=$FROM_DOMAIN_KEY_FILE,cafile=$ROOT_CA,verify=0"
+  fi
+
+  to="tcp-connect:$TO_DOMAIN:$TO_PORT"
+  if [ "$TO_PORT" = "https" ]; then
+    to="openssl-connect:$TO_DOMAIN:$TO_PORT,verify=0"
+  fi
+
+  fancy-log info \
+    -v from_protocol "$FROM_PROTOCOL" -v from_port "$FROM_PORT" -v from_domain "$FROM_DOMAIN" \
+    -v to_protocol "$TO_PROTOCOL" -v to_port "$TO_PORT" -v to_domain "$TO_DOMAIN" \
+    "Starting traffic forwarding"
+
+  # Pass current process control to socat
+  exec socat "$from" "$to"
+}
+
+# ╭───┤ Main. Start here.
+# ╰─
+
+setup_certificates
+update_etc_hosts
+forward_traffic
