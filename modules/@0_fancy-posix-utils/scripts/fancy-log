@@ -6,6 +6,10 @@
 # SYNOPSIS
 #  fancy-log <type> [-nc|--no-color] [-v|--var <name> <value>] <message>
 #
+# DESCRIPTION
+#  Print a dated, colored, namespaced, multi-level, CI aware and pretty
+#  formatted log message.
+#
 # FLAGS
 #  [-ns|--no-color]
 #   Do not print colors or icons.
@@ -22,7 +26,7 @@
 #   "info", and "success".
 #
 #  <message>
-#   The message to print. Can be passed as the first argument or as 
+#   The message to print. Can be passed as the first argument or as
 #   standard input.
 #
 # ENVIRONMENT
@@ -32,10 +36,13 @@
 #   Defaults to "error".
 #
 #  LOG_NAMESPACE
-#   If set, the namespace is printed before the message.
+#   If set, the namespace is printed before the message in gray text.
 #
 #  CI
 #   If set, messages are printed without colors.
+#
+# EXAMPLE
+#  fancy-log error -v param-name "name" -v param-value "wrong-value" "Invalid parameter value"
 
 LOG_NAMESPACE=${LOG_NAMESPACE:-}
 LOG_LEVEL=${LOG_LEVEL:-error}
@@ -45,10 +52,22 @@ LOG_LEVEL=${LOG_LEVEL:-error}
 
 set_theme() {
   case $1 in
-    err|error) TYPE_LABEL="ERR"; TYPE_COLOR="\033[31m" ;;     # Red
-    warn|warning) TYPE_LABEL="WRN"; TYPE_COLOR="\033[33m" ;;  # Yellow
-    info) TYPE_LABEL="INF"; TYPE_COLOR="\033[34m" ;;          # Blue
-    success|succ) TYPE_LABEL="SUC"; TYPE_COLOR="\033[32m" ;;  # Green
+    err | error)
+      TYPE_LABEL="ERR"
+      TYPE_COLOR="\033[31m"
+      ;; # Red
+    warn | warning)
+      TYPE_LABEL="WRN"
+      TYPE_COLOR="\033[33m"
+      ;; # Yellow
+    info)
+      TYPE_LABEL="INF"
+      TYPE_COLOR="\033[34m"
+      ;; # Blue
+    success | succ)
+      TYPE_LABEL="SUC"
+      TYPE_COLOR="\033[32m"
+      ;; # Green
   esac
   # \033[1m -> Bold
   TYPE_LABEL_COLORIZED="${TYPE_COLOR}\033[1m${TYPE_LABEL}\033[0m"
@@ -56,8 +75,8 @@ set_theme() {
 
 should_print() {
   case $LOG_LEVEL in
-    err|error) [ "$1" = "error" ] || [ "$1" = "err" ] || [ "$1" = "success" ] ;;
-    warn|warning) [ "$1" = "error" ] || [ "$1" = "err" ] || [ "$1" = "warning" ] || [ "$1" = "warn" ] || [ "$1" = "success" ] ;;
+    err | error) [ "$1" = "error" ] || [ "$1" = "err" ] || [ "$1" = "success" ] ;;
+    warn | warning) [ "$1" = "error" ] || [ "$1" = "err" ] || [ "$1" = "warning" ] || [ "$1" = "warn" ] || [ "$1" = "success" ] ;;
     info) [ "$1" = "error" ] || [ "$1" = "err" ] || [ "$1" = "warning" ] || [ "$1" = "warn" ] || [ "$1" = "info" ] || [ "$1" = "success" ] ;;
   esac
 }
@@ -68,10 +87,15 @@ print_message() {
 
   while [ "$#" -gt 0 ]; do
     case $1 in
-      -nc|--no-color) has_color=""; shift ;;
-      -v|--var)
-        key=$2; shift
-        value=$2; shift
+      -nc | --no-color)
+        has_color=""
+        shift
+        ;;
+      -v | --var)
+        key=$2
+        shift
+        value=$2
+        shift
 
         if [ -z "$has_color" ]; then
           variables="$variables $key=$value"
@@ -79,8 +103,14 @@ print_message() {
           variables="$variables\033[90m$key=\033[0m$value " # Gray
         fi
         ;;
-      --) shift; break ;;
-      -*) echo "Unknown parameter $1" >&2; exit 1 ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        echo "Unknown parameter $1" >&2
+        exit 1
+        ;;
       *) break ;;
     esac
     shift
@@ -89,7 +119,7 @@ print_message() {
   timestamp=$(date +%T)
   styled_namespace=""
   if [ -n "$LOG_NAMESPACE" ]; then
-    styled_namespace="\033[90m$LOG_NAMESPACE: \033[0m"      # Gray
+    styled_namespace="\033[90m$LOG_NAMESPACE: \033[0m" # Gray
   fi
 
   if [ -z "$has_color" ]; then
@@ -99,12 +129,14 @@ print_message() {
   fi
 }
 
-# ╭───┤ Main
+# ╭───┤ Main. Start here.
 # ╰─
 
 message_type=$1
 if [ -z "$message_type" ]; then
-  echo "No message type provided" >&2
+  set_theme "error"
+  print_message "-v" "example" "fancy-log error \"Error message\"" \
+    "No message type provided, expected one of: error, warning, info, success"
   exit 1
 fi
 shift
@@ -113,4 +145,3 @@ if should_print "$message_type"; then
   set_theme "$message_type"
   print_message "$@"
 fi
-
