@@ -29,6 +29,7 @@ get_icon_by_charge() {
 }
 
 battery="/sys/class/power_supply/BAT0"
+critical_battery_level=15
 charge=$(cat "$battery/capacity")
 wattage=$(cat "$battery/power_now" 2>/dev/null \
   | numfmt --from-unit=1 --to=si \
@@ -42,16 +43,15 @@ else
   icon=$(get_icon_by_charge "$charge")
 fi
 
-if [ "$prev_status" = "Discharging" ] && [ "$next_status" = "Charging" ]; then
+if [ "$next_status" = "Discharging" ] && [ "$charge" -lt "$critical_battery_level" ]; then
+  espeak "Critical battery! Please recharge." 2>/dev/null &
+  red "$icon $charge% $wattage"
+  exit 0
+fi
+
+if [ "$prev_status" = "Discharging" ] && [ "$next_status" = "Charging" ] && [ "$charge" -lt "$critical_battery_level" ]; then
   espeak "Crisis averted, battery charging." 2>/dev/null &
 fi
 
-if [ "$next_status" = "Discharging" ]; then
-  if [ "$charge" -lt 10 ]; then
-    espeak "Critical battery! Please recharge." 2>/dev/null &
-    red "$icon $charge% $wattage"
-    exit 0
-  fi
-fi
 
 echo "$(orange "$icon") $charge% $(orange "") $wattage"
