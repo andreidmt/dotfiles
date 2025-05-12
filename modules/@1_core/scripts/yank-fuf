@@ -4,12 +4,12 @@
 #   yank-fuf - User friendly, multiple file yank script
 #
 # SYNOPSIS
-#   yank-uf [FILE|DIRECTORY]... 
+#   yank-uf [FILE|DIRECTORY]...
 #
 # DESCRIPTION
-#   Add multiple files' contents to the clipboard buffer, formatted as markdown 
-#   code blocks, together with file name, syntax 
-# 
+#   Add multiple files' contents to the clipboard buffer, formatted as markdown
+#   code blocks, together with file name, syntax
+#
 # SEE ALSO
 #   md-syntax, xclip, rofi, ripgrep
 
@@ -48,20 +48,22 @@ find_all_files() {
         --glob '!.git' \
         --glob '!.cache' \
         --glob '!node_modules' \
-        "$arg" 
+        "$arg"
     fi
   done
 }
 
-## 
+##
 ## Main
 ##
 
 parse_arguments "$@"
 
-selected_files=$(find_all_files "$@" \
-  | sort \
-  | rofi -dmenu -i -multi-select -p "Select files to copy:"
+selected_files=$(
+  find_all_files "$@" \
+    | sort \
+    | rofi -dmenu -i -ellipsize-mode start \
+      -multi-select -config ~/.config/rofi/gruvbox-single.rasi -p "Select files to copy:"
 )
 buffer_content=""
 
@@ -76,7 +78,7 @@ done
 
 # If stdout is a terminal, copy to clipboard and print some stats
 if [ -t 1 ]; then
-  printf "%b" "$buffer_content" | yank 
+  printf "%b" "$buffer_content" | yank
 
   file_count=$(echo "$selected_files" | wc -l)
   line_count=$(echo "$buffer_content" | wc -l)
