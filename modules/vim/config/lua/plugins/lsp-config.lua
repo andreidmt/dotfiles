@@ -151,6 +151,7 @@ return {
         "eslint",
         "json",
         "lua",
+        "python",
         "terraform",
         "sql",
         -- "typescript",
