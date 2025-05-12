@@ -4,9 +4,9 @@
 exec 2>&1
 
 {
-  # Check battery status every 10 seconds
+  # Check battery status every 5 seconds
   while true; do
     ./alert-battery
-    sleep 10
+    sleep 5
   done &
 } | sed 's/^/[battery-alert] /'
