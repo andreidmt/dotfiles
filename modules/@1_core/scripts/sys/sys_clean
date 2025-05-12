@@ -17,16 +17,31 @@ removePacmanCache() {
 }
 
 removeNPMCache() {
+  if command command -v npm >/dev/null 2>&1; then
+    cowthink "NPM: Not installed"
+    return
+  fi
+
   cowthink "NPM: Removing cache"
   npm cache clean --force
 }
 
 removeYarnCache() {
+  if command -v yarn >/dev/null 2>&1; then
+    cowthink "YARN: Not installed"
+    return
+  fi
+
   cowthink "YARN: Removing cache"
   yarn cache clean
 }
 
 removeDockerUnusedImages() {
+  if command -v docker >/dev/null 2>&1; then
+    cowthink "DOCKER: Not installed"
+    return
+  fi
+
   cowthink "DOCKER: Removing unused images"
   docker image prune -f
 }
