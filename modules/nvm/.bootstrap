@@ -1,6 +1,13 @@
 #!/usr/bin/env zsh
 
-NVMM_HOME=$(dirname "$0")
+###
+# `nvm` module bootstraping script.
+#
+# Sourced with every terminal session, before `.init` and/or `.install`.
+# Set common variables needed by both scripts.
+###
+
+export NVMM_HOME=$(dirname "$0")
 
 export LOG_NAMESPACE=" nvm"
 export LOG_LEVEL=info
@@ -12,4 +19,4 @@ export NVMM_FUNCTIONS="$NVMM_HOME/functions"
 export NVMM_CONFIG="$NVMM_HOME/config"
 
 # export NVMM_DEFAULT_VERSION=$(nvm version default)
-export NVMM_DEFAULT_VERSION="v20.17.0" # save ~200ms on terminal start time
+export NVMM_DEFAULT_VERSION="v22.15.0" # save ~200ms on terminal start time

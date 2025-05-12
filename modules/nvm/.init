@@ -1,9 +1,15 @@
 #!/usr/bin/env zsh
 
 ###
-# Module loading script, sourced with every terminal session.
-# Use it to initialize and kickstart module's responsabilities.
+# `nvm` module loading script.
+#
+# Sourced with every terminal session, after `.bootstrap`.
+# Initialize and kickstart module's responsabilities.
 ###
+
+if [ -f "$NVMM_HOME/.env" ]; then
+  . "$NVMM_HOME/.env"
+fi
 
 # Config nvm
 export NVM_COMPLETION=true

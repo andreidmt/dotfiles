@@ -1,10 +1,14 @@
 #!/usr/bin/env zsh
 
+###
+# `nvm` module install script.
+#
+# Runs every 24 hours, after `.bootstrap`.
+# Keep dependencies updated and ensure system integration.
+###
+
 git-download nvm-sh/nvm "$NVMM_LOCAL/nvm"
 git-download lukechilds/zsh-better-npm-completion "$NVMM_LOCAL/zsh-better-npm-completion"
-
-# export NVMM_DEFAULT_VERSION=$(nvm version default)
-export NVMM_DEFAULT_VERSION="v20.17.0" # save ~200ms on terminal start time
 
 if ! which node; then
   fancy-log warn "No default version set, installing ..."
