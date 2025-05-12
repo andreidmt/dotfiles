@@ -1,6 +1,6 @@
 return {
   {
-    dir = "~/Work/deckr41/nvim",
+		"deckr41/nvim",
     name = "deckr41",
     event = { "BufEnter" },
     opts = {

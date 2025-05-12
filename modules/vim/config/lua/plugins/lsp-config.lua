@@ -110,6 +110,12 @@ return {
       )
       vim.keymap.set(
         "n",
+        "<leader>ki",
+        "<cmd>Telescope diagnostics<cr>",
+        { desc = "[LSP] Show all diagnostics" }
+      )
+      vim.keymap.set(
+        "n",
         "<leader>k",
         vim.lsp.buf.hover,
         { desc = "[LSP] Show hover information" }
