@@ -29,7 +29,7 @@ fi
 # ╭───┤ Functions
 # ╰─
 
-# Group all packages by their package manager. 
+# Group all packages by their package manager.
 #
 # Example:
 #  dunst, pacman, "Notification deamon"
@@ -66,18 +66,18 @@ install_by_package_manager() {
 
     case "$package_manager" in
       pacman)
-        sudo pacman --sync --noconfirm $packages
-      ;;
+        sudo pacman --sync --noconfirm --needed $packages
+        ;;
       aur)
         yay --sync --noconfirm $packages
-      ;;
+        ;;
       npm)
         npm install --global $packages
-      ;;
+        ;;
       *)
         fancy-log warn -v name "$package_manager" \
           "Package manager not recognized"
-      ;;
+        ;;
     esac
   done
 }

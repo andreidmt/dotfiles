@@ -1,11 +1,13 @@
 #!/usr/bin/env sh
 
 ###
-# Module loading script, sourced with every terminal session.
-# Use it to initialize and kickstart module's responsabilities.
+# `@0_fancy-posix-utils` module loading script.
+#
+# Sourced with every terminal session, after `.bootstrap`.
+# Initialize and kickstart module's responsabilities.
 ###
 
-# Expose scripts 
+# Expose scripts
 export PATH="$FCLI_SCRIPTS:$PATH"
 
 # Expose functions
@@ -13,4 +15,3 @@ export PATH="$FCLI_SCRIPTS:$PATH"
 . "$FCLI_FUNCTIONS/predicates"
 . "$FCLI_FUNCTIONS/stdin-or"
 . "$FCLI_FUNCTIONS/symlinks"
-

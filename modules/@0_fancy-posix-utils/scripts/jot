@@ -21,7 +21,7 @@
 #   Display this help message.
 #
 # EXAMPLES
-#  jot | wc -c 
+#  jot | wc -c
 #   Count the number of characters in the text entered in jot.
 #
 #  jot > ~/Notes/draft/$(date +%Y-%m-%d-%H-%M-%S).md
@@ -38,30 +38,25 @@
 # SEE ALSO
 #  nvim(1), alacritty(1), log(1)
 
-export LOG_NAMESPACE="jot"
+export LOG_NAMESPACE="󱓙 jot"
 export LOG_LEVEL="info"
 
 # ╭───┤ Globals + Bootstraping
 # ╰─
 
-if ! command -v alacritty >/dev/null 2>&1; then
-  fancy-log error "alacritty is not installed, exiting"
-  exit 1
-fi
-
-if ! command -v nvim >/dev/null 2>&1; then
-  fancy-log error "nvim is not installed, exiting"
-  exit 1
-fi
+# Verify dependencies
+for cmd in alacritty nvim; do
+  if ! command -v "$cmd" > /dev/null 2>&1; then
+    fancy-log error -v package "$cmd" "Dependency not found. Please install it first."
+    exit 2
+  fi
+done
 
 JOT_HOME="${HOME}/.jot"
+mkdir -p "$JOT_HOME"
 SHOULD_CONTINUE=false
 PREV_NOTE_PATH="${JOT_HOME}/last_note_path"
 TMP_FILE=""
-
-if [ ! -d "$JOT_HOME" ]; then
-  mkdir "$JOT_HOME" > /dev/null 2>&1
-fi
 
 # ╭───┤ Functions
 # ╰─
@@ -70,16 +65,22 @@ fi
 parse_options() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
-      -h|--help)
+      -h | --help)
         man --pager cat "$(dirname "$0")/jot.1"
         exit 0
         ;;
-      -c|--continue)
+      -c | --continue)
         SHOULD_CONTINUE=true
         shift
         ;;
-      --) shift; break ;;
-      -?*) fancy-log error -v name "$1" "Unknown flag."; exit 1 ;;
+      --)
+        shift
+        break
+        ;;
+      -?*)
+        fancy-log error -v name "$1" "Unknown flag."
+        exit 1
+        ;;
       *) break ;;
     esac
   done
@@ -89,7 +90,7 @@ parse_options() {
 # Either create a new temporary file or continue editing the last one.
 decide_tmp_file() {
   if [ "$SHOULD_CONTINUE" = true ] && [ -f "$PREV_NOTE_PATH" ]; then
-    TMP_FILE=$(cat "$PREV_NOTE_PATH" 2>/dev/null)
+    TMP_FILE=$(cat "$PREV_NOTE_PATH" 2> /dev/null)
   fi
 
   if [ -z "$TMP_FILE" ]; then
@@ -102,7 +103,7 @@ decide_tmp_file() {
   fi
 }
 
-# Add stdin content to the temporary file. 
+# Add stdin content to the temporary file.
 # This is usefull when the user pipes contents of a file or another command
 # into jot.
 #
@@ -115,19 +116,19 @@ append_stdin_to_file() {
   fi
 }
 
-# Open the file in Neovim inside an Alacritty terminal. 
+# Open the file in Neovim inside an Alacritty terminal.
 # This is the main interaction point with the user.
 #
-# The "jot-center-float" class needs to be handled by i3, sway or any other 
+# The "jot-center-float" class needs to be handled by i3, sway or any other
 # window manager to center the floating window.
 edit_note() {
   alacritty --title "$TMP_FILE - jot" \
     --class "jot-center-float" \
     --command nvim \
-      -c "setlocal syntax=markdown" \
-      -c "setlocal wrap" \
-      -c "setlocal spell" \
-      "$TMP_FILE"
+    -c "setlocal syntax=markdown" \
+    -c "setlocal wrap" \
+    -c "setlocal spell" \
+    "$TMP_FILE"
 }
 
 # Persist the note, after being edited by the user, for future use if user
@@ -147,14 +148,10 @@ persist_and_output_note() {
 # ╭───┤ Main. Start here.
 # ╰─
 
-# Begining
 parse_options "$@"
 decide_tmp_file
 
-# Middle
 append_stdin_to_file
 edit_note
 
-# End
 persist_and_output_note
-

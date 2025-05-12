@@ -1,10 +1,15 @@
 #!/usr/bin/env sh
 
-FCLI_HOME="$(dirname "$0")"
+###
+# `@0_fancy-posix-utils` module bootstraping script.
+#
+# Sourced with every terminal session, before `.init` and/or `.install`.
+# Set common variables needed by both scripts.
+###
 
+FCLI_HOME="$(dirname "$0")"
 export FCLI_SCRIPTS="$FCLI_HOME/scripts"
 export FCLI_FUNCTIONS="$FCLI_HOME/functions"
 
 export LOG_NAMESPACE=" @fancy-posix-utils"
 export LOG_LEVEL=info
-
