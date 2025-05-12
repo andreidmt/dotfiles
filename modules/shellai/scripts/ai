@@ -22,12 +22,12 @@
 #
 #  recall
 #   Choose a conversation to set as the active one.
-# 
+#
 # OPTIONS
-#  --no-highlight 
+#  --no-highlight
 #   Do not syntax highlight the response.
 #
-# EXAMPLES 
+# EXAMPLES
 #  ai "What is the meaning of life?"
 #   Simple question
 #
@@ -39,8 +39,8 @@
 #
 #  cat "42.js" | ai "Explain what this does:"
 #   Concatenate both stdin and argument: <argument>\n\n<stdin>
-#  
-#  ai new "Let's start a new conversation, shall we?" 
+#
+#  ai new "Let's start a new conversation, shall we?"
 #   Start a new conversation
 #
 #  cat "42.js" | ai new "Explain what this does:"
@@ -49,7 +49,7 @@
 #
 #  ai recall
 #   Choose a conversation to set as the active one
-#  
+#
 # SEE ALSO
 #  ai-db-find-one(1), ai-db-find-many(1), ai-db-create(1), ai-db-update(1),
 #  jq(1), bat(1), sqlite3(2)
@@ -84,7 +84,7 @@ choose_agent() {
     | awk -F "$delimiter" '{print $1}'
 }
 
-# Create a new conversation and set it as the active one, so that subsequent 
+# Create a new conversation and set it as the active one, so that subsequent
 # messages are added automatically to it.
 #
 # SYNOPSIS
@@ -112,7 +112,7 @@ create_new_conversation() {
 #  2 Active conversation does not exist
 print_active_conversation() {
   cid=$(ai-db-find-one --mode csv --table Settings \
-        --filter "value" --where "key = 'active-conversation-id'")
+    --filter "value" --where "key = 'active-conversation-id'")
 
   if [ -z "$cid" ]; then
     fancy-log error "No active conversation set"
@@ -135,8 +135,14 @@ has_syntax_highlight="true"
 while [ "$#" -gt 0 ]; do
   case $1 in
     --no-highlight) has_syntax_highlight="" ;;
-    --) shift; break ;;
-    -?*) echo "error: unknown flag $1" >&2; exit 1 ;;
+    --)
+      shift
+      break
+      ;;
+    -?*)
+      echo "error: unknown flag $1" >&2
+      exit 1
+      ;;
     *) break ;;
   esac
   shift
@@ -147,23 +153,23 @@ query_arg=$1
 should_create=false
 
 case "$1" in
-  new) 
+  new)
     should_create=true
-    query_arg=$2 
+    query_arg=$2
 
     if [ -z "$query_arg" ] && [ -z "$query_stdin" ]; then
       fancy-log error "Please provide a query"
       exit 1
     fi
-  ;;
+    ;;
   recall)
     ai-recall
     exit 0
-  ;;
+    ;;
   retry)
     should_retry=true
     query_arg="dummy-content"
-  ;;
+    ;;
 esac
 
 if [ -z "$query_arg" ] && [ -z "$query_stdin" ]; then
@@ -183,7 +189,7 @@ fi
 # ╰────────
 
 active_cid=$(ai-db-find-one --mode csv --table Settings \
-    --filter "value" --where "key = 'active-conversation-id'")
+  --filter "value" --where "key = 'active-conversation-id'")
 
 if [ -z "$active_cid" ] && [ "$should_create" = false ]; then
   fancy-log warn --no-border "Cannot resume conversation because no active conversation is set, continuing by creating new conversation"
@@ -207,7 +213,7 @@ else
     CID=$(create_new_conversation "$agent_id")
   else
     agent_id=$(ai-db-find-one --mode csv --table Conversations \
-      --where "id=$CID" --filter "main_agent_id") 
+      --where "id=$CID" --filter "main_agent_id")
   fi
 fi
 
@@ -278,12 +284,13 @@ fi
 
 # ╭───┤ Prepare messages array for OpenAI POST request
 # ╰─
-messages=$(ai-db-find-many --table Messages \
-  --where "conversations_id = $CID" \
-  --sort "created_at ASC" \
-  --include "Users" \
-  | jq --raw-output --compact-output \
-    'def determineRole: 
+messages=$(
+  ai-db-find-many --table Messages \
+    --where "conversations_id = $CID" \
+    --sort "created_at ASC" \
+    --include "Users" \
+    | jq --raw-output --compact-output \
+      'def determineRole: 
       if .role != null and .role != "" then 
         .role 
       else 
@@ -329,7 +336,7 @@ exit_gracefully() {
   exit 0
 }
 
-trap exit_gracefully EXIT 
+trap exit_gracefully EXIT
 
 AGENT_MODEL=$(printf "%s" "$AGENT" | jq --raw-output '.model')
 AGENT_TEMPERATURE=$(printf "%s" "$AGENT" | jq --raw-output '.temperature')
@@ -341,7 +348,7 @@ ai-provider-openai --messages "$messages" \
   --temperature "$AGENT_TEMPERATURE" \
   | tee "$TMP_FILE" \
   | if [ -n "$has_syntax_highlight" ]; then
-      bat --unbuffered --language markdown --paging never --style plain
-    else
-      cat
-    fi
+    bat --unbuffered --language markdown --paging never --style plain
+  else
+    cat
+  fi
