@@ -1,0 +1,158 @@
+#!/usr/bin/env sh
+
+# NAME
+#  lucky-search - DuckDuckGo "I’m Feeling Ducky" search
+#
+# SYNOPSIS
+#   lucky-search
+#
+# DESCRIPTION
+#  `lucky-search` performs a DuckDuckGo "I'm Feeling Ducky" search using
+#  clipboard contents or stdin.
+#
+# EXIT CODES
+#  1 - Missing dependencies
+#  2 - Invalid argument
+#  3 - No clipboard or empty clipboard
+#
+# STDIN
+#  If passed, stdin is used as search query instead of asking what clipboard
+#
+# EXAMPLES
+#  # fzf ui allow clipboard selection 
+#  $ lucky-search
+#
+#  # If stdin detected, fzf ui is ignored and stdin is used as search query 
+#  $ echo "linux tips" | lucky-search
+#
+# SEE ALSO
+#  wl-clipboard(1), xdg-open(1), fancy-log(1), select-clipboard(1)
+
+export LOG_NAMESPACE="󰖟 lucky-search"
+export LOG_LEVEL="info"
+
+# ╭───┤ Globals + Bootstraping
+# ╰─
+
+if ! command -v xdg-open >/dev/null 2>&1; then
+  fancy-log error -v name "xdg-open" "Dependency not found."
+  exit 1
+fi
+
+if ! command -v wl-paste >/dev/null 2>&1; then
+  fancy-log error -v name "wl-clipboard" "Dependency not found."
+  exit 1
+fi
+
+LUCKY_HOME="${HOME}/.lucky-search"
+LUCKY_HISTORY_FILE="${LUCKY_HOME}/history"
+if [ ! -d "$LUCKY_HOME" ]; then
+  mkdir "$LUCKY_HOME" > /dev/null 2>&1
+fi
+
+# ╭───┤ Argument parsing 
+# ╰─
+
+LUCKY_PICK_FROM_HISTORY=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -r|--repeat|-ls|--list|--history)
+      LUCKY_PICK_FROM_HISTORY="true"
+      shift
+      ;;
+    --) shift; break ;;
+    -?*) fancy-log error -v name "$1" "Unknown flag."; exit 1 ;;
+    *) break ;;
+  esac
+done
+
+# ╭───┤ Functions
+# ╰─
+
+get_query_from_clipboard() {
+  clipboard_type=$(select-clipboard)
+
+  if [ -z "$clipboard_type" ]; then
+    fancy-log error "No clipboard selected."
+    exit 3
+  fi
+
+  if [ "$clipboard_type" = "primary" ]; then 
+    wl-paste --primary
+  else 
+    wl-paste
+  fi
+}
+
+get_query_from_history() {
+  if [ ! -f "$LUCKY_HISTORY_FILE" ]; then
+    return 1
+  fi
+
+  # Use fzf to select from history, with a custom prompt and preview window
+  fzf \
+    --prompt "󰖟 Lucky Search history:" \
+    --layout reverse \
+    --preview "echo {}" \
+    --preview-label "Preview" \
+    --preview-window "right:wrap" \
+    < "$LUCKY_HISTORY_FILE"
+}
+
+# Turn new lines into spaces, squeeze duplicate spaces, trim space and limit to max 200 characters
+sanitize_query() {
+  tr '\n' ' ' \
+    | tr -s ' ' \
+    | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+    | sed "s/+/2B/g;s/ /+/g" \
+    | cut -c -200
+}
+
+# Append query to history file
+save_history() {
+  query=$(cat -)
+  if [ ! -f "$LUCKY_HISTORY_FILE" ]; then
+    echo "$query" > "$LUCKY_HISTORY_FILE"
+  else
+    # Append to history file, remove duplicates and keep newest entries at the top
+    echo "$query" \
+      | cat - "$LUCKY_HISTORY_FILE" \
+      | awk "!seen[$0]++" > "$LUCKY_HISTORY_FILE.tmp" && mv "$LUCKY_HISTORY_FILE.tmp" "$LUCKY_HISTORY_FILE"
+  fi
+
+  # Pass through the query for the next pipe
+  echo "$query"
+}
+
+# Open an URL using the default system browser.
+# The \ in front of the query tells DuckDuckGo to open the first search hit.
+open_url_in_browser() {
+  search_query=$(cat -)
+  url="https://duckduckgo.com?q=\\+${search_query}"
+  xdg-open "$url"
+  fancy-log info -v query "$search_query" "Opening in browser..."
+}
+
+# ╭───┤ Main
+# ╰─
+
+if [ -t 0 ]; then
+  if [ "$LUCKY_PICK_FROM_HISTORY" = "true" ]; then
+    search_query=$(get_query_from_history)
+  else 
+    search_query=$(get_query_from_clipboard)
+  fi
+
+  if [ -z "$search_query" ]; then
+    fancy-log error "Clipboard is empty."
+    exit 3
+  fi
+else
+  search_query=$(cat -)
+fi
+
+echo "$search_query" \
+  | sanitize_query \
+  | save_history \
+  | open_url_in_browser
