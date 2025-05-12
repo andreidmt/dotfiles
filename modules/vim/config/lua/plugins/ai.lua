@@ -15,16 +15,16 @@ return {
         },
       },
       active_mode = "on-demand",
-
-      -- backends = {
-      -- 	openai = {
-      -- 		temperature = 0.1,
-      -- 	},
-      -- },
-
-      -- active_backend = "anthropic",
-      -- active_model = "claude-3-5-sonnet-latest",
-      -- active_model = "gpt-4o",
+      backends = {
+        anthropic = {
+          available_models = {
+            ["claude-3-7-sonnet-latest"] = { max_output_tokens = 64000 },
+            ["claude-3-7-haiku-latest"] = { max_output_tokens = 64000 },
+          },
+        },
+      },
+      active_backend = "anthropic",
+      active_model = "claude-3-7-sonnet-latest",
     },
     dependencies = {
       "nvim-lua/plenary.nvim",
