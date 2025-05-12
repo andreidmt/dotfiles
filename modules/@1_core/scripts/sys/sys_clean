@@ -26,6 +26,11 @@ removeYarnCache() {
   yarn cache clean
 }
 
+removeDockerUnusedImages() {
+  cowthink "DOCKER: Removing unused images"
+  docker image prune -f
+}
+
 #
 # Main
 #
@@ -38,6 +43,7 @@ removeOrphanPackages
 removePacmanCache
 removeYarnCache
 removeNPMCache
+removeDockerUnusedImages
 
 free_space=$(df -h)
 home_after_free_space=$(echo "$free_space" | grep "/home" | awk '{print $4}')

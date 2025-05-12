@@ -32,21 +32,26 @@ updatePacman() {
 }
 
 updatePacmanDB() {
+  # Refreh security keys, usefull when they expire or become invalid causing
+  # package upgrades to fail due to signature issues
   sudo pacman-key --refresh-keys
 
   # Update package database
   sudo pacman -Syy --noconfirm
 
   # Update keyring
-  # sudo pacman -Sy archlinux-keyring
+  sudo pacman -Sy archlinux-keyring
+
+  # Clear package cache in case of corrupted packages or to free up disk space
+  sudo pacman -Sc
 
   packageCount=$(pacman -Qu | wc | awk '{print $1}')
+  fancy-log success -v pkg_count "$packageCount" "Package database and security keys updated"
 
-  doomst --type success -t "$scriptName - pacman" \
-    -m "Database updated, ${packageCount} available."
-
-  # update i3blocks widgets with signal 10
-  pkill -SIGRTMIN+10 i3blocks
+  if command -v i3blocks >/dev/null 2>&1; then
+    # update i3blocks widgets with signal 10
+    pkill -SIGRTMIN+10 i3blocks
+  fi
 }
 
 case "${1:-all}" in
@@ -58,6 +63,5 @@ case "${1:-all}" in
     updatePacman
     ;;
   *)
-    die "Invalid argument \"$1\""
-    ;;
+    fancy-log error -v arg "$1" "Invalid argument" 
 esac
