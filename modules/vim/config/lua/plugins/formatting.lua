@@ -39,6 +39,7 @@ return {
           javascriptreact = { "eslint_d" },
           toml = { "taplo" },
           lua = { "stylua" },
+          markdown = { "prettier" },
           tf = { "terraform_fmt" },
           terraform = { "terraform_fmt" },
           json = { "prettier" },
