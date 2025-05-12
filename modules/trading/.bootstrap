@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+###
+# `trading` module bootstraping script.
+#
+# Sourced with every terminal session, before `.init` and/or `.install`.
+# Set common variables needed by both scripts.
+###
+
+T212_HOME="$(dirname "$0")"
+
+export T212_CONFIG="$T212_HOME/common"
+export T212_FUNCTIONS="$T212_HOME/functions"
+export T212_SCRIPTS="$T212_HOME/scripts"
+
+export LOG_NAMESPACE=" t212"
+export LOG_LEVEL=info
