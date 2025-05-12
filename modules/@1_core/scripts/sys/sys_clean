@@ -17,8 +17,8 @@ removePacmanCache() {
 }
 
 removeNPMCache() {
-  if command command -v npm >/dev/null 2>&1; then
-    cowthink "NPM: Not installed"
+  if ! command -v npm >/dev/null 2>&1; then
+    cowthink "NPM: Not installed, nothing to do"
     return
   fi
 
@@ -27,8 +27,8 @@ removeNPMCache() {
 }
 
 removeYarnCache() {
-  if command -v yarn >/dev/null 2>&1; then
-    cowthink "YARN: Not installed"
+  if ! command -v yarn >/dev/null 2>&1; then
+    cowthink "YARN: Not installed, nothing to do"
     return
   fi
 
@@ -37,8 +37,8 @@ removeYarnCache() {
 }
 
 removeDockerUnusedImages() {
-  if command -v docker >/dev/null 2>&1; then
-    cowthink "DOCKER: Not installed"
+  if ! command -v docker >/dev/null 2>&1; then
+    cowthink "DOCKER: Not installed, nothing to do"
     return
   fi
 
