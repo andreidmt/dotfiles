@@ -8,5 +8,3 @@
 ###
 
 export PATH="$T212_SCRIPTS:$PATH"
-
-[ -f "$T212_HOME/.env" ] && . "$T212_HOME/.env"
