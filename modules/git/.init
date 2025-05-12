@@ -7,10 +7,6 @@
 # Initialize and kickstart module's responsabilities.
 ###
 
-if [ -f "$GITM_HOME/.env" ]; then
-  . "$GITM_HOME/.env"
-fi
-
 export PATH="$GITM_SCRIPTS:$PATH"
 
 cd "$GITM_HOME" && docker-compose up -d

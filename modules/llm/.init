@@ -5,10 +5,6 @@
 # Use it to initialize and kickstart module's responsabilities.
 ###
 
-if [ -f "$LLM_HOME/.env" ]; then
-  . "$LLM_HOME/.env"
-fi
-
 PATH="$LLM_LOCAL/bin:$PATH"
 
 # Configure User level runit services

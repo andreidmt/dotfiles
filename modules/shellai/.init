@@ -29,13 +29,6 @@ export PATH="$SHELLAI_HOME/db/sqlite-orm:$PATH"
 
 fancy-log info -v path "$SHELLAI_SCRIPTS" "Scripts exposed in \$PATH"
 
-# ╭───┤ Source private env vars, secrets, API keys, etc. Not tracked by git.
-# ╰─
-
-if [ -f "$SHELLAI_HOME/.env" ]; then
-  . "$SHELLAI_HOME/.env"
-fi
-
 # ╭───┤ Setup SQLite database
 # ╰─
 export SHELLAI_DB_FILE="$SHELLAI_LOCAL/ai.db"

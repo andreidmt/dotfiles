@@ -17,6 +17,3 @@ mkdir -p "$NVMM_LOCAL"
 
 export NVMM_FUNCTIONS="$NVMM_HOME/functions"
 export NVMM_CONFIG="$NVMM_HOME/config"
-
-# export NVMM_DEFAULT_VERSION=$(nvm version default)
-export NVMM_DEFAULT_VERSION="v22.15.0" # save ~200ms on terminal start time

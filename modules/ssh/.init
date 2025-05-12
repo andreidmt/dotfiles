@@ -30,5 +30,3 @@ else
   fancy-log info -v keys_count "$(ssh-add -l | wc --lines)" \
     "SSH agent already running"
 fi
-
-[ -f "$SSHM_HOME/.env" ] && . "$SSHM_HOME/.env"

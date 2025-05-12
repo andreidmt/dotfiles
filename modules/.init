@@ -147,6 +147,9 @@ install_module() {
   bootstrap_path="$module_dir/.bootstrap"
   [ -f "$bootstrap_path" ] && . "$bootstrap_path"
 
+  private_dotenv="$module_dir/.env"
+  [ -f "$private_dotenv" ] && . "$private_dotenv"
+
   package_csv_path="$module_dir/packages.csv"
   [ -f "$package_csv_path" ] && install-from-csv "$package_csv_path"
 
@@ -162,6 +165,9 @@ load_module() {
 
   bootstrap_path="$module_dir/.bootstrap"
   [ -f "$bootstrap_path" ] && . "$bootstrap_path"
+
+  private_dotenv="$module_dir/.env"
+  [ -f "$private_dotenv" ] && . "$private_dotenv"
 
   init_path="$module_dir/.init"
   [ -f "$init_path" ] && . "$init_path"
