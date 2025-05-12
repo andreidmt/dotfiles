@@ -2,7 +2,7 @@
 
 scriptName=$(basename "$0")
 
-# Update hosts file with blocking lists for fakenews, gambling, social media 
+# Update hosts file with blocking lists for fakenews, gambling, social media
 # and tracking
 updateHosts() {
   sudo curl https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts -o /etc/hosts.steven
@@ -21,9 +21,9 @@ updateHosts() {
 updatePacman() {
   # Clean pacman cache
   sudo rm -R /var/lib/pacman/sync
-  
+
   # Update package database from scratch
-  sudo pacman -Syyuv --noconfirm
+  sudo pacman -Syyuv --noconfirm --needed
 
   # update i3blocks widgets with signal 10
   pkill -SIGRTMIN+10 i3blocks
@@ -56,7 +56,8 @@ case "${1:-all}" in
   all)
     # updateHosts
     updatePacman
-  ;;
+    ;;
   *)
     die "Invalid argument \"$1\""
+    ;;
 esac
