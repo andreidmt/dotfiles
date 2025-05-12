@@ -22,3 +22,11 @@ eval "$(starship init zsh)"
 
 export BAT_THEME="gruvbox-dark"
 
+# NNN
+
+# Sort by modified date in Downloads folder and by size in /tmp
+export NNN_ORDER="t:$HOME/Downloads;S:/tmp"
+
+# Always show modified date and size columns, toggle with "d"
+export NNN_OPTS="d"
+
