@@ -1,4 +1,4 @@
-#!/usr/bin/env sh 
+#!/usr/bin/env sh
 
 # ██████╗ ██████╗ ██████╗            ██╗  ██╗███╗   ███╗██╗   ██╗ ██████╗
 # ██╔══██╗██╔══██╗██╔══██╗    ██╗    ██║  ██║████╗ ████║██║   ██║██╔════╝
@@ -6,12 +6,12 @@
 # ██║  ██║██║  ██║██║  ██║  ╚═██╔═╝  ██╔══██║██║╚██╔╝██║╚██╗ ██╔╝██║
 # ██████╔╝██████╔╝██████╔╝    ╚═╝    ██║  ██║██║ ╚═╝ ██║ ╚████╔╝ ╚██████╗
 # ╚═════╝ ╚═════╝ ╚═════╝            ╚═╝  ╚═╝╚═╝     ╚═╝  ╚═══╝   ╚═════╝
-#            ██╗██████╗ 
+#            ██╗██████╗
 # ██████╗   ██╔╝╚════██╗
 # ╚═════╝  ██╔╝  █████╔╝
 # ██████╗  ╚██╗  ╚═══██╗
 # ╚═════╝   ╚██╗██████╔╝
-#            ╚═╝╚═════╝ 
+#            ╚═╝╚═════╝
 # NAME
 #  DDD + HMVC style shell modules
 #
@@ -19,10 +19,10 @@
 #  An DDD (Domain Driven Design) and HMVC (Hierarchical Model View Controller)
 #  style module system for organizing shell scripts, functions, variables, etc.
 #
-#  Each module is a self-contained unit, with its own directory, with minimal 
+#  Each module is a self-contained unit, with its own directory, with minimal
 #  dependencies on other modules.
 #  Modules have their own .init file as entry point to their functionality.
-# 
+#
 #  Example structure:
 #   @core/
 #   aws/
@@ -41,13 +41,13 @@
 #   .init
 #
 #  Here, the i3 module contains everything related to i3. The config file,
-#  layouts, toolbars, i3blocks widgets, etc. 
+#  layouts, toolbars, i3blocks widgets, etc.
 #
 #  This is contrary to the default MVC (Model View Controller) way of
 #  organizing, that Linux uses, where the config file is in
 #  ~/.config/i3/config, the i3blocks config is in ~/.config/i3blocks/config,
 #  the scripts are in ~/.local/i3-widgets, etc.
-# 
+#
 # INSTALLATION
 #  This file is meant to be sourced (it exports functions and variables) in the
 #  shell's rc file (e.g. .zshrc).
@@ -91,14 +91,14 @@
 #  config/    Directory for config files.
 #
 # ORDER OF MODULE LOADING
-#  Modules are loaded alphabeticaly but the order should not be relied upon 
+#  Modules are loaded alphabeticaly but the order should not be relied upon
 #  when creting modules.
 #
 # IGNORED
 #  Modules whose name starts with "_" are ignored and not loaded. This is
 #  useful when you want to temporarily disable a module.
 
-export LOG_NAMESPACE="󰺔 ddd+hmvc" 
+export LOG_NAMESPACE="󰺔 ddd+hmvc"
 export LOG_LEVEL=info
 
 HMVC_HOME="$(dirname "$(realpath "$0")")"
@@ -114,7 +114,7 @@ start_time_main=$(date +%s%3N)
 HMVC_UPGRADE_LOCK="${TMPDIR:-/tmp}/hmvc_ddd_upgrade-$(id -u).lock"
 
 acquire_upgrade_lock() {
-  if mkdir "$HMVC_UPGRADE_LOCK" 2>/dev/null; then
+  if mkdir "$HMVC_UPGRADE_LOCK" 2> /dev/null; then
     echo "$HMVC_UPGRADE_LOCK"
   else
     return 1
@@ -122,7 +122,7 @@ acquire_upgrade_lock() {
 }
 
 release_upgrade_lock() {
-  rmdir "$HMVC_UPGRADE_LOCK" 2>/dev/null
+  rmdir "$HMVC_UPGRADE_LOCK" 2> /dev/null
 }
 
 trap release_upgrade_lock EXIT
@@ -130,19 +130,19 @@ trap release_upgrade_lock EXIT
 upgrade_lock=$(acquire_upgrade_lock)
 if has-days-passed --name "hmvc-upgrade" --count 1 && [ -n "$upgrade_lock" ]; then
   export HMVC_SHOULD_UPGRADE=true
-else 
+else
   export HMVC_SHOULD_UPGRADE=false
 fi
 
 # ╭──────────────────────
-# │ Manually load modules that must be in a certain order 
+# │ Manually load modules that must be in a certain order
 # ╰────────
 
 install_module() {
   module_dir="$1"
 
   should_load_path="$module_dir/.should-load"
-  [ -f "$should_load_path" ] && ! "$should_load_path" && return;
+  [ -f "$should_load_path" ] && ! "$should_load_path" && return
 
   bootstrap_path="$module_dir/.bootstrap"
   [ -f "$bootstrap_path" ] && . "$bootstrap_path"
@@ -158,7 +158,7 @@ load_module() {
   module_dir="$1"
 
   should_load_path="$module_dir/.should-load"
-  [ -f "$should_load_path" ] && ! "$should_load_path" && return;
+  [ -f "$should_load_path" ] && ! "$should_load_path" && return
 
   bootstrap_path="$module_dir/.bootstrap"
   [ -f "$bootstrap_path" ] && . "$bootstrap_path"
@@ -178,13 +178,13 @@ if [ "$HMVC_SHOULD_UPGRADE" = true ]; then
 fi
 
 # ╭──────────────────────
-# │ Helper functions 
+# │ Helper functions
 # ╰────────
 
 detect_modules() {
   find "$HMVC_HOME" -mindepth 1 -maxdepth 1 -type d \
-      ! -name "@*" ! -name "_*" \
-      -exec test -f "{}/.init" \; -print \
+    ! -name "@*" ! -name "_*" \
+    -exec test -f "{}/.init" \; -print \
     | sort
 }
 
@@ -195,11 +195,11 @@ calculate_duration() {
 
 colorize_duration() {
   if [ "$1" -ge 100 ] && [ "$1" -le 250 ]; then
-    printf "\033[33m%dms\033[0m" "$1"  # Orange
+    printf "\033[33m%dms\033[0m" "$1" # Orange
   elif [ "$1" -gt 250 ]; then
-    printf "\033[31m%dms\033[0m" "$1"  # Red
+    printf "\033[31m%dms\033[0m" "$1" # Red
   else
-    printf "\033[32m%dms\033[0m" "$1"  # Green
+    printf "\033[32m%dms\033[0m" "$1" # Green
   fi
 }
 
@@ -221,14 +221,14 @@ while IFS= read -r module_dir; do
 
   duration_ms=$(calculate_duration "$start_time" "$end_time")
   fancy-log success -v duration "$(colorize_duration "$duration_ms")" "Module loaded"
-done <<EOF
+done << EOF
 $all_modules
 EOF
 
 if [ "$HMVC_SHOULD_UPGRADE" = true ]; then
   while IFS= read -r module_dir; do
     install_module "$module_dir"
-  done <<EOF
+  done << EOF
 $all_modules
 EOF
   sys_upgrade packages
@@ -241,4 +241,3 @@ echo "│  ┓ ┓ ┓   ┓           ┏┏┓"
 echo "│ ┏┫┏┫┏┫ + ┣┓┏┳┓┓┏┏━ = ┫ ┫"
 echo "│ ┗┻┗┻┗┻   ┛┗┛┗┗┗┛┗━   ┗┗┛"
 echo "╰──┤ $(colorize_duration "$total_duration")"
-
