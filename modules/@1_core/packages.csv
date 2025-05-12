@@ -10,6 +10,7 @@ inotify-tools, pacman, "Utilities for monitoring filesystem events"
 linux-headers, pacman, "Linux kernel and modules with some modifications for better desktop/laptop performance"
 certbot, pacman, "SSL/TLS certificate creation and renewal automation tool from Let's Encrypt"
 mkcert, pacman, "Simple tool for making locally-trusted development certificates"
+libarchive, pacman, "Library for reading and writing various archive formats including tar, cpio, zip, ISO9660, and more"
 
 htop, pacman, "Interactive process viewer and system monitor"
 btop, pacman, "Resource monitor that shows usage and stats for processor, memory, disks, network and processes"
