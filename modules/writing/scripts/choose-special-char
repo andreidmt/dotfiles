@@ -1,7 +1,7 @@
 #!/usr/bin/env dash
 
 # NAME
-#  choose-special-chars - Choose a special character from a list. 
+#  choose-special-chars - Choose a special character from a list.
 #
 # SYNOPSIS
 #  choose-special-chars
@@ -28,18 +28,20 @@ chars="ă
 
 # DISPLAY variable indicates a graphical environment
 if [ -n "$DISPLAY" ]; then
-  selected_char=$(echo "$chars" | rofi -dmenu \
-    -markup-rows \
-    -p "$prompt"
+  selected_char=$(
+    echo "$chars" | rofi -dmenu \
+      -markup-rows \
+      -p "$prompt"
   )
 else
-  selected_char=$(echo "$chars" | fzf --ansi \
-    --prompt "$prompt"
+  selected_char=$(
+    echo "$chars" | fzf --ansi \
+      --prompt "$prompt"
   )
 fi
 
 echo "selected_char: $selected_char"
 
 if [ -n "$selected_char" ]; then
-  echo "$selected_char" | yank 
+  echo "$selected_char" | yank
 fi

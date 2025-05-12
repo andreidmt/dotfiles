@@ -15,11 +15,9 @@ notes_create() {
     {
       snippets run "frontmatter_template-toml draft"
       echo ""
-      echo "# $(snippets run "date nice")"
     } > "$path"
   fi
 
-  printf "\n## %s\n" "$(date '+%H:%M')" >> "$path"
   cd "$NOTES_DATA"
   nvim -c "norm G" -c "norm zz" -c "set spell" "$path"
 }

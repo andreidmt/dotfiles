@@ -2,22 +2,22 @@
 
 scriptName=$(basename "$0")
 
-. "$LIBRARY_HOME/die.sh"
-. "$LIBRARY_HOME/read-stdin-or.sh"
+. "$FCLI_FUNCTIONS/stdin-or"
 
 ##
-## Read "type" from a CLI arg, piped in, or from Rofi 
+## Read "type" from a CLI arg, piped in, or from Rofi
 ##
 
-type=$(readStdinOr "$1")
+type=$(stdin_or "$1")
 
 if [ -z "$type" ]; then
-  type=$(printf "draft,permanent,literature,snippet" | \
-    rofi -dmenu \
-      -p "$scriptName:" \
-      -sep "," \
-      -i \
-      -case-sensitive false \
+  type=$(
+    printf "draft,permanent,literature,snippet" \
+      | rofi -dmenu \
+        -p "$scriptName:" \
+        -sep "," \
+        -i \
+        -case-sensitive false
   )
 fi
 
@@ -25,33 +25,38 @@ fi
 ## Template content
 ##
 
-echo "\`\`\`toml" 
-echo "id=\"$(random uuid)\""
+echo "---"
+echo "id: \"$(random uuid)\""
 
 case "$type" in
   draft)
-    echo "type=\"note-draft\""
-  ;;
+    echo "type: \"note-draft\""
+    ;;
   permanent)
-    echo "type=\"note-permanent\""
-    echo "topic=\"\""
-    echo "tags=[]"
-  ;;
+    echo "type: \"note-permanent\""
+    echo "topic: \"\""
+    echo "tags: []"
+    ;;
   literature)
-    echo "type=\"note-literature\""
-    echo "source=\"\""
-  ;;
+    echo "type: \"note-literature\""
+    echo "source: \"\""
+    ;;
   snippet)
-    echo "type=\"snippet\""
-    echo "syntax=\"sh\""
-    echo "description=\"\""
-    echo "url=\"\""
-    echo "tags=[]"
-  ;;
+    echo "type: \"snippet\""
+    echo "syntax: \"sh\""
+    echo "description: \"\""
+    echo "url: \"\""
+    echo "tags: []"
+    ;;
   *)
-    die "Nothing matched"
-  ;;
+    fancy-log error \
+      -v type "$type" \
+      -v available_commands "draft,permanent,literature,snippet" \
+      "Unknown type"
+    exit 1
+    ;;
 esac
 
-echo "createdAt=\"$(snippets run "date iso")\""
-echo "\`\`\`"
+echo "date: \"$(date-long)\""
+echo "time: \"$(date +"%H:%M:%S")\""
+echo "---"
