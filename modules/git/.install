@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+###
+# `git` module install script.
+#
+# Runs every 24 hours, after `.bootstrap`.
+# Keep dependencies updated and ensure system integration.
+###
+
+ensure_symlink "$GITM_CONFIG/.gitconfig" "$HOME/.gitconfig"

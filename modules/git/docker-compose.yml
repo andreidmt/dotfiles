@@ -1,0 +1,31 @@
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: git-gitea
+    restart: unless-stopped
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=sqlite3
+      - GITEA__database__PATH=/data/gitea/gitea.db
+      - GITEA__server__ROOT_URL=https://git.asd14.xyz
+    volumes:
+      - ./.local/volumes/gitea/data:/data
+      - ./.local/volumes/gitea/config:/etc/gitea
+    ports:
+      # HOST_PORT:CONTAINER_PORT
+      - "3003:3000"  
+      - "2222:22"    
+    networks:
+      - gitea
+
+volumes:
+  gitea-data:
+  gitea-config:
+
+networks:
+  # Creates a custom network named 'gitea_network' for container isolation 
+  # and communication. 
+  # This enables secure networking between Gitea and other docker services.
+  gitea:
+    name: gitea_network 

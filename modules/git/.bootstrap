@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+###
+# `git` module bootstraping script.
+#
+# Sourced with every terminal session, before `.init` and/or `.install`.
+# Set common variables needed by both scripts.
+###
+
+export GITM_HOME="$(dirname "$0")"
+export GITM_CONFIG="$GITM_HOME/config"
+export GITM_SCRIPTS="$GITM_HOME/scripts"
+export GITM_LOCAL="$GITM_HOME/.local"
+mkdir -p "$GITM_LOCAL"
+
+export LOG_NAMESPACE="󰊢 git"
+export LOG_LEVEL=info

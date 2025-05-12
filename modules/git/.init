@@ -1,15 +1,16 @@
 #!/usr/bin/env sh
 
-GITM_HOME="$(dirname "$0")"
+###
+# `git` module loading script.
+#
+# Sourced with every terminal session, after `.bootstrap`.
+# Initialize and kickstart module's responsabilities.
+###
 
-export LOG_NAMESPACE="󰊢 git"
-export LOG_LEVEL=info
+if [ -f "$GITM_HOME/.env" ]; then
+  . "$GITM_HOME/.env"
+fi
 
-# Expose scripts 
-GITM_SCRIPTS="$GITM_HOME/scripts"
 export PATH="$GITM_SCRIPTS:$PATH"
 
-# Link user configs 
-ensure_symlink \
-  "$GITM_HOME/config/.gitconfig" \
-  "$HOME/.gitconfig"
+cd "$GITM_HOME" && docker-compose up -d
