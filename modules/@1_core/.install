@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
 
-# Module install script, runs every 24 hours.
-# Use this file to keep dependencies updated and ensure system integration.
+###
+# `@1_core` module install script.
+#
+# Runs every 24 hours, after `.bootstrap`.
+# Keep dependencies updated and ensure system integration.
+###
 
 # Configure User level runit services
 ensure_symlink "$CORE_SERVICES/syncthing" "$CORE_RUNSV/syncthing"

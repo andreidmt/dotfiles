@@ -1,16 +1,18 @@
 #!/usr/bin/env sh
 
 ###
-# Module loading script, sourced with every terminal session.
-# Use it to initialize and kickstart module's responsabilities.
+# `@1_core` module loading script.
+#
+# Sourced with every terminal session, after `.bootstrap`.
+# Initialize and kickstart module's responsabilities.
 ###
 
 # Load Xresources (colors, fonts) and make available in shell
-if [ -n "$DISPLAY" ]; then 
+if [ -n "$DISPLAY" ]; then
   xrdb -merge ~/.Xresources
 fi
 
-# Expose scripts 
+# Expose scripts
 export PATH="$CORE_SCRIPTS:$PATH"
 export PATH="$CORE_SCRIPTS/datetime:$PATH"
 export PATH="$CORE_SCRIPTS/sounds:$PATH"
@@ -19,8 +21,8 @@ export PATH="$CORE_SCRIPTS/tui:$PATH"
 
 # Configure User level runit services
 if ! is_process_running "runsvdir" "$CORE_RUNSV"; then
-  fancy-log info -v dir "$CORE_RUNSV" "Starting services" 
-  
+  fancy-log info -v dir "$CORE_RUNSV" "Starting services"
+
   runsvdir "$CORE_RUNSV" \
     > "$CORE_LOGS/runsvdir.log" 2>&1 &
 fi

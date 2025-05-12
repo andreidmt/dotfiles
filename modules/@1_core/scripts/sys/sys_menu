@@ -5,16 +5,17 @@ item_snippets=" Snippets"
 item_bookmarks=" Bookmarks"
 item_color_picker=" Pick color"
 item_display=" Display"
-item_openai_model="$AI_ICON OpenAI - Change model"
-item_openai_history="$AI_ICON OpenAI - History"
+item_lucky_search="󰖟 Lucky Search - Clipboard"
+item_lucky_search_history="󰖟 Lucky Search - History"
 item_nvim="$NVIM_ICON Neovim - Change config"
 # item_projects=" Projects"
 # item_power=" Power"
 
 # Prepare menu items with shortcuts.
-menu=$(cat << EOF
-$item_openai_model
-$item_openai_history
+menu=$(
+  cat << EOF
+$item_lucky_search
+$item_lucky_search_history
 $item_nvim
 $item_snippets <small>[ + s]</small>
 $item_bookmarks <small>[ + b]</small>
@@ -26,8 +27,8 @@ EOF
 choice=$(echo "$menu" | rofi -markup-rows -dmenu -p " ")
 
 case "$choice" in
-  "$item_openai_model"*) ai-model change ;;
-  "$item_openai_history"*) terminal-center ai-history ;;
+  "$item_lucky_search"*) terminal-center lucky-search ;;
+  "$item_lucky_search_history"*) terminal-center lucky-search --list ;;
   "$item_nvim"*) nvim-config change ;;
   "$item_snippets"*) terminal-center snippets copy ;;
   "$item_bookmarks"*) terminal-center bookmarks open ;;
@@ -35,5 +36,8 @@ case "$choice" in
   "$item_display"*) change-display ;;
   # "$item_projects"*) projects.find ;;
   # "$item_power"*) rofi_power ;;
-  *) echo "No valid option selected"; exit 1 ;;
+  *)
+    fancy-log -v choice "$choice" "No valid option selected"
+    exit 1
+    ;;
 esac

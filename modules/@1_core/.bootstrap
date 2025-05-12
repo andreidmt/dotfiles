@@ -1,5 +1,12 @@
 #!/usr/bin/env sh
 
+###
+# `@1_core` module bootstraping script.
+#
+# Sourced with every terminal session, before `.init` and/or `.install`.
+# Set common variables needed by both scripts.
+###
+
 CORE_HOME="$(dirname "$0")"
 
 export LOG_NAMESPACE=" @core"
@@ -9,9 +16,8 @@ export CORE_SCRIPTS="$CORE_HOME/scripts"
 export CORE_FUNCTIONS="$CORE_HOME/functions"
 export CORE_SERVICES="$CORE_HOME/services"
 
-export CORE_LOGS="$CORE_HOME/.logs"; 
+export CORE_LOGS="$CORE_HOME/.logs"
 mkdir -p "$CORE_LOGS"
 
 export CORE_RUNSV="$HOME/.runit/core-service"
 mkdir -p "$CORE_RUNSV"
-
