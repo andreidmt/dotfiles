@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
-# Read more: https://github.com/ollama/ollama/blob/main/docs/linux.md
+ollama_tmp="/tmp/ollama-linux-amd64.tgz"
+curl -L https://ollama.com/download/ollama-linux-amd64.tgz -o "$ollama_tmp"
+tar -C "$LLM_BIN" -xzf "$ollama_tmp"
+rm "$ollama_tmp"
 
-curl -fsSL https://ollama.com/install.sh | sh
