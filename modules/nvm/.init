@@ -7,10 +7,6 @@
 # Initialize and kickstart module's responsabilities.
 ###
 
-if [ -f "$NVMM_HOME/.env" ]; then
-  . "$NVMM_HOME/.env"
-fi
-
 # Config nvm
 export NVM_COMPLETION=true
 export NVM_DIR="$NVMM_LOCAL/nvm"
