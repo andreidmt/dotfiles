@@ -28,7 +28,7 @@ return {
         lsp_fallback = true,
         log_level = vim.log.levels.DEBUG,
         format_on_save = {
-          timeout_ms = 500,
+          timeout_ms = 2000,
           lsp_format = "fallback",
         },
         formatters_by_ft = {
@@ -55,7 +55,7 @@ return {
         conform.format({
           lsp_fallback = true,
           async = false,
-          timeout_ms = 500,
+          timeout_ms = 2000,
         })
 
         print("LSP log file:", vim.lsp.get_log_path())
