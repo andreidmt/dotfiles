@@ -1,6 +1,6 @@
 return {
   {
-		"deckr41/nvim",
+    "deckr41/nvim",
     name = "deckr41",
     event = { "BufEnter" },
     opts = {
@@ -20,11 +20,12 @@ return {
           available_models = {
             ["claude-3-7-sonnet-latest"] = { max_output_tokens = 64000 },
             ["claude-3-7-haiku-latest"] = { max_output_tokens = 64000 },
+            ["claude-sonnet-4-0"] = { max_output_tokens = 64000 },
           },
         },
       },
       active_backend = "anthropic",
-      active_model = "claude-3-7-sonnet-latest",
+      active_model = "claude-sonnet-4-0",
     },
     dependencies = {
       "nvim-lua/plenary.nvim",
