@@ -17,6 +17,9 @@ source "$NVMM_LOCAL/zsh-better-npm-completion/zsh-better-npm-completion.plugin.z
 
 fancy-log info -v version "$(node --version)" "Default Node.js installed"
 
+# Set global npm packages path for common.js global script support
+export NODE_PATH="$(npm root -g)"
+
 # Expose functions
 source "$NVMM_CONFIG/aliases"
 source "$NVMM_FUNCTIONS/nvm-lts"

@@ -15,6 +15,7 @@ switch_node() {
     elif [ "$nvmrc_version_installed" -eq 0 ]; then
       echo " $nvmrc_version already installed, $(stylize underline "switching")..."
       nvm use "$nvmrc_version"
+      export NODE_PATH="$(npm root -g)"
     else
       echo " $nvmrc_version is not installed, $(stylize underline "installing")..."
       nvm install "$nvmrc_version"
@@ -23,7 +24,7 @@ switch_node() {
     if [ "$current_version" != "$NVMM_DEFAULT_VERSION" ]; then
       echo " No .nvmrc file found, switching to $(stylize underline "default") version"
       nvm use "$NVMM_DEFAULT_VERSION"
+      export NODE_PATH="$(npm root -g)"
     fi
   fi
 }
-
