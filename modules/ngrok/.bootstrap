@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+# NGROK_HOME="$(dirname "$0")"
+
+# export NGROK_BIN="$NGROK_HOME/.bin"
+# mkdir -p "$NGROK_BIN"
+
+# export NGROK_LOCAL="$NGROK_HOME/.local"
+# mkdir -p "$NGROK_LOCAL"
+
+# export NGROK_FUNCTIONS="$NGROK_HOME/functions"
+# export NGROK_SCRIPTS="$NGROK_HOME/scripts"
+
+export LOG_NAMESPACE="ngrok"
+export LOG_LEVEL=info

@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+###
+# `ngrok` module loading script.
+#
+# Sourced with every terminal session, after `.bootstrap`.
+# Initialize and kickstart module's responsabilities.
+###
+
