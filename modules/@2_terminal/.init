@@ -30,3 +30,12 @@ export NNN_ORDER="t:$HOME/Downloads;S:/tmp"
 # Always show modified date and size columns, toggle with "d"
 export NNN_OPTS="d"
 
+export NNN_PREVIEWDIR="$XDG_CACHE_HOME/nnn/previews"
+
+# Path of a named pipe to write the hovered file path
+export NNN_FIFO="/tmp/nnn.fifo"
+
+# NNN plugins
+export NNN_PLUG="i:imgview;p:preview-tui"
+
+export NNN_TERMINAL="kitty"

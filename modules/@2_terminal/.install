@@ -14,9 +14,8 @@ fancy-log info "Upgrading ZSH plugins..."
 
 while IFS= read -r git_address; do
   name=$(basename "$git_address")
-
   git-download "$git_address" "$TERMINALM_LOCAL/$name"
-done <<EOF
+done << EOF
 $zsh_plugins
 EOF
 
@@ -29,7 +28,8 @@ while IFS="" read -r dir; do
 done << EOF
 alacritty
 bat
+kitty
 neofetch
+nnn
 starship
 EOF
-
