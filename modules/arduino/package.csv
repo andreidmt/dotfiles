@@ -1,0 +1,6 @@
+make, pacman, "Build automation tool for compiling and linking programs"
+gcc, pacman, "GNU Compiler Collection"
+arduino-cli, pacman, "Arduino command line interface, allows compiling and uploading sketches from terminal"
+arduino-ide, pacman, "Arduino IDE, integrated development environment for Arduino boards"
+arduino-language-server, pacman, "Language server for Arduino IDE providing code completion and diagnostics"
+usbutils, pacman, "USB utilities for listing and examining USB devices"

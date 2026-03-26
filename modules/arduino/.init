@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+###
+# `arduino` module bootstraping script.
+#
+# Sourced with every terminal session, before `.init` and/or `.install`.
+# Set common variables needed by both scripts.
+###
+
+export PATH="$ARDUINO_SCRIPTS:$PATH"
