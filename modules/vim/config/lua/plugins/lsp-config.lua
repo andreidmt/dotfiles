@@ -75,25 +75,17 @@ return {
         float = {
           source = "always",
         },
-        signs = true,
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.INFO] = "",
+            [vim.diagnostic.severity.HINT] = "",
+          },
+        },
         underline = true,
         update_in_insert = true,
       })
-
-      --
-      -- Set diagnostic symbols in the sign column (gutter)
-      --
-
-      local diagnostic_signs = {
-        { name = "DiagnosticSignError", icon = "" },
-        { name = "DiagnosticSignWarn", icon = "" },
-        { name = "DiagnosticSignInfo", icon = "" },
-        { name = "DiagnosticSignHint", icon = "" },
-      }
-
-      for _, sign in ipairs(diagnostic_signs) do
-        vim.fn.sign_define(sign.name, { text = sign.icon, texthl = sign.name })
-      end
 
       --
       -- LSP specific keymaps
@@ -129,13 +121,13 @@ return {
       vim.keymap.set(
         "n",
         "<C-j>",
-        vim.diagnostic.goto_next,
+        function() vim.diagnostic.jump({ count = 1 }) end,
         { desc = "[LSP] Next diagnostic" }
       )
       vim.keymap.set(
         "n",
         "<C-k>",
-        vim.diagnostic.goto_prev,
+        function() vim.diagnostic.jump({ count = -1 }) end,
         { desc = "[LSP] Previous diagnostic" }
       )
       vim.keymap.set(
@@ -146,12 +138,18 @@ return {
       )
 
       --
-      -- LSP configuration
+      -- LSP configuration (Neovim 0.11+ API)
       --
 
-      local on_attach = function() end
+      -- Global defaults for all LSP servers
+      vim.lsp.config("*", {
+        flags = {
+          debounce_text_changes = 150,
+        },
+      })
 
-      local lsp_configs = {
+      -- Load server configs from separate files
+      local config_files = {
         "bash",
         "css",
         "eslint",
@@ -160,13 +158,19 @@ return {
         "python",
         "terraform",
         "sql",
-        -- "typescript",
         "yaml",
       }
 
-      for _, server in ipairs(lsp_configs) do
-        require("plugins.lsp-servers." .. server)(on_attach)
+      local servers = {}
+      for _, file in ipairs(config_files) do
+        local configs = require("plugins.lsp-servers." .. file)
+        for server_name, config in pairs(configs) do
+          vim.lsp.config(server_name, config)
+          table.insert(servers, server_name)
+        end
       end
+
+      vim.lsp.enable(servers)
     end,
   },
 

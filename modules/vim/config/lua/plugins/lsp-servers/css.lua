@@ -1,16 +1,11 @@
-return function(on_attach)
-  local lspconfig = require("lspconfig")
-
-  lspconfig.stylelint_lsp.setup({
-    on_attach = on_attach,
+-- stylelint_lsp configuration
+return {
+  stylelint_lsp = {
     filetypes = { "css", "less", "scss", "sugarss" },
     settings = {
       stylelintplus = {
         cssInJs = true,
       },
     },
-    flags = {
-      debounce_text_changes = 150,
-    },
-  })
-end
+  },
+}

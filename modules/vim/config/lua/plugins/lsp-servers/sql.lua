@@ -1,10 +1,7 @@
--- "sqlls" lsp configuration
-return function(on_attach)
-  local lspconfig = require("lspconfig")
-
-  lspconfig.sqlls.setup({
-    on_attach = on_attach,
-    root_dir = lspconfig.util.root_pattern(".git", vim.fn.getcwd()),
+-- sqlls configuration
+return {
+  sqlls = {
+    root_markers = { ".git" },
     cmd = { "sql-language-server", "up", "--method", "stdio" },
-  })
-end
+  },
+}

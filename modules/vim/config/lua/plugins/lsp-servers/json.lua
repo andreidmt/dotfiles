@@ -1,9 +1,6 @@
--- "jsonls" lsp configuration
-return function(on_attach)
-  local lspconfig = require("lspconfig")
-
-  lspconfig.jsonls.setup({
-    on_attach = on_attach,
+-- jsonls configuration
+return {
+  jsonls = {
     settings = {
       json = {
         schemas = {
@@ -73,8 +70,5 @@ return function(on_attach)
         },
       },
     },
-    flags = {
-      debounce_text_changes = 150,
-    },
-  })
-end
+  },
+}

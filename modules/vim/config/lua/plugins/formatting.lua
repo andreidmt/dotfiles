@@ -8,14 +8,16 @@ return {
       local conform = require("conform")
 
       conform.setup({
+        notify_on_error = false,
         formatters = {
           shfmt = {
             prepend_args = {
               "--indent",
               "2",
+              "--posix",
+              "--simplify",
               "--case-indent",
               "--binary-next-line",
-              "--space-redirects",
             },
           },
           prettier = {
@@ -25,7 +27,6 @@ return {
             },
           },
         },
-        lsp_fallback = true,
         log_level = vim.log.levels.DEBUG,
         format_on_save = {
           timeout_ms = 2000,

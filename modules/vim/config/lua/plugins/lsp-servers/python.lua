@@ -1,9 +1,8 @@
-return function(on_attach)
-  local lspconfig = require("lspconfig")
-
-  lspconfig.pylsp.setup({
-    on_attach = on_attach,
+-- pylsp configuration
+return {
+  pylsp = {
     cmd = { "pylsp" },
+    root_markers = { "pyproject.toml", "setup.py", ".git" },
     settings = {
       pylsp = {
         configurationSources = { "flake8" },
@@ -23,10 +22,5 @@ return function(on_attach)
         },
       },
     },
-    root_dir = lspconfig.util.root_pattern(
-      "pyproject.toml",
-      "setup.py",
-      ".git"
-    ),
-  })
-end
+  },
+}
