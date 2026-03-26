@@ -18,11 +18,14 @@ export PATH="$CORE_SCRIPTS/datetime:$PATH"
 export PATH="$CORE_SCRIPTS/sounds:$PATH"
 export PATH="$CORE_SCRIPTS/sys:$PATH"
 export PATH="$CORE_SCRIPTS/tui:$PATH"
+export PATH="$CORE_SERVICES/usb-automount/scripts:$PATH"
 
 # Configure User level runit services
 if ! is_process_running "runsvdir" "$CORE_RUNSV"; then
   fancy-log info -v dir "$CORE_RUNSV" "Starting services"
+  runsvdir "$CORE_RUNSV" >"$CORE_LOGS/runsvdir.log" 2>&1 &
+fi
 
-  runsvdir "$CORE_RUNSV" \
-    > "$CORE_LOGS/runsvdir.log" 2>&1 &
+if ! pgrep -f transmission-daemon >/dev/null; then
+  transmission-daemon &
 fi

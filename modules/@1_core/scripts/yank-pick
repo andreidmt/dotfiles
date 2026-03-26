@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+
+# ╭─────────┤ yank-pick
+# │ Pick one or more lines from stdin to send to clipboard buffer
+# │
+# │ SYNOPSIS
+# │   yank-pick < file
+# │   ... | yank-pick
+# │
+# │ EXAMPLE
+# │   git log --oneline | yank-pick
+# │
+# │ SEE ALSO
+# │   yank(1), fzf(1), fancy-log(1), check-installed-pkg(1)
+# ╰────
+
+# ╭───
+# │ Bootstrap
+# ╰───
+
+export LOG_NAMESPACE="yank-pick"
+check-installed-pkg fancy-log yank fzf
+
+[ -t 0 ] && {
+  fancy-log error "No input provided. Please pipe data."
+  exit 1
+}
+
+# ╭───
+# │ Main
+# ╰───
+
+to_yank=$(cat | fzf --multi)
+[ -z "$to_yank" ] && {
+  fancy-log info "No selection made. Exiting."
+  exit 0
+}
+
+printf "%s\n" "$to_yank" | yank

@@ -1,42 +1,57 @@
 #!/usr/bin/env sh
 
-# shellcheck source=../../@0_fancy-posix-utils/functions/stdin-or
-. "$FCLI_FUNCTIONS/stdin-or"
+# ╭─────────┤ yank
+# │ Display-manager aware copy to clipboard
+# │
+# │ SYNOPSIS
+# │   yank [INPUT ...]
+# │   ... | yank
+# │
+# │ DESCRIPTION
+# │   Copies input (args or stdin) to clipboard. Uses wl-copy on
+# │   Wayland, xsel on X11.
+# │
+# │ SEE ALSO
+# │   wl-copy(1), xsel(1), fancy-log(1)
+# ╰────
 
-# shellcheck source=../../@0_fancy-posix-utils/functions/predicates
-. "$FCLI_FUNCTIONS/predicates"
+# ╭───
+# │ Bootstrap
+# ╰───
 
-# NAME
-#  yank - Display manager aware copy to clipboard, yank, script
-#
-# SYNOPSIS
-#  yank [INPUT]...
-#  echo [INPUT]... | yank
-#
-# DESCRIPTION
-#  Copies the given input, arguments or piped input, to the clipboard. If
-#  "wl-copy" is available, it is used, indicating a Wayland display. Otherwise,
-#  "xsel" is used, indicating an X11 display. If neither is available, an error 
-#  is thrown.
-#
-# SEE ALSO
-#  wl-copy(1), xsel(1)
+export LOG_NAMESPACE="yank"
+! command -v fancy-log >/dev/null 2>&1 && {
+  echo "Missing required commands: fancy-log" >&2
+  exit 1
+}
 
-input=$(stdin_or "$@")
+# ╭───
+# │ Main
+# ╰───
 
-# Wayland 
-if does_command_exist "wl-copy" -eq 0; then
-  wl-copy "$input"
-  exit
+if [ ! -t 0 ]; then
+  input=$(cat)
+else
+  input="$*"
 fi
+
+[ -z "$input" ] && {
+  fancy-log error "No input provided."
+  exit 1
+}
+
+# Wayland
+command -v wl-copy >/dev/null 2>&1 && {
+  printf "%s" "$input" | wl-copy
+  exit 0
+}
 
 # X11
-if does_command_exist "xsel" -eq 0; then
-  printf "%b" "$input" | xsel --primary --input 
-  printf "%b" "$input" | xsel --clipboard --input 
-  exit
-fi
+command -v xsel >/dev/null 2>&1 && {
+  printf "%s" "$input" | xsel --primary --input
+  printf "%s" "$input" | xsel --clipboard --input
+  exit 0
+}
 
-echo "Neither wl-copy nor xsel is available." >&2
+fancy-log error "Neither wl-copy nor xsel found."
 exit 1
-

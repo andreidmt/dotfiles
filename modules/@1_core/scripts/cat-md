@@ -1,0 +1,75 @@
+#!/usr/bin/env sh
+
+# ╭─────────┤ cat-md
+# │ Cat files as markdown fenced code blocks with syntax tags
+# │
+# │ SYNOPSIS
+# │   cat-md FILE [FILE ...]
+# │   cat-md DIRECTORY [DIRECTORY ...]
+# │
+# │ DESCRIPTION
+# │   Outputs file contents wrapped in markdown code blocks with
+# │   file path and syntax highlighting tag. Directories are
+# │   recursively expanded via ripgrep, respecting common ignores.
+# │
+# │ SEE ALSO
+# │   detect-md-syntax(1), rg(1), fancy-log(1), check-installed-pkg(1)
+# ╰────
+
+# ╭───
+# │ Primitives
+# ╰───
+
+expand_paths() {
+  for arg in "$@"; do
+    if [ -f "$arg" ]; then
+      printf "%s\n" "$arg"
+    elif [ -d "$arg" ]; then
+      rg --files --hidden \
+        --glob '!.git' \
+        --glob '!.cache' \
+        --glob '!node_modules' \
+        "$arg"
+    else
+      fancy-log error -v path "$arg" "Not a file or directory."
+      exit 1
+    fi
+  done
+}
+
+md_fence() {
+  rel=$(realpath --relative-to="$PWD" "$1")
+  syntax=$(detect-md-syntax "$1")
+
+  printf 'Content of "%s":\n```%s\n' "$rel" "$syntax"
+  cat "$1"
+  printf '\n```\n'
+}
+
+# ╭───
+# │ Bootstrap
+# ╰───
+
+export LOG_NAMESPACE="cat-md"
+check-installed-pkg fancy-log detect-md-syntax rg
+
+[ -z "${1:-}" ] && {
+  fancy-log error "No files or directories provided."
+  exit 1
+}
+
+# ╭───
+# │ Main
+# ╰───
+
+files=$(expand_paths "$@")
+
+[ -z "$files" ] && {
+  fancy-log error "No files found."
+  exit 1
+}
+
+echo "$files" | while IFS= read -r file; do
+  md_fence "$file"
+  printf "\n"
+done

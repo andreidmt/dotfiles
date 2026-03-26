@@ -7,10 +7,13 @@
 # Initialize and kickstart module's responsabilities.
 ###
 
-# Expose scripts
-export PATH="$FCLI_SCRIPTS:$PATH"
+# Expose module scripts
+case ":$PATH:" in
+  *":$FCLI_SCRIPTS:"*) ;;
+  *) export PATH="$FCLI_SCRIPTS:$PATH" ;;
+esac
 
-# Expose functions
+# Expose module functions
 . "$FCLI_FUNCTIONS/guards"
 . "$FCLI_FUNCTIONS/predicates"
 . "$FCLI_FUNCTIONS/stdin-or"

@@ -7,7 +7,7 @@
 # Set common variables needed by both scripts.
 ###
 
-FCLI_HOME="$(dirname "$0")"
+export FCLI_HOME="$(dirname "$0")"
 export FCLI_SCRIPTS="$FCLI_HOME/scripts"
 export FCLI_FUNCTIONS="$FCLI_HOME/functions"
 

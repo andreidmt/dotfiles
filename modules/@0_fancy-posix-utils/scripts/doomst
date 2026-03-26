@@ -1,0 +1,76 @@
+#!/usr/bin/env sh
+
+# ╭─────────┤ doomst
+# │ Doomguy themed dunst notifications
+# │
+# │ SYNOPSIS
+# │   doomst [-p <type>] <title> [message]
+# │
+# │ OPTIONS
+# │   -p, --type <type>   info, success, error (default: info)
+# │
+# │ ENVIRONMENT
+# │   FCLI_HOME   Base path for Doomguy icon assets
+# │
+# │ SEE ALSO
+# │   notify-send(1), dunst(1), fancy-log(1)
+# ╰────
+
+# ╭───
+# │ Bootstrap
+# ╰───
+
+export LOG_NAMESPACE="doomst"
+check-installed-pkg fancy-log notify-send
+
+type="info"
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -p | --type)
+      [ -z "${2:-}" ] && {
+        fancy-log error "-p requires a value: info, success, error"
+        exit 1
+      }
+      type="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -?*)
+      fancy-log error -v flag "$1" "Unknown flag."
+      exit 1
+      ;;
+    *) break ;;
+  esac
+done
+
+[ -z "${1:-}" ] && {
+  fancy-log error "No title provided."
+  exit 1
+}
+
+# ╭───
+# │ Main
+# ╰───
+
+case "$type" in
+  success)
+    icon="doomguy-smile.png"
+    urgency="normal"
+    ;;
+  error)
+    icon="doomguy-blood.png"
+    urgency="critical"
+    ;;
+  *)
+    icon="doomguy.png"
+    urgency="normal"
+    ;;
+esac
+
+notify-send "$@" \
+  --icon "${FCLI_HOME}/assets/${icon}" \
+  --urgency "$urgency"

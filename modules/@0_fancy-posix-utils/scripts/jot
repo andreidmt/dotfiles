@@ -1,157 +1,101 @@
-#!/usr/bin/env dash
+#!/usr/bin/env sh
 
-# shellcheck source=../functions/stdin-or
-. "$FCLI_FUNCTIONS/stdin-or"
+# ╭─────────┤ jot
+# │ Quick note in Neovim, output to stdout
+# │
+# │ SYNOPSIS
+# │   jot [-c|--continue]
+# │   ... | jot
+# │   jot | wc -c
+# │
+# │ DESCRIPTION
+# │   Opens a temp file in Neovim (via Alacritty), then echoes the
+# │   result to stdout. Piped input is prepended. Think extended echo.
+# │
+# │ OPTIONS
+# │   -c, --continue   Resume editing the last note
+# │   -h, --help       Show man page
+# │
+# │ EXAMPLES
+# │   jot > ~/notes/$(date +%Y-%m-%d).md
+# │   cat fn.js | jot "explain:" | ai
+# │
+# │ ENVIRONMENT
+# │   JOT_HOME   State directory (default: ~/.jot)
+# │
+# │ SEE ALSO
+# │   nvim(1), alacritty(1), fancy-log(1)
+# ╰────
 
-# NAME
-#  jot - Quickly write text in Neovim and echo it to the terminal.
-#
-# SYNOPSIS
-#  jot [-c|--continue]
-#  jot [-h|--help]
-#
-# DESCRIPTION
-#  Create a note using a text editor. Think of it as an extended echo command.
-#
-# OPTIONS
-#  -c, --continue
-#   Continue editing the last note.
-#
-#  -h, --help
-#   Display this help message.
-#
-# EXAMPLES
-#  jot | wc -c
-#   Count the number of characters in the text entered in jot.
-#
-#  jot > ~/Notes/draft/$(date +%Y-%m-%d-%H-%M-%S).md
-#   Save the note to a file with a timestamp in the filename.
-#
-#  cat some-other-note.md | jot | wc -c
-#   Start jot with the content of a file and count the number of characters in
-#   the final text.
-#
-# EXIT CODES
-#  1 - Missing Operating System dependency
-#  2 - Missing/invalid argument
-#
-# SEE ALSO
-#  nvim(1), alacritty(1), log(1)
+# ╭───
+# │ Bootstrap
+# ╰───
 
-export LOG_NAMESPACE="󱓙 jot"
-export LOG_LEVEL="info"
+export LOG_NAMESPACE="jot"
+export LOG_LEVEL="${LOG_LEVEL:-info}"
+check-installed-pkg fancy-log alacritty nvim
 
-# ╭───┤ Globals + Bootstraping
-# ╰─
+JOT_HOME="${JOT_HOME:-${HOME}/.jot}"
+mkdir -p "$JOT_HOME"
 
-# Verify dependencies
-for cmd in alacritty nvim; do
-  if ! command -v "$cmd" > /dev/null 2>&1; then
-    fancy-log error -v package "$cmd" "Dependency not found. Please install it first."
-    exit 2
-  fi
+PREV_NOTE_PATH="${JOT_HOME}/last_note_path"
+SHOULD_CONTINUE=false
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -h | --help)
+      man --pager cat "$(dirname "$0")/jot.1"
+      exit 0
+      ;;
+    -c | --continue)
+      SHOULD_CONTINUE=true
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -?*)
+      fancy-log error -v flag "$1" "Unknown flag."
+      exit 1
+      ;;
+    *) break ;;
+  esac
 done
 
-JOT_HOME="${HOME}/.jot"
-mkdir -p "$JOT_HOME"
-SHOULD_CONTINUE=false
-PREV_NOTE_PATH="${JOT_HOME}/last_note_path"
+# ╭───
+# │ Main
+# ╰───
+
+# Resolve temp file — reuse previous or create new
 TMP_FILE=""
-
-# ╭───┤ Functions
-# ╰─
-
-# Parse command-line options and set global variables.
-parse_options() {
-  while [ "$#" -gt 0 ]; do
-    case "$1" in
-      -h | --help)
-        man --pager cat "$(dirname "$0")/jot.1"
-        exit 0
-        ;;
-      -c | --continue)
-        SHOULD_CONTINUE=true
-        shift
-        ;;
-      --)
-        shift
-        break
-        ;;
-      -?*)
-        fancy-log error -v name "$1" "Unknown flag."
-        exit 1
-        ;;
-      *) break ;;
-    esac
-  done
+[ "$SHOULD_CONTINUE" = true ] && [ -f "$PREV_NOTE_PATH" ] && {
+  TMP_FILE=$(cat "$PREV_NOTE_PATH" 2>/dev/null)
+}
+[ -z "$TMP_FILE" ] && TMP_FILE=$(mktemp /tmp/jot.XXXXXX)
+[ -z "$TMP_FILE" ] && {
+  fancy-log error "Could not create temporary file."
+  exit 1
 }
 
-# Decide the temporary file path to store content in.
-# Either create a new temporary file or continue editing the last one.
-decide_tmp_file() {
-  if [ "$SHOULD_CONTINUE" = true ] && [ -f "$PREV_NOTE_PATH" ]; then
-    TMP_FILE=$(cat "$PREV_NOTE_PATH" 2> /dev/null)
-  fi
+# Drain stdin into file if piped
+[ ! -t 0 ] && cat >>"$TMP_FILE"
 
-  if [ -z "$TMP_FILE" ]; then
-    TMP_FILE=$(mktemp /tmp/jot.XXXXXX)
+# Edit — WM class for i3/sway floating rules
+alacritty --title "$TMP_FILE - jot" \
+  --class "jot-center-float" \
+  --command nvim \
+  -c "setlocal syntax=markdown" \
+  -c "setlocal wrap" \
+  -c "setlocal spell" \
+  "$TMP_FILE"
 
-    if [ -z "$TMP_FILE" ]; then
-      fancy-log error "Could not create temporary file."
-      exit 1
-    fi
-  fi
+# Output and persist
+text=$(cat "$TMP_FILE")
+[ -z "$text" ] && {
+  fancy-log info "No text entered."
+  exit 0
 }
 
-# Add stdin content to the temporary file.
-# This is usefull when the user pipes contents of a file or another command
-# into jot.
-#
-# EXAMPLE:
-#  cat some-function.js | jot "explain the following function:" | ai
-append_stdin_to_file() {
-  input=$(stdin_or "")
-  if [ -n "$input" ]; then
-    printf "%s" "$input" >> "$TMP_FILE"
-  fi
-}
-
-# Open the file in Neovim inside an Alacritty terminal.
-# This is the main interaction point with the user.
-#
-# The "jot-center-float" class needs to be handled by i3, sway or any other
-# window manager to center the floating window.
-edit_note() {
-  alacritty --title "$TMP_FILE - jot" \
-    --class "jot-center-float" \
-    --command nvim \
-    -c "setlocal syntax=markdown" \
-    -c "setlocal wrap" \
-    -c "setlocal spell" \
-    "$TMP_FILE"
-}
-
-# Persist the note, after being edited by the user, for future use if user
-# wants to continue editing it, and output the note to the terminal.
-persist_and_output_note() {
-  text=$(cat "$TMP_FILE")
-
-  if [ -n "$text" ]; then
-    printf "%s" "$text"
-    echo "$TMP_FILE" > "$PREV_NOTE_PATH"
-  else
-    fancy-log info -v exit_code 0 "No text entered, nothing to do."
-    exit 0
-  fi
-}
-
-# ╭───┤ Main. Start here.
-# ╰─
-
-parse_options "$@"
-decide_tmp_file
-
-append_stdin_to_file
-edit_note
-
-persist_and_output_note
+printf "%s" "$text"
+printf "%s" "$TMP_FILE" >"$PREV_NOTE_PATH"

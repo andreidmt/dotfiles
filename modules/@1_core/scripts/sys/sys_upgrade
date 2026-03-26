@@ -10,8 +10,8 @@ updateHosts() {
   sudo cp /etc/hosts /etc/hosts.bak
   sudo cp /etc/hosts.own /etc/hosts.own.bak
 
-  sudo cat /etc/hosts.own | sudo tee /etc/hosts > /dev/null
-  sudo cat /etc/hosts.steven | sudo tee -a /etc/hosts > /dev/null
+  sudo cat /etc/hosts.own | sudo tee /etc/hosts >/dev/null
+  sudo cat /etc/hosts.steven | sudo tee -a /etc/hosts >/dev/null
 
   doomst --type success "$scriptName - /etc/hosts" \
     "Fakenews, gambling, social media and tracking hosts file updated"
@@ -63,5 +63,6 @@ case "${1:-all}" in
     updatePacman
     ;;
   *)
-    fancy-log error -v arg "$1" "Invalid argument" 
+    fancy-log error -v arg "$1" "Invalid argument"
+    ;;
 esac

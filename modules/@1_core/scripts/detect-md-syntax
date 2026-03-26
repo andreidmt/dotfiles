@@ -1,0 +1,96 @@
+#!/usr/bin/env sh
+
+# ╭─────────┤ detect-md-syntax
+# │ Determine markdown syntax highlight tag for a file
+# │
+# │ SYNOPSIS
+# │   detect-md-syntax FILE_PATH
+# │
+# │ DESCRIPTION
+# │   Reads file type via mime and extension, falls back to shebang.
+# │   Outputs a syntax tag suitable for markdown fenced code blocks.
+# │
+# │ SEE ALSO
+# │   fancy-log(1), check-installed-pkg(1)
+# ╰────
+
+# ╭───
+# │ Primitives
+# ╰───
+
+# $1: file path
+get_syntax_from_shebang() {
+  shebang=$(head -n 1 "$1")
+
+  case "$shebang" in
+    "#!"*"bash"*) printf "bash" ;;
+    "#!"*"zsh"*) printf "zsh" ;;
+    '#!'*) printf "shell" ;;
+    *) printf "plaintext" ;;
+  esac
+}
+
+# $1: file path
+get_syntax() {
+  mime=$(file --brief --mime-type "$1")
+  case "$mime" in
+    "text/x-shellscript")
+      get_syntax_from_shebang "$1"
+      ;;
+    "text/plain")
+      case "$1" in
+        *.py) printf "python" ;;
+        *.lua) printf "lua" ;;
+        *.js) printf "javascript" ;;
+        *.jsx) printf "jsx" ;;
+        *.ts) printf "typescript" ;;
+        *.tsx) printf "tsx" ;;
+        *.html) printf "html" ;;
+        *.css) printf "css" ;;
+        *.md) printf "markdown" ;;
+        *.mdx) printf "mdx" ;;
+        *.json) printf "json" ;;
+        *.xml) printf "xml" ;;
+        *.yml | *.yaml) printf "yaml" ;;
+        *) get_syntax_from_shebang "$1" ;;
+      esac
+      ;;
+    "application/"*)
+      case "$mime" in
+        *"/javascript") printf "javascript" ;;
+        *"/typescript") printf "typescript" ;;
+        *"/json") printf "json" ;;
+        *"/toml") printf "toml" ;;
+        *"/xml") printf "xml" ;;
+        *"/sql") printf "sql" ;;
+        *"/graphql") printf "graphql" ;;
+        *"/wasm") printf "wasm" ;;
+        *) printf "plaintext" ;;
+      esac
+      ;;
+    *) printf "plaintext" ;;
+  esac
+}
+
+# ╭───
+# │ Bootstrap
+# ╰───
+
+export LOG_NAMESPACE="detect-md-syntax"
+check-installed-pkg fancy-log
+
+[ -z "${1:-}" ] && {
+  fancy-log error "No file path provided."
+  exit 1
+}
+
+[ ! -f "$1" ] && {
+  fancy-log error -v path "$1" "File does not exist."
+  exit 1
+}
+
+# ╭───
+# │ Main
+# ╰───
+
+get_syntax "$1"

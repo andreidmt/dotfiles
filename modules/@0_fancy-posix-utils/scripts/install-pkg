@@ -1,0 +1,242 @@
+#!/usr/bin/env sh
+
+# ╭─────────┤ install-pkg
+# │ OS-agnostic package installer with custom recipe support
+# │
+# │ SYNOPSIS
+# │   install-pkg [OPTIONS] pkg1 [pkg2 ...]
+# │
+# │ DESCRIPTION
+# │   Detects or accepts a package manager, validates input,
+# │   and installs packages. Some packages (terraform, awscli)
+# │   have custom install recipes that bypass the package manager.
+# │
+# │ OPTIONS
+# │   -f, --force                      Reinstall existing packages
+# │   -pm, --package-manager <name>    Specify package manager
+# │   -h, --help                       Show usage
+# │   --                               Pass remaining args to package manager
+# │
+# │ ENVIRONMENT
+# │   TERRAFORM_VERSION   Terraform version (default: 1.13.4)
+# │
+# │ SEE ALSO
+# │   check-installed-pkg(1), fancy-log(1), color(1)
+# ╰────
+
+# ╭───
+# │ Primitives
+# ╰───
+
+show_help() {
+  cat <<EOF
+$(color gray "USAGE:")
+  install-pkg [OPTIONS] <pkg1> [pkg2 ...]
+
+$(color gray "OPTIONS:")
+  -f, --force                      Reinstall existing packages
+  -pm, --package-manager <name>    Specify package manager
+  -h, --help                       Show usage
+  --                               Pass remaining args to package manager
+
+$(color gray "SUPPORTED PACKAGE MANAGERS:")
+  pacman, apt, yum, dnf, brew, npm
+
+$(color gray "CUSTOM RECIPES:")
+  terraform, awscli
+EOF
+}
+
+detect_package_manager() {
+  for pm in pacman apt yum dnf brew; do
+    command -v "$pm" >/dev/null 2>&1 && {
+      printf "%s" "$pm"
+      return
+    }
+  done
+}
+
+is_supported_pm() {
+  case "$1" in
+    pacman | apt | yum | dnf | brew | npm) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# ╭───
+# │ Custom recipes
+# ╰───
+
+install_terraform() {
+  check-installed-pkg curl
+
+  command -v terraform >/dev/null 2>&1 && [ -z "$FORCE_REINSTALL" ] && {
+    fancy-log info "terraform already installed"
+    return
+  }
+
+  install_via_pm unzip
+
+  version="${TERRAFORM_VERSION:-1.13.4}"
+  fancy-log info -v version "$version" "Installing terraform…"
+
+  curl -sLo /tmp/terraform.zip \
+    "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_amd64.zip"
+  unzip -qo /tmp/terraform.zip -d /usr/local/bin
+  rm -f /tmp/terraform.zip
+
+  fancy-log info -v version "$version" "terraform installed"
+}
+
+install_awscli() {
+  check-installed-pkg curl
+
+  command -v aws >/dev/null 2>&1 && [ -z "$FORCE_REINSTALL" ] && {
+    fancy-log info "awscli already installed"
+    return
+  }
+
+  install_via_pm unzip
+
+  fancy-log info "Installing awscli v2…"
+
+  curl -sSo /tmp/awscliv2.zip \
+    "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+  unzip -qo /tmp/awscliv2.zip -d /tmp
+  /tmp/aws/install
+  rm -rf /tmp/awscliv2.zip /tmp/aws
+
+  fancy-log info "awscli installed"
+}
+
+# ╭───
+# │ Package manager install
+# ╰───
+
+# Intentional word splitting for $* and $PM_FLAGS in pgk-manger calls
+# shellcheck disable=SC2048,SC2086
+install_via_pm() {
+  fancy-log info \
+    -v pm "$PACKAGE_MANAGER" \
+    -v packages "$*" \
+    "Installing…"
+
+  case "$PACKAGE_MANAGER" in
+    pacman)
+      pacman_flags="--sync --noconfirm"
+      [ -z "$FORCE_REINSTALL" ] && pacman_flags="$pacman_flags --needed"
+      sudo pacman $pacman_flags $PM_FLAGS $*
+      ;;
+    apt)
+      export DEBIAN_FRONTEND=noninteractive
+      sudo apt update --quiet && sudo apt install --yes $PM_FLAGS $*
+      ;;
+    yum)
+      sudo yum install --assumeyes $PM_FLAGS $*
+      ;;
+    dnf)
+      sudo dnf install --assumeyes $PM_FLAGS $*
+      ;;
+    brew)
+      brew install $PM_FLAGS $*
+      ;;
+    npm)
+      npm install --global $PM_FLAGS $*
+      ;;
+  esac
+}
+
+# ╭───
+# │ Bootstrap
+# ╰───
+
+export LOG_NAMESPACE="install-pkg"
+check-installed-pkg fancy-log color
+
+PACKAGE_MANAGER=""
+PM_FLAGS=""
+PACKAGES=""
+FORCE_REINSTALL=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -f | --force)
+      FORCE_REINSTALL="true"
+      shift
+      ;;
+    -pm | --package-manager)
+      PACKAGE_MANAGER="$2"
+      shift 2
+      ;;
+    -h | --help)
+      show_help
+      exit 0
+      ;;
+    --)
+      shift
+      PM_FLAGS="$*"
+      break
+      ;;
+    -?*)
+      fancy-log error -v flag "$1" "Unknown flag."
+      show_help
+      exit 1
+      ;;
+    *)
+      PACKAGES="${PACKAGES:+$PACKAGES }$1"
+      shift
+      ;;
+  esac
+done
+
+[ -z "$PACKAGES" ] && {
+  fancy-log error "No packages provided."
+  show_help
+  exit 1
+}
+
+# ╭───
+# │ Main
+# ╰───
+
+# Detect PM once — custom recipes may still need it for deps
+[ -z "$PACKAGE_MANAGER" ] && {
+  PACKAGE_MANAGER="$(detect_package_manager)"
+  fancy-log info \
+    -v pm "$PACKAGE_MANAGER" \
+    -v os "$(uname -s -r)" \
+    "Auto-detected package manager"
+}
+
+[ -z "$PACKAGE_MANAGER" ] && {
+  fancy-log error "No supported package manager found."
+  exit 1
+}
+
+is_supported_pm "$PACKAGE_MANAGER" || {
+  fancy-log error -v name "$PACKAGE_MANAGER" "Unsupported package manager."
+  show_help
+  exit 1
+}
+
+command -v "$PACKAGE_MANAGER" >/dev/null 2>&1 || {
+  fancy-log error -v name "$PACKAGE_MANAGER" "Package manager not installed."
+  exit 1
+}
+
+# Validate, then split into custom recipes vs PM packages
+pm_packages=""
+for pkg in $PACKAGES; do
+  printf "%s" "$pkg" | grep -qE '^[a-zA-Z0-9._+-]+$' || {
+    fancy-log error -v package "$pkg" "Invalid package name."
+    exit 1
+  }
+
+  case "$pkg" in
+    terraform) install_terraform ;;
+    awscli) install_awscli ;;
+    *) pm_packages="${pm_packages:+$pm_packages }$pkg" ;;
+  esac
+done
+
+[ -n "$pm_packages" ] && install_via_pm $pm_packages

@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+# NAME
+#  movies - open a movie file inside ~/Movies with the default player
+
+find "$HOME/Movies" -type f \( -iname "*.mkv" -o -iname "*.mp4" -o -iname "*.avi" \) \
+  | awk -F/ '{print $0 "\t" $NF}' \
+  | sort -r \
+  | fzf --with-nth 2 --delimiter '\t' \
+    --bind 'enter:execute(xdg-open {1} &)'

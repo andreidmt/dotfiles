@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+
+# ╭─────────┤ check-env-var
+# │ Exit with error if any of the given environment variables are not set
+# │
+# │ SYNOPSIS
+# │   check-env-var VAR1 [VAR2 ...]
+# │
+# │ EXAMPLE
+# │   check-env-var AWS_REGION TERRAFORM_VERSION
+# │
+# │ SEE ALSO
+# │   fancy-log(1)
+# ╰────
+
+# ╭───
+# │ Bootstrap
+# ╰───
+
+export LOG_NAMESPACE="check-env-var"
+
+[ -z "${1:-}" ] && {
+  echo "Usage: check-env-var VAR1 [VAR2 ...]" >&2
+  exit 1
+}
+
+# ╭───
+# │ Main
+# ╰───
+
+missing=""
+for var in "$@"; do
+  val=$(printenv "$var" 2>/dev/null || true)
+  [ -z "$val" ] && {
+    missing="${missing}${missing:+, }$var"
+  }
+done
+
+[ -n "$missing" ] && {
+  fancy-log error -v vars "$missing" \
+    "Required environment variables not set."
+  exit 1
+}

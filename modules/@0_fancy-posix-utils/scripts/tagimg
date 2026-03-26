@@ -1,0 +1,152 @@
+#!/bin/sh
+
+set -e
+
+IMG_DIR=$(realpath "./")
+TAG_DIR=$(realpath "./tags")
+
+# Helper: is_file_tagged <file-path> <tag>
+is_file_tagged() {
+  file="$1"
+  tag="$2"
+  grep -qxF "$file" "$TAG_DIR/$tag" 2> /dev/null
+}
+
+# List tags for a given file (absolute path)
+list_tags_for_file() {
+  file="$1"
+  tags=""
+  for tagfile in "$TAG_DIR"/*; do
+    [ -f "$tagfile" ] || continue
+    tag=$(basename "$tagfile")
+    is_file_tagged "$file" "$tag" && tags="${tags:+$tags,}$tag"
+  done
+  echo "$tags"
+}
+
+# List images with their tags (relative path | tag1,tag2)
+tagimg_list() {
+  find "$IMG_DIR" \
+    -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) \
+    -printf '%T@ %p\n' \
+    | sort --numeric-sort --reverse | cut -d' ' -f2- \
+    | sed "s|^$IMG_DIR/||" \
+    | while IFS= read -r relfile; do
+      abspath="$IMG_DIR/$relfile"
+      tags=$(list_tags_for_file "$abspath")
+      echo "$relfile | $tags"
+    done
+}
+
+# Subcommand: copy
+tagimg_copy() {
+  # Reads relative paths on stdin, one per line
+  COUNT=0
+  uris=""
+  while IFS= read -r relfile; do
+    COUNT=$((COUNT + 1))
+    uris="$uris$(printf 'file://%s\n' "$IMG_DIR/$relfile")"
+  done
+  printf '%s' "$uris" | wl-copy --type text/uri-list
+  doomst -p success 'Copied images' "$COUNT images: ready to paste in file manager"
+}
+
+# Subcommand: tag
+tagimg_tag() {
+  # Args: <TAG>
+  # Reads relative paths on stdin, one per line
+  TAG="$1"
+  [ -z "$TAG" ] && beep_cancel && exit 1
+  COUNT=0
+  while IFS= read -r relfile; do
+    echo "$IMG_DIR/$relfile" >> "$TAG_DIR/$TAG"
+    COUNT=$((COUNT + 1))
+  done
+  sort -u "$TAG_DIR/$TAG" -o "$TAG_DIR/$TAG"
+  doomst -p success 'Tagged images' "Tagged as $TAG ($COUNT images)"
+}
+
+# Subcommand: tags-for <relfile>
+tagimg_tags_for() {
+  relfile="$1"
+  abspath="$IMG_DIR/$relfile"
+  list_tags_for_file "$abspath"
+}
+
+# Subcommand: preview
+tagimg_preview() {
+  imv_pid="$1"
+  relfile="$2"
+  abspath="$IMG_DIR/$relfile"
+
+  echo "$abspath"
+
+  # Assume imv is running and accessible via imv-msg
+  imv-msg "$imv_pid" close all
+  imv-msg "$imv_pid" open "$abspath"
+
+  echo "Image: $relfile"
+  echo "Path: $abspath"
+  echo "Tags: $(list_tags_for_file "$abspath")"
+}
+
+# Main interactive mode
+tagimg_fzf() {
+  mkdir -p "$TAG_DIR"
+
+  imv &
+  IMV_PID=$!
+
+  for i in $(seq 20); do
+    if imv-msg "$IMV_PID" get current-image > /dev/null 2>&1; then break; fi
+    sleep 0.1
+  done
+
+  cleanup() {
+    kill "$IMV_PID" 2> /dev/null
+    exit
+  }
+  trap cleanup INT TERM EXIT
+
+  tagimg_list \
+    | fzf --multi --with-nth=1 \
+      --preview "relfile=\$(echo {} | cut -d\"|\" -f1 | xargs); tagimg preview \"$IMV_PID\" \"\$relfile\"" \
+      --bind "ctrl-y:execute-silent(
+      echo {+} | sed 's/|.*//' | xargs -n1 | tagimg copy
+    )" \
+      --bind "ctrl-t:execute-silent(
+      COUNT=\$(echo \"{+}\" | wc -w);
+      TAG=\$(ls \"$TAG_DIR\" | rofi -dmenu -p \"Apply a tag to \$COUNT image(s):\");
+      if [ -n \"\$TAG\" ]; then
+        echo {+} | sed 's/|.*//' | xargs -n1 | tagimg tag \"\$TAG\";
+      else
+        beep_cancel;
+      fi
+    )" \
+      --header "ctrl-t: tag image | ctrl-y: copy images"
+  cleanup
+}
+
+case "${1:-fzf}" in
+  fzf) tagimg_fzf ;;
+  copy)
+    shift
+    tagimg_copy "$@"
+    ;;
+  tag)
+    shift
+    tagimg_tag "$@"
+    ;;
+  preview)
+    shift
+    tagimg_preview "$@"
+    ;;
+  tags-for)
+    shift
+    tagimg_tags_for "$@"
+    ;;
+  *)
+    echo "Usage: $0 [fzf|copy|tag|preview|tags-for]"
+    exit 1
+    ;;
+esac

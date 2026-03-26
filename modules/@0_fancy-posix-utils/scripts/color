@@ -1,24 +1,28 @@
 #!/usr/bin/env sh
 
-# NAME
-#  color - print colored text
-#
-# SYNOPSIS
-#  color gray <text> 
-#  color red <text>
-#  color green <text>
-#  color yellow <text>
-#  color blue <text>
+# ╭─────────┤ color
+# │ Print colored text to stdout
+# │
+# │ SYNOPSIS
+# │   color <name> <text>
+# │
+# │ COLORS
+# │   black, white, red, green, blue, yellow, cyan, gray
+# ╰────
 
 case "$1" in
-  gray) printf "\033[90m%s\033[0m" "$2"; ;;
-  red) printf "\033[31m%s\033[0m" "$2"; ;;
-  green) printf "\033[32m%s\033[0m" "$2"; ;;
-  yellow) printf "\033[33m%s\033[0m" "$2"; ;;
-  blue) printf "\033[34m%s\033[0m" "$2"; ;;
-  cyan) printf "\033[36m%s\033[0m" "$2"; ;;
-  orange) printf "\033[33m%s\033[0m" "$2"; ;;
-  white) printf "\033[37m%s\033[0m" "$2"; ;;
-  black) printf "\033[30m%s\033[0m" "$2"; ;;
-  *) echo "Unknown command $1" >&2; exit 1 ;; 
+  black) code=30 ;;
+  white) code=37 ;;
+  red) code=31 ;;
+  green) code=32 ;;
+  blue) code=34 ;;
+  yellow) code=33 ;;
+  cyan) code=36 ;;
+  gray) code=90 ;;
+  *)
+    echo "Unknown color: $1" >&2
+    exit 1
+    ;;
 esac
+
+printf "\033[%sm%s\033[0m" "$code" "$2"

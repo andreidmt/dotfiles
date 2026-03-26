@@ -8,12 +8,13 @@ item_display=" Display"
 item_lucky_search="󰖟 Lucky Search - Clipboard"
 item_lucky_search_history="󰖟 Lucky Search - History"
 item_nvim="$NVIM_ICON Neovim - Change config"
+item_removables="󰋊 Removables"
 # item_projects=" Projects"
 # item_power=" Power"
 
 # Prepare menu items with shortcuts.
 menu=$(
-  cat << EOF
+  cat <<EOF
 $item_lucky_search
 $item_lucky_search_history
 $item_nvim
@@ -21,6 +22,7 @@ $item_snippets <small>[ + s]</small>
 $item_bookmarks <small>[ + b]</small>
 $item_color_picker
 $item_display
+$item_removables
 EOF
 )
 
@@ -34,6 +36,7 @@ case "$choice" in
   "$item_bookmarks"*) terminal-center bookmarks open ;;
   "$item_color_picker"*) screenshot pick-color ;;
   "$item_display"*) change-display ;;
+  "$item_removables"*) exec usbauto-rofi ;;
   # "$item_projects"*) projects.find ;;
   # "$item_power"*) rofi_power ;;
   *)
