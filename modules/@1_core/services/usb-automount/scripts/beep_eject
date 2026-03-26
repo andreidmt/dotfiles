@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+# NAME
+#  beep_eject - Device disconnected/ejected sound (two quick descending tones)
+
+beep -f 900 -l 80 \
+  -n -f 600 -l 80

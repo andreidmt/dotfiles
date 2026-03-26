@@ -1,0 +1,93 @@
+#!/usr/bin/env sh
+
+# NAME
+#   usbauto-rofi - Rofi menu for managing removable devices
+#
+# SYNOPSIS
+#   usbauto-rofi
+#
+# DESCRIPTION
+#   Lists all removable devices (USB drives, SD cards) with their mount status.
+#   Context-aware actions based on state and key pressed:
+#
+#   - Enter on unmounted     → mount and open in nnn
+#   - Enter on mounted       → open in nnn
+#   - Shift+Enter on mounted → unmount
+#
+# DEPENDENCIES
+#   rofi, lsremovable, usbauto-ctl, doomst
+#
+# SEE ALSO
+#   usbauto-ctl, usbauto-sway, usb-automount
+
+# ╭───┤ Functions
+# ╰─
+
+build_device_list() {
+  lsremovable | while read -r device mount_point; do
+    fstype=$(lsblk -no FSTYPE "$device" 2>/dev/null)
+    if [ "$mount_point" = "-" ]; then
+      echo "󰋊 $device $fstype"
+    else
+      label=$(basename "$mount_point")
+      echo "󰋊 $device $fstype → $label"
+    fi
+  done
+}
+
+# ╭───┤ Main. Start here.
+# ╰─
+
+device_list=$(build_device_list)
+
+# Guard: no devices
+if [ -z "$device_list" ]; then
+  doomst --type info "USB Automount" "No removable devices found"
+  exit 0
+fi
+
+# kb-custom-1 returns exit code 10; must unbind kb-accept-alt first
+selected=$(echo "$device_list" \
+  | rofi -dmenu -p "󰋊 Removables" \
+    -mesg "Enter: mount/open | Shift+Enter: unmount" \
+    -kb-accept-alt "" -kb-custom-1 "Shift+Return")
+exit_code=$?
+
+# Nothing selected/cancelled
+if [ -z "$selected" ]; then
+  exit 0
+fi
+
+# Parse selection: "󰋊 /dev/xxx fstype [→ label]"
+device=$(echo "$selected" | awk '{print $2}')
+is_mounted=$(echo "$selected" | grep -c "→")
+
+# Shift+Enter (exit code 10) = unmount
+if [ "$exit_code" -eq 10 ]; then
+  if [ "$is_mounted" -eq 0 ]; then
+    doomst --type info "USB Automount" "Device not mounted"
+    exit 0
+  fi
+
+  unmount_output=$(usbauto-ctl unmount "$device" 2>&1)
+  unmount_exit_code=$?
+  if [ "$unmount_exit_code" -ne 0 ]; then
+    doomst --type error "USB Automount" "$unmount_output"
+    exit "$unmount_exit_code"
+  fi
+
+  exit 0
+fi
+
+# Enter (exit code 0) = mount or open
+if [ "$is_mounted" -eq 1 ]; then
+  usbauto-ctl open "$device"
+  exit 0
+fi
+
+mount_output=$(usbauto-ctl mount "$device" 2>&1)
+mount_exit_code=$?
+if [ "$mount_exit_code" -ne 0 ]; then
+  doomst --type error "USB Automount" "$mount_output"
+  exit "$mount_exit_code"
+fi

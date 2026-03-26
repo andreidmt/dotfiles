@@ -1,0 +1,110 @@
+#!/usr/bin/env sh
+
+# NAME
+#   usbauto-ctl - Control removable devices (mount, unmount, open)
+#
+# SYNOPSIS
+#   usbauto-ctl mount <device>
+#   usbauto-ctl unmount <device>
+#   usbauto-ctl open <device|mount_path>
+#
+# DESCRIPTION
+#   Core operations for USB/SD card management. Used by usbauto-sway,
+#   usbauto-rofi, and the usb-automount runit service.
+#
+# COMMANDS
+#   mount <device>
+#     Mount a device via udisks2. Prints mount path on success.
+#
+#   unmount <device>
+#     Unmount a device via udisks2.
+#
+#   open <device|mount_path>
+#     Open a mounted device in nnn with a consistent window title.
+#
+# DEPENDENCIES
+#   udisksctl, findmnt, alacritty, nnn, doomst, beep_mount, beep_eject
+#
+# SEE ALSO
+#   usbauto-sway, usbauto-rofi, usb-automount
+
+# ╭───┤ Functions
+# ╰─
+
+# Get mount path for a device.
+get_mount_path() {
+  lsblk -no MOUNTPOINT "$1" 2>/dev/null
+}
+
+# Get filesystem type for a mount path.
+get_fstype() {
+  findmnt -no FSTYPE "$1" 2>/dev/null
+}
+
+# Build consistent nnn window title.
+build_title() {
+  device="$1"
+  mount_path="$2"
+  fstype=$(get_fstype "$mount_path")
+  label=$(basename "$mount_path")
+  echo "nnn - $device $fstype - $label"
+}
+
+# Mount a device.
+cmd_mount() {
+  device="$1"
+  mount_output=$(udisksctl mount -b "$device" --no-user-interaction 2>&1)
+  mount_path=$(echo "$mount_output" | grep -o "at .*" | cut -d' ' -f2)
+
+  if [ -n "$mount_path" ]; then
+    echo "$mount_path"
+    return 0
+  else
+    echo "Failed to mount $device" >&2
+    return 1
+  fi
+}
+
+# Unmount a device.
+cmd_unmount() {
+  device="$1"
+  udisksctl unmount -b "$device" --no-user-interaction
+}
+
+# Open a device or mount path in nnn.
+cmd_open() {
+  arg="$1"
+
+  # Determine device and mount_path
+  if [ -d "$arg" ]; then
+    mount_path="$arg"
+    device=$(findmnt -no SOURCE "$mount_path" 2>/dev/null)
+  else
+    device="$arg"
+    mount_path=$(get_mount_path "$device")
+  fi
+
+  if [ -z "$mount_path" ] || [ ! -d "$mount_path" ]; then
+    echo "Device not mounted or path not found" >&2
+    return 1
+  fi
+
+  title=$(build_title "$device" "$mount_path")
+  alacritty --title "$title" --working-directory "$mount_path" -e nnn "$mount_path" &
+}
+
+# ╭───┤ Main. Start here.
+# ╰─
+
+cmd="$1"
+shift
+
+case "$cmd" in
+  mount) cmd_mount "$@" ;;
+  unmount) cmd_unmount "$@" ;;
+  open) cmd_open "$@" ;;
+  *)
+    echo "Usage: usbauto-ctl {mount|unmount|open} <device>" >&2
+    exit 1
+    ;;
+esac

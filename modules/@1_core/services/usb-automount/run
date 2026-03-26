@@ -1,5 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 
-exec 2>&1
-exec "$(dirname "$0")/usb-automount" -u "$USER" \
-  | sed 's/^/[usb-automount] /' 
+exec 2>&1                            # stderr → stdout (for this shell and children)
+exec "$(dirname "$0")/usb-automount" # replace this shell with the `usb-automount` script

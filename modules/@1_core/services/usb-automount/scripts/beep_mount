@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+# NAME
+#  beep_mount - Device connected/mounted sound (two quick ascending tones)
+
+beep -f 600 -l 80 \
+  -n -f 900 -l 80

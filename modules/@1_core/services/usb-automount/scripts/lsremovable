@@ -1,0 +1,49 @@
+#!/usr/bin/sh
+
+# List removable block devices (USB drives, SD cards)
+#
+# Usage:
+#   lsremovable             # all removable partitions
+#   lsremovable --mounted   # only mounted
+#   lsremovable --mountable # only unmounted
+#
+# Output format: /dev/xxx /mount/path (or - if unmounted)
+
+FILTER="all"
+
+case "$1" in
+  --mounted) FILTER="mounted" ;;
+  --mountable) FILTER="mountable" ;;
+esac
+
+# Check if partition is on a removable device (USB or SD card)
+is_removable() {
+  props=$(udevadm info --query=property --name="$1" 2>/dev/null)
+  echo "$props" | grep -q "ID_BUS=usb" && return 0
+  echo "$props" | grep -q "ID_DRIVE_FLASH_SD=1" && return 0
+  return 1
+}
+
+# Get mount point for a partition (empty if not mounted)
+get_mount_point() {
+  lsblk -no MOUNTPOINT "$1" 2>/dev/null
+}
+
+# List all partitions and filter
+for partition in $(lsblk -o PATH,TYPE -n | awk '$2 == "part" {print $1}'); do
+  is_removable "$partition" || continue
+
+  mount_point=$(get_mount_point "$partition")
+
+  case "$FILTER" in
+    mounted)
+      [ -n "$mount_point" ] && echo "$partition $mount_point"
+      ;;
+    mountable)
+      [ -z "$mount_point" ] && echo "$partition"
+      ;;
+    *)
+      echo "$partition ${mount_point:--}"
+      ;;
+  esac
+done
