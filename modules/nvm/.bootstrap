@@ -16,4 +16,5 @@ export NVMM_LOCAL="$NVMM_HOME/.local"
 mkdir -p "$NVMM_LOCAL"
 
 export NVMM_FUNCTIONS="$NVMM_HOME/functions"
+export NVMM_SCRIPTS="$NVMM_HOME/scripts"
 export NVMM_CONFIG="$NVMM_HOME/config"

@@ -27,3 +27,7 @@ source "$NVMM_FUNCTIONS/switch-node"
 
 # Auto switch node version when changing directories
 add-zsh-hook chpwd switch_node
+
+if [[ ":$PATH:" != *":$NVMM_SCRIPTS:"* ]]; then
+    export PATH="$NVMM_SCRIPTS:$PATH"
+fi

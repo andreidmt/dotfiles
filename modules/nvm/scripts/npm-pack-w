@@ -1,107 +1,194 @@
 #!/usr/bin/env sh
 
-# Custom script to build a package achive, meant for AWS Lambda deployment, for
-# a project inside an npm workspace without installing any extra dependencies.
-# Be aware of the following issues:
-#
-# 1. Cannot include packages from inside the monorepo: Since we're extracting
-# the package to a temporary directory, we cannot include packages from inside
-# the monorepo.
-#
-# 2. Non-deterministic Builds: Since `npm install` does not respect the
-# monorepo's `package-lock.json` file, it can result in non-deterministic
-# builds.
-#
-# Note: Will try a webpack approch in the future to solve the above issues.
+# Symlink aware script paths and name
+REAL_PATH=$(realpath "$0")
+SCRIPT_NAME=$(basename "$REAL_PATH")
 
-# Fail on first error, undefined variable or error in a pipe
-set -eu
+# ╭───┤ Bootstrap & Argument parsing
+# ╰─
 
-PACKAGE_NAME_SLUG=$(\
-  jq -r '.name + "-" + .version' "package.json" \
-  | sed -e 's/[^A-Za-z0-9_-]/-/g' -e 's/^-//'
-)
-TMP_BUILD_DIR="/tmp/lambda-package-$PACKAGE_NAME_SLUG"
-INCLUDES="package.json
-src
-node_modules"
+show_help() {
+  cat <<EOF
+USAGE:
+  $SCRIPT_NAME [OPTIONS]
 
-parse_arguments() {
-  while (( "$#" )); do
-    echo "Parsing arguments..."
-    case "$1" in
-      --include)
-        shift
-        if [ "$1" ]; then
-          echo "Including extra file $1..."
-          INCLUDES+=("$1")
-          shift
-        else
-          echo 'ERROR: "--include" requires a non-empty option argument.'
-          exit 1
-        fi
+DESCRIPTION:
+  Creates a distributable bundle in bundle/ containing package.json, files
+  declared in the "files" property, and production dependencies. Works with
+  npm workspaces and hoisted dependencies.
+
+OPTIONS:
+  -o, --output <dir>     Output directory (default: bundle)
+  --include <path>       Include additional file or directory (can be used multiple times)
+  -h, --help             Show this help message
+
+EXAMPLES:
+  $SCRIPT_NAME                                  # Bundle to bundle/
+  $SCRIPT_NAME --output build --include .env    # Custom output and extra file
+
+NOTES:
+  - Uses 'npm ls' and 'npm pack --dry-run' to determine files
+  - Respects package.json "files" property
+  - Works with monorepo/workspace hoisted dependencies
+  - Requires: jq, npm (>=8.0.0)
+EOF
+}
+
+OUTPUT_DIR="bundle"
+EXTRA_INCLUDES=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -o | --output)
+      OUTPUT_DIR="$2"
+      shift 2
       ;;
-      --) shift; break ;;
-      -?*) echo "WARN: Unknown flag (ignored): $1" >&2; shift ;;
-      *) break ;;
-    esac
+    --include)
+      if [ -z "$2" ]; then
+        echo "ERROR: Option --include requires a value" >&2
+        exit 1
+      fi
+      [ -z "$EXTRA_INCLUDES" ] && EXTRA_INCLUDES="$2" || EXTRA_INCLUDES="$EXTRA_INCLUDES $2"
+      shift 2
+      ;;
+    -h | --help | --hlep)
+      show_help
+      exit 0
+      ;;
+    -?*)
+      echo "ERROR: Unknown flag '$1'" >&2
+      show_help
+      exit 1
+      ;;
+    *)
+      echo "Unexpected argument '$1'" >&2
+      show_help
+      exit 1
+      ;;
+  esac
+done
+
+# ╭───┤ Domain Functions
+# ╰─
+
+copy_package_files() {
+  echo "== Determining files to include (npm pack --dry-run)" >&2
+
+  # Use npm pack --dry-run to get the list of files that would be included
+  # This respects the "files" field in package.json
+  npm pack --dry-run --json 2>/dev/null \
+    | jq -r '.[0].files[]?.path // empty' \
+    | while IFS= read -r file_path; do
+      if [ -z "$file_path" ]; then
+        continue
+      fi
+
+      echo "$file_path"
+
+      # Create parent directory structure in output
+      file_dir=$(dirname "$file_path")
+      if [ "$file_dir" != "." ]; then
+        mkdir -p "$OUTPUT_DIR/$file_dir"
+      fi
+
+      # Copy file or directory
+      if [ -d "$file_path" ]; then
+        cp -r "$file_path" "$OUTPUT_DIR/$file_path"
+      elif [ -f "$file_path" ]; then
+        cp "$file_path" "$OUTPUT_DIR/$file_path"
+      fi
+    done
+}
+
+copy_extra_includes() {
+  if [ -z "$EXTRA_INCLUDES" ]; then
+    return
+  fi
+
+  echo "== Copying extra includes" >&2
+
+  for include_path in $EXTRA_INCLUDES; do
+    if [ ! -e "$include_path" ]; then
+      echo "Include path does not exist, skipping: $include_path" >&2
+      continue
+    fi
+
+    echo "$include_path"
+
+    include_basename=$(basename "$include_path")
+    if [ -d "$include_path" ]; then
+      cp -r "$include_path" "$OUTPUT_DIR/$include_basename"
+    else
+      cp "$include_path" "$OUTPUT_DIR/$include_basename"
+    fi
   done
 }
 
-prepare() {
-  echo "Packaging $PACKAGE_NAME_SLUG..."
+copy_production_deps() {
+  echo "== Installing production dependencies (npm ls)" >&2
 
-  rm -rf "$TMP_BUILD_DIR"
-  mkdir -p "$TMP_BUILD_DIR"
-}
+  prod_deps=$(npm ls --omit dev --parseable | tail -n +3)
+  if [ -z "$prod_deps" ]; then
+    echo "== No production dependencies found" >&2
+    return
+  fi
 
-copy_files_to_tmp_dir() {
-  echo "Copying source files to temporary build folder..."
+  deps_count=$(echo "$prod_deps" | wc -l)
+  echo "== Found $deps_count production dependencies" >&2
 
-  for file in "${INCLUDES[@]}"; do
-    echo "Including file/folder $file..."
-    cp -r "$file" "$TMP_BUILD_DIR/"
+  # Copy dependencies from workspace/hoisted node_modules
+  echo "$prod_deps" | while IFS= read -r dep_path; do
+    if [ -z "$dep_path" ]; then
+      continue
+    fi
+
+    echo "$dep_path"
+
+    # Extract the portion after the first occurrence of "/node_modules/"
+    # This removes everything up to and including "/node_modules/" from dep_path
+    relative_path="${dep_path#*/node_modules/}"
+
+    # Copy the dependency
+    mkdir -p "$OUTPUT_DIR/node_modules/$(dirname "$relative_path")"
+    cp -rL "$dep_path" "$OUTPUT_DIR/node_modules/$relative_path"
   done
 }
 
-install_dependencies() {
-  echo "Installing production dependencies..."
+# ╭───┤ Main. Start Here.
+# ╰─
 
-  ln -s "$(pwd)/../.npm" "$TMP_BUILD_DIR/.npm"
-  cd "$TMP_BUILD_DIR"
-  npm install --omit=dev --no-audit --no-progress --prefer-offline
-}
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required but not installed" >&2
+  exit 1
+fi
 
-create_archive() {
-  echo "Archiving application..."
+if ! command -v npm >/dev/null 2>&1; then
+  echo "npm is required but not installed" >&2
+  exit 1
+fi
 
-  zip -q -r "$PACKAGE_NAME_SLUG".zip "${INCLUDES[@]}"
-}
+if [ ! -f "package.json" ]; then
+  echo "package.json not found in current directory" >&2
+  exit 1
+fi
 
-move_package() {
-  echo "Moving package to final location..."
+name="$(jq -r '.name // "unnamed"' package.json)"
+version="$(jq -r '.version // "0.0.0"' package.json)"
+echo "== Bundling $name v$version" >&2
 
-  from="$1"
-  to="$2"
+#
+# Prepare bundle folder
+#
 
-  rm -rf "$to"
-  mkdir -p "$to"
-  mv "$from" "$to"
-}
+echo "== Cleaning '$OUTPUT_DIR' folder" >&2
+rm -rf "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR/node_modules"
 
-main() {
-  dist_dir="$(pwd)/dist"
-  package_zip_file="$PACKAGE_NAME_SLUG.zip"
+copy_package_files
+copy_extra_includes
+copy_production_deps
 
-  parse_arguments "$@"
-  prepare
-  copy_files_to_tmp_dir
-  install_dependencies
-  create_archive
-  move_package "$TMP_BUILD_DIR/$package_zip_file" "$dist_dir"
-
-  printf "\nDone:"
-  echo "$dist_dir/$package_zip_file"
-}
-
-main "$@"
+bundle_size=$(du -sh "$OUTPUT_DIR" | cut -f1)
+echo "========"
+echo "Package bundle created in '$OUTPUT_DIR' ($bundle_size)"
+echo "========"
