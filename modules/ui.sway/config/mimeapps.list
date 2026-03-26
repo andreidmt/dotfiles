@@ -15,13 +15,11 @@ application/xhtml+xml=zen-browser.desktop
 application/x-extension-xhtml=zen-browser.desktop
 application/x-extension-xht=zen-browser.desktop
 
-/*
- * Image viewer
- */
-
+# Image viewer
 image/png=swayimg.desktop
 image/webp=swayimg.desktop
 image/jpeg=swayimg.desktop
+image/jpg=swayimg.desktop
 image/x-portable-anymap=swayimg.desktop
 image/x-portable-bitmap=swayimg.desktop
 image/gif=swayimg.desktop
@@ -32,26 +30,17 @@ image/x-portable-graymap=swayimg.desktop
 image/bmp=swayimg.desktop
 image/svg+xml=swayimg.desktop
 
-/*
- * PDF
- */
-
+# PDF
 application/postscript=pdf.desktop;
 application/oxps=pdf.desktop
 application/epub+zip=pdf.desktop
 application/x-fictionbook+xml=pdf.desktop
 application/pdf=pdf.desktop
 
-/*
- * Open folders
- */
-
+# Open folders
 inode/directory=nnn.desktop
 
-/*
- * Edit text files
- */
-
+# Edit text files
 text/plain=nvim.desktop
 text/html=nvim.desktop
 text/x-shellscript=nvim.desktop
@@ -86,10 +75,7 @@ application/x-shellscript=nvim.desktop
 application/json=nvim.desktop
 application/xml=nvim.desktop
 
-/*
- * View video files
- */
-
+# View video files
 video/x-msvideo=mpv.desktop
 video/vnd.rn-realvideo=mpv.desktop
 video/dv=mpv.desktop
@@ -119,12 +105,10 @@ application/x-cue=mpv.desktop
 application/mxf=mpv.desktop
 application/x-shorten=mpv.desktop
 
-/*
- * Edit images
- */
-
+# Edit images
 image/vnd.adobe.photoshop=pinta.desktop
 
 x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/sgnl=signal.desktop
 x-scheme-handler/signalcaptcha=signal.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop

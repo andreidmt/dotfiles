@@ -3,6 +3,7 @@ xorg-xlsclients, pacman, "List client applications running under XWayland"
 qt6-wayland, pacman, "Qt5 bindings for Wayland "
 glfw-wayland, pacman, "Library for OpenGL, OpenGL ES, Vulkan, window and input"
 wlr-randr, pacman, "Utility for managing outputs of a Wayland compositor"
+wdisplay, pacman, "Wayland display configuration tool"
 
 sway, pacman, "i3-compatible Wayland compositor"
 swayidle, pacman, "Idle management daemon for Wayland"

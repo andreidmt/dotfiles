@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Arduino IDE
+GenericName=Arduino Development Environment for Wayland
+Exec=arduino-ide --enable-features=UseOzonePlatform --ozone-platform-hint=wayland %F
+Terminal=false
+Type=Application
+Icon=arduino-ide
+StartupWMClass=Arduino IDE
+Comment=The new Arduino IDE
+MimeType=text/x-arduino;
+Categories=Development;Electronics;

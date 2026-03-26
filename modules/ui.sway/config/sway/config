@@ -22,7 +22,8 @@ input "type:keyboard" {
 ### Output configuration
 
 output eDP-1 {
-  bg ~/Pictures/Wallpapers/forest-2.jpg fill
+  # bg ~/Pictures/Wallpapers/forest-2.jpg fill
+  bg ~/Pictures/Wallpapers/forrest-predeal.jpg fill
   resolution 1920x1080 position 2560 0
 }
 
@@ -72,6 +73,10 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
   exec gammastep
   exec nm-applet --indicator
   exec signal-desktop --use-tray-icon --enable-features=UseOzonePlatform --ozone-platform=wayland
+  exec transmission-qt --minimized
+
+  # GUI companion for usb-automount runit service
+  exec usbauto-sway
 
 ### Theme
 
@@ -134,10 +139,13 @@ bindsym $mod+Shift+e exec swaynag --font mono --type "warning" \
   # Kill focused window
   bindsym $mod+Shift+q kill
 
+  # Reload sway config
+  bindsym $mod+Shift+r reload
+
   # Start your launcher
   bindsym $mod+p exec rofi -show run
-  bindsym $mod+Shift+p exec sys_menu 
-  bindsym $mod+grave exec rofi -show drun
+  bindsym $mod+Shift+p exec rofi -show drun
+  bindsym $mod+grave exec sys_menu
 
   # Drag floating windows by holding down $mod and left mouse button.
   # Resize them with right mouse button + $mod.
