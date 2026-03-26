@@ -1,29 +1,28 @@
 #!/usr/bin/env sh
 
-. "$FCLI_FUNCTIONS/stdin-or"
-
 export LOG_NAMESPACE="󱅄 writing"
 export LOG_LEVEL=info
 
+NOTE_TYPE="draft"
+
 notes_create() {
-  draftsPath="$NOTES_DATA/draft"
-  path="$draftsPath/$(date +%y-%j).md"
+  folder_path="$NOTES_DATA/$NOTE_TYPE"
+  file_path="$folder_path/$(date +%y-%j).md"
+  mkdir -p "$folder_path"
 
-  mkdir -p "$draftsPath"
-
-  if [ ! -f "$path" ]; then
+  if [ ! -f "$file_path" ]; then
     {
       snippets run "frontmatter_template-toml draft"
       echo ""
-    } > "$path"
+    } >"$file_path"
   fi
 
-  cd "$NOTES_DATA"
-  nvim -c "norm G" -c "norm zz" -c "set spell" "$path"
+  cd "$NOTES_DATA" \
+    && nvim -c "norm G" -c "norm zz" -c "set spell" "$file_path"
 }
 
 notes_open() {
-  notePath=$(stdin_or "$1")
+  notePath=$1
 
   if [ -f "$notePath" ]; then
     cd "$NOTES_DATA"
@@ -37,13 +36,14 @@ notes_open() {
 notes_list() {
   notes=$(rg --files --sortr modified "$NOTES_DATA" | rg .md)
 
-  for path in $notes; do
-    title=$(rg "^# " --max-count 1 "$path" | sed -e "s/# //g")
-    type=$(sed --quite '/^```toml/,/^```/p' < "$path" \
-      | grep --ignore-case "type" \
-      | awk --field-separator '[ ="]+' '{ print tolower($2) }'
+  for file_path in $notes; do
+    title=$(rg "^# " --max-count 1 "$file_path" | sed -e "s/# //g")
+    type=$(
+      sed --quite '/^```toml/,/^```/p' <"$file_path" \
+        | grep --ignore-case "type" \
+        | awk --field-separator '[ ="]+' '{ print tolower($2) }'
     )
-    relativePath=$(echo "$path" | sed -e "s|$NOTES_DATA/||g")
+    relativePath=$(echo "$file_path" | sed -e "s|$NOTES_DATA/||g")
 
     if [ -z "$type" ]; then
       printf "%s\n<small>%s</small>|" "${title:-'--'}" "$relativePath"
@@ -62,16 +62,26 @@ ask() {
   fancy-log error "No note selected"
 }
 
+ask_type() {
+  note_type=$(find "$NOTES_DATA" -maxdepth 1 -type d \
+    -not -path '*/.*' \
+    -printf '%f\n' \
+    | tail -1 \
+    | rofi -dmenu -p "Choose note type:")
+
+}
+
 case "${1-ask}" in
+  ask-type) ask_type ;;
   ask) ask ;;
   create) notes_create ;;
-	list) notes_list ;;
-	open) notes_open "$2" ;;
-  *) 
+  list) notes_list ;;
+  open) notes_open "$2" ;;
+  *)
     fancy-log error \
       -v cmd "$1" \
       -v available_commands "ask,create,list,open" \
       "Command not found"
-    exit 1 
-  ;;
+    exit 1
+    ;;
 esac

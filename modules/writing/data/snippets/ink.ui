@@ -1,0 +1,26 @@
+```toml
+id="b4860e5e-7b85-4ee5-833f-66042e307d49"
+type="snippet"
+description="Ink sample UI component"
+tags=["react", "ink", "ui"]
+created_at="2025-09-04T11:09:34+02:00"
+```
+
+```tsx
+import { Text } from "ink"
+import { useState } from "react"
+import type { FC } from "react"
+
+type ComponentProps = {
+  value: string
+}
+
+const Component: FC<ComponentProps> = ({ value }) => {
+  const [localValue, setLocalValue] = useState(value)
+
+  return <Text>{localValue}</Text>
+}
+
+export { Component }
+export type { ComponentProps }
+```
