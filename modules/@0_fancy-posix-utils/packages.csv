@@ -1,2 +1,5 @@
-fzf, pacman, ""
-
+fzf, pacman, "A command-line fuzzy finder"
+commander, npm, "A complete solution for building command-line interfaces in Node.js"
+chalk, npm, "A Node.js library for styling terminal string output with colors and text formatting"
+papaparse, npm, "A powerful CSV parser for JavaScript that handles malformed data gracefully"
+cli-table3, npm, "A utility for rendering unicode-enabled tables in the terminal"
