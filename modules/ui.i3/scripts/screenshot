@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # -u: error on undefined variable
-set -u 
+set -u
 
 script_name=$(basename "$0")
 SCREENSHOT_HOME="$HOME/Pictures/Screenshots"
@@ -13,7 +13,7 @@ case $1 in
   pick-color)
     colorpicker --short --one-shot --preview \
       | xclip -selection clipboard
-  ;;
+    ;;
 
   region)
     tmpfile=$(mktemp "$SCREEN_TMP/slop-XXXXXX")
@@ -32,7 +32,7 @@ case $1 in
     shotgun -g "${width}x${height}+${offset_x}+${offset_y}" "$path"
     xclip -t 'image/png' -selection clipboard < "$path"
     doomst --title "$script_name region" --message "$width x $height $path"
-  ;;
+    ;;
 
   all)
     filename=${2:-"screen_$now.png"}
@@ -41,7 +41,10 @@ case $1 in
     shotgun "$path"
     xclip -t 'image/png' -selection clipboard < "$path"
     doomst --title "$script_name - screen" --message "$path"
-  ;;
+    ;;
 
-  *) echo "Unknown command: $1" >&2; exit 1 ;;
+  *)
+    echo "Unknown command: $1" >&2
+    exit 1
+    ;;
 esac

@@ -1,12 +1,17 @@
 #!/bin/sh
 
-# The typematic delay indicates the amount of time (typically in miliseconds) 
-# a key needs to be pressed and held in order for the repeating process to 
-# begin. After the repeating process has been triggered, the character will be 
-# repeated with a certain frequency (usually given in Hz) specified by the 
-# typematic rate. Note that these settings are configured seperately for Xorg 
-# and for the virtual console. 
+# The typematic delay indicates the amount of time (typically in miliseconds)
+# a key needs to be pressed and held in order for the repeating process to
+# begin. After the repeating process has been triggered, the character will be
+# repeated with a certain frequency (usually given in Hz) specified by the
+# typematic rate. Note that these settings are configured seperately for Xorg
+# and for the virtual console.
+
+# Set keyboard repeat rate and delay
 xset r rate 220 20
+
+# Allow current user to access X server
+xhost +SI:localuser:"$USER"
 
 # Extended mouse gestures
 libinput-gestures-setup start
