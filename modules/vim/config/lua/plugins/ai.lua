@@ -18,14 +18,14 @@ return {
       backends = {
         anthropic = {
           available_models = {
-            ["claude-3-7-sonnet-latest"] = { max_output_tokens = 64000 },
-            ["claude-3-7-haiku-latest"] = { max_output_tokens = 64000 },
-            ["claude-sonnet-4-0"] = { max_output_tokens = 64000 },
+            ["claude-4-5-haiku-latest"] = { max_output_tokens = 64000 },
+            ["claude-sonnet-4-8"] = { max_output_tokens = 64000 },
+            ["claude-opus-4-8"] = { max_output_tokens = 128000 },
           },
         },
       },
       active_backend = "anthropic",
-      active_model = "claude-sonnet-4-0",
+      active_model = "claude-opus-4-8",
     },
     dependencies = {
       "nvim-lua/plenary.nvim",
