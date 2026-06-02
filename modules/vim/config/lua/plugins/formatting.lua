@@ -48,6 +48,7 @@ return {
           css = { "prettier" },
           scss = { "prettier" },
           less = { "prettier" },
+          openscad = { lsp_format = "fallback" },
         },
       })
 

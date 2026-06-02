@@ -41,27 +41,10 @@ local open_definition_split = function()
 end
 
 return {
-  -- neoconf: A NeoVim configuration plugin written in Lua
-  {
-    "folke/neoconf.nvim",
-    cmd = "Neoconf",
-    dependencies = { "neovim/nvim-lspconfig" },
-  },
-
-  -- neodev: Development tools for neovim plugins
-  {
-    "folke/neodev.nvim",
-    opts = {},
-  },
-
   -- nvim-lspconfig: Collection of common configurations for Neovim's built-in LSP client
   {
     "neovim/nvim-lspconfig",
-    event = "BufReadPre",
-    dependencies = {
-      "folke/neodev.nvim",
-      "folke/neoconf.nvim",
-    },
+    event = "User FilePost",
     config = function()
       --
       -- Customizing how diagnostics are displayed
@@ -118,18 +101,12 @@ return {
         vim.lsp.buf.rename,
         { desc = "[LSP] Rename symbol" }
       )
-      vim.keymap.set(
-        "n",
-        "<C-j>",
-        function() vim.diagnostic.jump({ count = 1 }) end,
-        { desc = "[LSP] Next diagnostic" }
-      )
-      vim.keymap.set(
-        "n",
-        "<C-k>",
-        function() vim.diagnostic.jump({ count = -1 }) end,
-        { desc = "[LSP] Previous diagnostic" }
-      )
+      vim.keymap.set("n", "<C-j>", function()
+        vim.diagnostic.jump({ count = 1 })
+      end, { desc = "[LSP] Next diagnostic" })
+      vim.keymap.set("n", "<C-k>", function()
+        vim.diagnostic.jump({ count = -1 })
+      end, { desc = "[LSP] Previous diagnostic" })
       vim.keymap.set(
         "n",
         "<leader>ca",
@@ -141,11 +118,18 @@ return {
       -- LSP configuration (Neovim 0.11+ API)
       --
 
-      -- Global defaults for all LSP servers
+      -- Global defaults for all LSP servers.
+      -- on_init kills semantic tokens: they're expensive and fight Treesitter
+      -- for ownership of highlighting. Treesitter wins; disable the competition.
       vim.lsp.config("*", {
         flags = {
           debounce_text_changes = 150,
         },
+        on_init = function(client)
+          if client:supports_method("textDocument/semanticTokens") then
+            client.server_capabilities.semanticTokensProvider = nil
+          end
+        end,
       })
 
       -- Load server configs from separate files
@@ -155,6 +139,7 @@ return {
         "eslint",
         "json",
         "lua",
+        "openscad",
         "python",
         "terraform",
         "sql",
@@ -181,7 +166,7 @@ return {
       "nvim-lua/plenary.nvim",
       "neovim/nvim-lspconfig",
     },
-    event = "BufReadPre",
+    event = "User FilePost",
     opts = {},
   },
 }

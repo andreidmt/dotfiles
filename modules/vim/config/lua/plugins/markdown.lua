@@ -1,9 +1,8 @@
--- Hide parts of markdown syntax for easier reading
+-- Show raw markdown syntax (fences, links, bold markers, etc.)
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "markdown",
   callback = function()
-    -- Concealed text is completely hidden.
-    vim.opt_local.conceallevel = 3
+    vim.opt_local.conceallevel = 0
   end,
 })
 
